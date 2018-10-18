@@ -1,0 +1,85 @@
+
+class Produit {
+
+  int _id;
+  int _qteCmder;
+
+  String _name;
+  String _description;
+  String _photo;
+  int _prix;
+  bool _favoris;
+
+
+  Produit.empty(){
+    this._id = -1;
+    this._qteCmder = 1;
+    this._name = null;
+    this._description = null;
+    this._photo = null;
+    this._prix = null;
+    this._favoris = false;
+  }
+
+  Produit(this._id, this._name, this._description, this._prix, this._photo, this._favoris, this._qteCmder);
+
+  Produit.map(dynamic obj) {
+
+    this._id = obj["id"];
+    this._qteCmder = obj["nbCmds"];
+    this._name = obj["name"];
+    this._description = obj["description"];
+    this._photo = obj["photo"];
+    this._prix = obj["prix"];
+    this._favoris = obj["favoris"];
+  }
+
+  int get id => _id;
+  int get nbCmds => _qteCmder;
+  String get name => _name;
+  String get description => _description;
+  int get prix => _prix;
+  String get photo => _photo;
+  bool get isFavoris => _favoris;
+
+
+  set id(int value) {
+    _id = value;
+  }
+
+  Map<String, dynamic> toMap() {
+    var map = new Map<String, dynamic>();
+    map["id"] = _id;
+    map["name"] = _name;
+    map["description"] = _description;
+    map["prix"] = _prix;
+    map["photo"] = _photo;
+    map["favoris"] = _favoris;
+    map["nbCmds"] = _qteCmder;
+    return map;
+  }
+
+  set qteCmder(int value) {
+    _qteCmder = value;
+  }
+
+  set name(String value) {
+    _name = value;
+  }
+
+  set description(String value) {
+    _description = value;
+  }
+
+  set photo(String value) {
+    _photo = value;
+  }
+
+  set prix(int value) {
+    _prix = value;
+  }
+
+  set favoris(bool value) {
+    _favoris = value;
+  }
+}
