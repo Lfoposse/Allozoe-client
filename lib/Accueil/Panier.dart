@@ -11,7 +11,7 @@ class Panier extends StatefulWidget {
 class PanierState extends State<Panier>{
 
   List<Produit> produits;
-  int fraisLivraison ;
+  double fraisLivraison ;
   int index;
 
   @override
@@ -19,25 +19,25 @@ class PanierState extends State<Panier>{
 
     produits = new List();
     index = 0;
-    fraisLivraison = 1000;
+    fraisLivraison = 1000.0;
 
     Produit produit = new Produit.empty();
     produit.name = "Filet de boeuf aux pétits légumes";
-    produit.prix = 10000;
+    produit.prix = 10000.0;
     produit.favoris = true;
     produit.qteCmder = 1;
     produits.add(produit);
 
     produit = new Produit.empty();
     produit.name = "Salade farcis aux oignons";
-    produit.prix = 5000;
+    produit.prix = 5000.0;
     produit.favoris = false;
     produit.qteCmder = 2;
     produits.add(produit);
 
     produit = new Produit.empty();
     produit.name = "Bouillie senegalaise aux piment. Hahaha";
-    produit.prix = 1000;
+    produit.prix = 1000.0;
     produit.favoris = true;
     produit.qteCmder = 10;
     produits.add(produit);
@@ -331,9 +331,9 @@ class PanierState extends State<Panier>{
     );
   }
 
-  int getTotal(){
+  double getTotal(){
 
-    int total = 0;
+    double total = 0.0;
     for(int i = 0; i < produits.length; i++){
       total = total + produits[i].prix * produits[i].nbCmds;
     }

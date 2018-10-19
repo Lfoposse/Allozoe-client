@@ -16,10 +16,11 @@ class NetworkUtil {
       final int statusCode = response.statusCode;
 
       if (/*statusCode < 200 || statusCode > 400 ||*/ json == null) {
-        throw new Exception("Error while fetching data");
+        throw new Exception("Erreur de connexion");
       }
       return _decoder.convert(res);
-    });
+
+    }).catchError((onError) => new Future.error(new Exception(onError.toString())));
   }
 
   Future<dynamic> post(String url, {Map headers, body, encoding}) {
@@ -30,7 +31,7 @@ class NetworkUtil {
       final int statusCode = response.statusCode;
 
       if (/*statusCode < 200 || statusCode > 400 ||*/ json == null) {
-        return new Future.error(new Exception("erreur de connexion"));
+        return new Future.error(new Exception("Erreur de connexion"));
       }
       return _decoder.convert(res);
 

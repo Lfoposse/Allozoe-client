@@ -1,4 +1,4 @@
-import 'package:client_app/Login/LoginScreenPresenter.dart';
+import 'package:client_app/DAO/Presenters/LoginPresenter.dart';
 import 'package:client_app/Models/Client.dart';
 import 'package:flutter/material.dart';
 import 'package:client_app/ConfirmAccountScreen.dart';
@@ -15,7 +15,7 @@ class SignInPasswordScreen extends StatefulWidget {
   createState() => new SignInPasswordScreenState();
 }
 
-class SignInPasswordScreenState extends State<SignInPasswordScreen> implements LoginScreenContract{
+class SignInPasswordScreenState extends State<SignInPasswordScreen> implements LoginContract{
 
   bool _isLoading = false;
   bool _showError = false;
@@ -27,10 +27,10 @@ class SignInPasswordScreenState extends State<SignInPasswordScreen> implements L
   bool hide_content = true;
   static const double padding_from_screen = 30.0;
 
-  LoginScreenPresenter _presenter;
+  LoginPresenter _presenter;
 
   SignInPasswordScreenState() {
-    _presenter = new LoginScreenPresenter(this);
+    _presenter = new LoginPresenter(this);
   }
 
   void _submit() {
@@ -230,7 +230,7 @@ class SignInPasswordScreenState extends State<SignInPasswordScreen> implements L
   }
 
   @override
-  void onLoginError(String errorTxt) {
+  void onLoginError() {
     setState((){
       _isLoading = false;
       _errorMsg = "Mot de passe erroné";

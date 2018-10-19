@@ -1,15 +1,48 @@
+import '../Models/Categorie.dart';
 import 'package:flutter/material.dart';
 import '../Utils/MyBehavior.dart';
+import '../DAO/Presenters/AccueilPresenter.dart';
+import '../Utils/Loading.dart';
+import '../Utils/AppBars.dart';
 
-class Accueil extends StatelessWidget {
+
+class Accueil extends StatefulWidget {
+
+  @override
+  State<StatefulWidget> createState() => new AccueilState();
+}
+
+
+class AccueilState extends State<Accueil> implements AccueilContract{
+
+  int stateIndex;
+  List<Categorie> categories;
+  AccueilPresenter _presenter;
+
+
+  @override
+  void initState() {
+    stateIndex = 0;
+    categories = null;
+    _presenter = new AccueilPresenter(this);
+    _presenter.loadCategorieList();
+  }
+
+
+  void _onRetryClick(){
+    setState(() {
+      stateIndex = 0;
+      _presenter.loadCategorieList();
+    });
+  }
 
 
   @override
   Widget build(BuildContext context) {
 
-    Container getItem() {
+    Container getItem(int sectionIndex, itemIndex) {
       return Container(
-        margin: EdgeInsets.only(right: 15.0),
+        margin: EdgeInsets.only(right: 10.0),
         padding: EdgeInsets.all(8.0),
         color: Colors.white,
         width: 230.0,
@@ -34,7 +67,7 @@ class Accueil extends StatelessWidget {
                 child: Container(
                   width: double.infinity,
                   child: new Text(
-                      "Sandwich au poulet croustillant hhdhh dhdhhdhdhddddd",
+                      categories[sectionIndex].produits[itemIndex].name,
                       textAlign: TextAlign.left,
                       overflow: TextOverflow.ellipsis,
                       style: new TextStyle(
@@ -53,7 +86,8 @@ class Accueil extends StatelessWidget {
                   width: double.infinity,
                   child: Row(
                     children: <Widget>[
-                      Expanded(child: new Text("5,000",
+                      Expanded(child: new Text(
+                          categories[sectionIndex].produits[itemIndex].prix.toString(),
                           textAlign: TextAlign.left,
                           style: new TextStyle(
                             color: Colors.black,
@@ -138,30 +172,20 @@ class Accueil extends StatelessWidget {
       );
     }
 
-    Container getSection(int index) {
-      String getTitle() {
-        switch (index) {
-          case 1:
-            return "Restaurant pres de chez vous";
-          case 2:
-            return "Les meilleurs deals";
-          default:
-            return "Tendances de la semaine";
-        }
-      }
+    Container getSection(int sectionIndex) {
 
       return Container(
         height: 300.0,
-        padding: EdgeInsets.only(top: 15.0, left: 15.0, bottom: 15.0),
+        padding: EdgeInsets.only(top: 5.0, left: 10.0, bottom: 5.0),
         color: Color.fromARGB(200, 255, 255, 255),
         margin: EdgeInsets.only(bottom: 5.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Container(
-              margin: EdgeInsets.only(bottom: 10.0),
+              margin: EdgeInsets.only(bottom: 5.0),
               child: new Text(
-                getTitle(),
+                categories[sectionIndex].name,
                 textAlign: TextAlign.left,
                 style: new TextStyle(
                   color: Colors.black,
@@ -176,9 +200,9 @@ class Accueil extends StatelessWidget {
                 behavior: MyBehavior(),
                 child: new ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount: 8 /*litems.length*/,
-                    itemBuilder: (BuildContext ctxt, int index) {
-                      return getItem();
+                    itemCount: categories[sectionIndex].produits == null ? 0 : categories[sectionIndex].produits.length,
+                    itemBuilder: (BuildContext ctxt, int itemIndex) {
+                      return getItem(sectionIndex, itemIndex);
                     }),
               ),
             )
@@ -187,17 +211,55 @@ class Accueil extends StatelessWidget {
       );
     }
 
-    return Container(
-        color: Colors.black12,
-        child: ScrollConfiguration(
-          behavior: MyBehavior(),
-          child: new ListView.builder(
-              padding: EdgeInsets.all(0.0),
-              scrollDirection: Axis.vertical,
-              itemCount: 3 /*litems.length*/,
-              itemBuilder: (BuildContext ctxt, int index) {
-                return getSection(index);
-              }),
-        ));
+    switch(stateIndex){
+
+      case 0 : return ShowLoadingView();
+
+      case 1 : return ShowLoadingErrorView(_onRetryClick);
+
+      case 2 : return ShowConnectionErrorView(_onRetryClick);
+
+      default : return Column(
+        children: <Widget>[
+          researchBox("Recherche", Colors.white70, Colors.black12, Colors.grey),
+          Flexible(child: Container(
+              color: Colors.black12,
+              child: ScrollConfiguration(
+                behavior: MyBehavior(),
+                child: new ListView.builder(
+                    padding: EdgeInsets.all(0.0),
+                    scrollDirection: Axis.vertical,
+                    itemCount: categories.length ,
+                    itemBuilder: (BuildContext ctxt, int index) {
+                      return getSection(index);
+                    }),
+              )))
+        ],
+      );
+    }
+
   }
+
+  @override
+  void onConnectionError() {
+    setState(() {
+      stateIndex = 2;
+    });
+  }
+
+  @override
+  void onLoadingError() {
+    setState(() {
+      stateIndex = 1;
+    });
+  }
+
+  @override
+  void onLoadingSuccess(List<Categorie> categoriesList) {
+    setState(() {
+      this.categories = categoriesList;
+      stateIndex = 3;
+    });
+  }
+
 }

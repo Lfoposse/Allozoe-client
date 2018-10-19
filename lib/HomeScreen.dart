@@ -92,58 +92,7 @@ class HomeStateScreen extends State<HomeScreen> {
   }
 
 
-  Widget researchBox(String hintText, Color bgdColor, Color textColor, Color borderColor) {
-    return Container(
-      padding: EdgeInsets.only(left: 20.0, right: 20.0),
-      decoration: new BoxDecoration(
-          color: bgdColor,
-          border: new Border(
-            top: BorderSide(
-                color: borderColor, style: BorderStyle.solid, width: 1.0),
-            bottom: BorderSide(
-                color: borderColor, style: BorderStyle.solid, width: 1.0),
-            left: BorderSide(
-                color: borderColor, style: BorderStyle.solid, width: 1.5),
-            right: BorderSide(
-                color: borderColor, style: BorderStyle.solid, width: 1.5),
-          )),
-      child: Row(children: [
-        Icon(Icons.search, color: textColor),
-        Expanded(
-            child: Container(
-                padding: EdgeInsets.only(left: 10.0, right: 10.0),
-                child: TextFormField(
-                    autofocus: false,
-                    autocorrect: false,
-                    maxLines: 1,
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: hintText,
-                        hintStyle: TextStyle(color: textColor)),
-                    style: TextStyle(
-                      fontSize: 12.0,
-                      color: textColor,
-                      fontWeight: FontWeight.bold,
-                    ))))
-      ]),
-    );
-  }
 
-  Widget getResearchBoxIfNeeded() {
-    switch (space_index) {
-      case 1:
-        return researchBox("Recherche par catégorie", Colors.lightGreen, Colors.white70, Colors.lightGreen); // categories
-      case 2:
-        return new Container();
-      case 3:
-        return new Container();
-      case 4:
-        return new Container();
-      default:
-        return researchBox("Recherche", Colors.white70, Colors.black12, Colors.grey); // accueil
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -167,7 +116,6 @@ class HomeStateScreen extends State<HomeScreen> {
           HomeAppBar(
             title: Text(""),
           ),
-          getResearchBoxIfNeeded(),
           Expanded(
             child: getAppropriateScreen(),
           ),

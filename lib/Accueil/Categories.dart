@@ -1,11 +1,35 @@
 import 'package:flutter/material.dart';
 import '../Utils/MyBehavior.dart';
+import '../Utils/Loading.dart';
+import '../Models/Categorie.dart';
+import '../DAO/Presenters/CategoriesPresenter.dart';
+import '../Utils/AppBars.dart';
 
-class Categories extends StatelessWidget {
 
-  Container getItem() {
+class Categories extends StatefulWidget {
+
+  @override
+  State<StatefulWidget> createState() => new CategoriesState();
+}
+
+class CategoriesState extends State<Categories> implements CategoriesContract{
+
+  int stateIndex;
+  List<Categorie> categories;
+  CategoriesPresenter _presenter;
+
+
+  @override
+  void initState() {
+    stateIndex = 0;
+    categories = null;
+    _presenter = new CategoriesPresenter(this);
+    _presenter.loadCategorieList();
+  }
+
+  Container getItem(int index) {
     return Container(
-      padding: EdgeInsets.only(right: 4.0, bottom: 4.0),
+      padding: EdgeInsets.only(right: 8.0, bottom: 8.0),
       color: Colors.white,
       width: 200.0,
       child: Column(
@@ -15,24 +39,30 @@ class Categories extends StatelessWidget {
           Expanded(
             child: Stack(
               children: <Widget>[
-                Image.asset(
-                  'images/plat.png',
-                  width: double.infinity,
-                  height: double.infinity,
-                  fit: BoxFit.cover,
+                Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    decoration: BoxDecoration(
+                        border: Border.all(color: Colors.black),
+                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                        color: Colors.white,
+                        image: new DecorationImage(
+                          fit: BoxFit.cover,
+                          image: AssetImage('images/plat.png'),
+                        )
+                    )
                 ),
-
                 Align(
                   alignment: Alignment.bottomRight,
                   child: Container(
                     margin: EdgeInsets.only(bottom: 5.0, right: 5.0),
-                    child: Text("salade",
-                    style: TextStyle(
-                      color: Colors.lightGreen,
-                      decoration: TextDecoration.none,
-                      fontSize: 14.0,
-                      fontWeight: FontWeight.bold,
-                    )),
+                    child: Text(categories[index].name,
+                        style: TextStyle(
+                          color: Colors.lightGreen,
+                          decoration: TextDecoration.none,
+                          fontSize: 14.0,
+                          fontWeight: FontWeight.bold,
+                        )),
                   ),
                 )
               ],
@@ -44,16 +74,7 @@ class Categories extends StatelessWidget {
     );
   }
 
-  Container getSection(int index) {
-    String getTitle() {
-      switch (index) {
-        case 1:
-          return "D'autres catégories";
-
-        default:
-          return "Meilleures catégories";
-      }
-    }
+  Container getSection() {
 
     return Container(
       padding: EdgeInsets.only(top: 10.0, left: 5.0),
@@ -64,7 +85,7 @@ class Categories extends StatelessWidget {
           Container(
             margin: EdgeInsets.only(bottom: 10.0),
             child: new Text(
-              getTitle(),
+              "Nos différentes catégories",
               textAlign: TextAlign.left,
               style: new TextStyle(
                 color: Colors.black,
@@ -74,37 +95,76 @@ class Categories extends StatelessWidget {
               ),
             ),
           ),
+
           Expanded(
-            child: ScrollConfiguration(
-              behavior: MyBehavior(),
-              child: new ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 8 /*litems.length*/,
-                  itemBuilder: (BuildContext ctxt, int index) {
-                    return getItem();
-                  }),
-            ),
+            child: GridView.builder(
+                padding: EdgeInsets.all(0.0),
+                itemCount: categories.length,
+                gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2),
+                itemBuilder: (BuildContext context, int index) {
+                  return getItem(index);
+                }),
           )
         ],
       ),
     );
   }
 
+  void _onRetryClick(){
+    setState(() {
+      stateIndex = 0;
+      _presenter.loadCategorieList();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-        color: Colors.white,
-        child: Column(
-          children: <Widget>[
-            Expanded(
-              child: getSection(0),
-              flex: 1,
+
+
+
+    switch(stateIndex){
+
+      case 0 : return ShowLoadingView();
+
+      case 1 : return ShowLoadingErrorView(_onRetryClick);
+
+      case 2 : return ShowConnectionErrorView(_onRetryClick);
+
+      default : return Column(
+        children: <Widget>[
+          researchBox("Recherche par catégorie", Colors.lightGreen, Colors.white70, Colors.lightGreen),
+          Flexible(
+            child: Container(
+                color: Colors.white,
+                child:  getSection()
             ),
-            Expanded(
-              child: getSection(1),
-              flex: 1,
-            )
-          ],
-        ));
+          )
+        ],
+      );
+    }
+
+  }
+
+  @override
+  void onConnectionError() {
+    setState(() {
+      stateIndex = 2;
+    });
+  }
+
+  @override
+  void onLoadingError() {
+    setState(() {
+      stateIndex = 1;
+    });
+  }
+
+  @override
+  void onLoadingSuccess(List<Categorie> categories) {
+    setState(() {
+      this.categories = categories;
+      stateIndex = 3;
+    });
   }
 }

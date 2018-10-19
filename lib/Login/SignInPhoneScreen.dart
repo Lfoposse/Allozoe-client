@@ -3,7 +3,7 @@ import 'package:client_app/Utils/MyBehavior.dart';
 import 'SignInPasswordScreen.dart';
 import '../SignUpFirstPageScreen.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
-import 'LoginScreenPresenter.dart';
+import 'package:client_app/DAO/Presenters/LoginPresenter.dart';
 import '../Models/Client.dart';
 
 class SignInPhoneScreen extends StatefulWidget {
@@ -12,7 +12,7 @@ class SignInPhoneScreen extends StatefulWidget {
 }
 
 class SignInPhoneScreenState extends State<SignInPhoneScreen>
-    implements LoginScreenContract{
+    implements LoginContract{
 
   bool _isLoading = false;
   bool _showError = false;
@@ -23,10 +23,10 @@ class SignInPhoneScreenState extends State<SignInPhoneScreen>
   final scaffoldKey = new GlobalKey<ScaffoldState>();
   String _password = "", _username;
 
-  LoginScreenPresenter _presenter;
+  LoginPresenter _presenter;
 
   SignInPhoneScreenState() {
-    _presenter = new LoginScreenPresenter(this);
+    _presenter = new LoginPresenter(this);
   }
 
   void _submit() {
@@ -263,7 +263,7 @@ class SignInPhoneScreenState extends State<SignInPhoneScreen>
   }
 
   @override
-  void onLoginError(String errorTxt) {
+  void onLoginError() {
     setState(() {
       _isLoading = false;
       _errorMsg = "Email non reconnu";

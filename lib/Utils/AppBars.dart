@@ -89,3 +89,41 @@ class HomeAppBarState extends State<HomeAppBar> {
     );
   }
 }
+
+Widget researchBox(String hintText, Color bgdColor, Color textColor, Color borderColor) {
+  return Container(
+    padding: EdgeInsets.only(left: 20.0, right: 20.0),
+    decoration: new BoxDecoration(
+        color: bgdColor,
+        border: new Border(
+          top: BorderSide(
+              color: borderColor, style: BorderStyle.solid, width: 1.0),
+          bottom: BorderSide(
+              color: borderColor, style: BorderStyle.solid, width: 1.0),
+          left: BorderSide(
+              color: borderColor, style: BorderStyle.solid, width: 1.5),
+          right: BorderSide(
+              color: borderColor, style: BorderStyle.solid, width: 1.5),
+        )),
+    child: Row(children: [
+      Icon(Icons.search, color: textColor),
+      Expanded(
+          child: Container(
+              padding: EdgeInsets.only(left: 10.0, right: 10.0),
+              child: TextFormField(
+                  autofocus: false,
+                  autocorrect: false,
+                  maxLines: 1,
+                  keyboardType: TextInputType.text,
+                  decoration: InputDecoration(
+                      border: InputBorder.none,
+                      hintText: hintText,
+                      hintStyle: TextStyle(color: textColor)),
+                  style: TextStyle(
+                    fontSize: 12.0,
+                    color: textColor,
+                    fontWeight: FontWeight.bold,
+                  ))))
+    ]),
+  );
+}

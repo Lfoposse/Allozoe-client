@@ -1,14 +1,19 @@
 
+import 'Restaurant.dart';
+
 class Produit {
 
-  int _id;
   int _qteCmder;
+  bool _favoris;
 
+
+  int _id;
   String _name;
   String _description;
   String _photo;
-  int _prix;
-  bool _favoris;
+  double _prix;
+  Restaurant _restaurant;
+
 
 
   Produit.empty(){
@@ -19,26 +24,25 @@ class Produit {
     this._photo = null;
     this._prix = null;
     this._favoris = false;
+    this._restaurant = null;
   }
 
-  Produit(this._id, this._name, this._description, this._prix, this._photo, this._favoris, this._qteCmder);
 
   Produit.map(dynamic obj) {
 
     this._id = obj["id"];
-    this._qteCmder = obj["nbCmds"];
     this._name = obj["name"];
     this._description = obj["description"];
-    this._photo = obj["photo"];
-    this._prix = obj["prix"];
-    this._favoris = obj["favoris"];
+    //this._photo = obj["image"];
+    this._prix =  double.parse(obj["price"].toString());
+    this._restaurant = Restaurant.map(obj["restaurant"]);
   }
 
   int get id => _id;
   int get nbCmds => _qteCmder;
   String get name => _name;
   String get description => _description;
-  int get prix => _prix;
+  double get prix => _prix;
   String get photo => _photo;
   bool get isFavoris => _favoris;
 
@@ -56,6 +60,7 @@ class Produit {
     map["photo"] = _photo;
     map["favoris"] = _favoris;
     map["nbCmds"] = _qteCmder;
+    map["restaurant"] = _restaurant;
     return map;
   }
 
@@ -75,7 +80,7 @@ class Produit {
     _photo = value;
   }
 
-  set prix(int value) {
+  set prix(double value) {
     _prix = value;
   }
 
