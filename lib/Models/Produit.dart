@@ -30,10 +30,13 @@ class Produit {
 
   Produit.map(dynamic obj) {
 
+    this._qteCmder = 1;
+    this._favoris = false;
+
     this._id = obj["id"];
     this._name = obj["name"];
     this._description = obj["description"];
-    //this._photo = obj["image"];
+    this._photo = obj["image"];
     this._prix =  double.parse(obj["price"].toString());
     this._restaurant = Restaurant.map(obj["restaurant"]);
   }

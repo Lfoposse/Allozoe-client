@@ -27,9 +27,7 @@ class MyNavigationAppBar extends StatelessWidget {
 }
 
 class HomeAppBar extends StatefulWidget {
-  HomeAppBar({this.title});
-
-  final Widget title;
+  HomeAppBar();
 
   @override
   createState() => new HomeAppBarState();
@@ -57,40 +55,25 @@ class HomeAppBarState extends State<HomeAppBar> {
   @override
   Widget build(BuildContext context) {
     return Container(
-    color: Colors.white,
+      color: Colors.grey,
       child: Container(
           height: 56.0, // in logical pixels
           margin: EdgeInsets.only(
               top: _statusBarHeight == 0 ? 40.0 : _statusBarHeight),
-          padding: EdgeInsets.only(left: 8.0, right: 8.0),
-          decoration: BoxDecoration(color: Colors.white),
-          // Row is a horizontal, linear layout.
+          padding: EdgeInsets.only(left: 8.0, right: 8.0,top: 3.0, bottom: 3.0),
+          decoration: BoxDecoration(color: Colors.white,),
           child: Center(
-            child: Row(
-              // <Widget> is the type of items in the list.
-              children: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.menu, color: Colors.black),
-                  tooltip: 'Navigation menu',
-                  onPressed: null, // null disables the button
-                ),
-                // Expanded expands its child to fill the available space.
-                Expanded(
-                  child: widget.title,
-                ),
-                IconButton(
-                  icon: Icon(Icons.arrow_drop_down, color: Colors.lightGreen,),
-                  tooltip: 'Search',
-                  onPressed: null,
-                ),
-              ],
+            child: Image.asset(
+              'images/logo.jpg',
+              fit: BoxFit.fill,
             ),
           )),
     );
   }
 }
 
-Widget researchBox(String hintText, Color bgdColor, Color textColor, Color borderColor) {
+Widget researchBox(
+    String hintText, Color bgdColor, Color textColor, Color borderColor) {
   return Container(
     padding: EdgeInsets.only(left: 20.0, right: 20.0),
     decoration: new BoxDecoration(

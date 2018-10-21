@@ -4,7 +4,8 @@ import '../Utils/MyBehavior.dart';
 import '../DAO/Presenters/AccueilPresenter.dart';
 import '../Utils/Loading.dart';
 import '../Utils/AppBars.dart';
-
+import 'package:positioned_tap_detector/positioned_tap_detector.dart';
+import '../ProductDetailScreen.dart';
 
 class Accueil extends StatefulWidget {
 
@@ -26,6 +27,7 @@ class AccueilState extends State<Accueil> implements AccueilContract{
     categories = null;
     _presenter = new AccueilPresenter(this);
     _presenter.loadCategorieList();
+    super.initState();
   }
 
 
@@ -51,13 +53,20 @@ class AccueilState extends State<Accueil> implements AccueilContract{
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Expanded(
-              child: Container(
-                margin: EdgeInsets.only(bottom: 4.0),
-                child: Image.asset(
-                  'images/plat.png',
-                  width: double.infinity,
-                  height: double.infinity,
-                  fit: BoxFit.cover,
+              child: PositionedTapDetector(
+                onTap: (position){
+                  // afficher la description du produit selectionner
+                  Navigator.of(context).push(
+                      new MaterialPageRoute(builder: (context) => ProductDetailScreen(categories[sectionIndex].produits[itemIndex])));
+                },
+                child: Container(
+                  margin: EdgeInsets.only(bottom: 4.0),
+                  child: Image.network(
+                    categories[sectionIndex].produits[itemIndex].photo,
+                    width: double.infinity,
+                    height: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
               flex: 7,

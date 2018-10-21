@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import '../Utils/MyBehavior.dart';
+import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 import '../Utils/Loading.dart';
 import '../Models/Categorie.dart';
 import '../DAO/Presenters/CategoriesPresenter.dart';
 import '../Utils/AppBars.dart';
+import '../CategorieMenusScreen.dart';
 
 
 class Categories extends StatefulWidget {
@@ -27,49 +28,56 @@ class CategoriesState extends State<Categories> implements CategoriesContract{
     _presenter.loadCategorieList();
   }
 
-  Container getItem(int index) {
-    return Container(
-      padding: EdgeInsets.only(right: 8.0, bottom: 8.0),
-      color: Colors.white,
-      width: 200.0,
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Expanded(
-            child: Stack(
-              children: <Widget>[
-                Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    decoration: BoxDecoration(
-                        border: Border.all(color: Colors.black),
-                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                        color: Colors.white,
-                        image: new DecorationImage(
-                          fit: BoxFit.cover,
-                          image: AssetImage('images/plat.png'),
-                        )
-                    )
-                ),
-                Align(
-                  alignment: Alignment.bottomRight,
-                  child: Container(
-                    margin: EdgeInsets.only(bottom: 5.0, right: 5.0),
-                    child: Text(categories[index].name,
-                        style: TextStyle(
-                          color: Colors.lightGreen,
-                          decoration: TextDecoration.none,
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.bold,
-                        )),
+  PositionedTapDetector getItem(int index) {
+    return PositionedTapDetector(
+      onTap: (position){
+        // afficher la liste des menus de cette categorie
+        Navigator.of(context).push(
+            new MaterialPageRoute(builder: (context) => CategorieMenusScreen(categories[index])));
+      },
+      child: Container(
+        padding: EdgeInsets.only(right: 8.0, bottom: 8.0),
+        color: Colors.white,
+        width: 200.0,
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Expanded(
+              child: Stack(
+                children: <Widget>[
+                  Container(
+                      width: double.infinity,
+                      height: double.infinity,
+                      decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black),
+                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                          color: Colors.white,
+                          image: new DecorationImage(
+                            fit: BoxFit.cover,
+                            image: NetworkImage(categories[index].photo),
+                          )
+                      )
                   ),
-                )
-              ],
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: Container(
+                      margin: EdgeInsets.only(bottom: 5.0, right: 5.0),
+                      child: Text(categories[index].name,
+                          style: TextStyle(
+                            color: Colors.lightGreen,
+                            decoration: TextDecoration.none,
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.bold,
+                          )),
+                    ),
+                  )
+                ],
+              ),
+              flex: 7,
             ),
-            flex: 7,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

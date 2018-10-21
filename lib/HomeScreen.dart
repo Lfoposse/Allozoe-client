@@ -113,9 +113,7 @@ class HomeStateScreen extends State<HomeScreen> {
     return Material(
       child: Column(
         children: <Widget>[
-          HomeAppBar(
-            title: Text(""),
-          ),
+          HomeAppBar(),
           Expanded(
             child: getAppropriateScreen(),
           ),
