@@ -64,7 +64,7 @@ class HomeAppBarState extends State<HomeAppBar> {
           decoration: BoxDecoration(color: Colors.white,),
           child: Center(
             child: Image.asset(
-              'images/logo.jpg',
+              'images/logo-header.png',
               fit: BoxFit.fill,
             ),
           )),

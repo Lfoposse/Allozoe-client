@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'SignInUpScreen.dart';
 import 'Utils/AppSharedPreferences.dart';
-import 'package:client_app/Login/SignInPhoneScreen.dart';
+import 'SignInScreen.dart';
 import 'HomeScreen.dart';
 
 
@@ -31,7 +31,7 @@ class _SplashScreenState extends State<SplashScreen>
       }else{
 
         Navigator.pushReplacement(context, new MaterialPageRoute(builder: (BuildContext context) {
-          return SignInPhoneScreen();
+          return SignInScreen();
         }));
 
       }

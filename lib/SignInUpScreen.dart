@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'SignUpFirstPageScreen.dart';
-import 'package:client_app/Login/SignInPhoneScreen.dart';
+import 'package:client_app/SignInScreen.dart';
 
 
 class SignInUpScreen extends StatelessWidget {
@@ -9,23 +9,23 @@ class SignInUpScreen extends StatelessWidget {
     // Material is a conceptual piece of paper on which the UI appears.
     return Material(
       // Column is a vertical, linear layout.
-      color: Colors.white,
+      //color: Colors.white,
 
       child: Column(
         children: <Widget>[
           Expanded(
             child: Image.asset(
-              'images/plat.png',
+              'images/logo-header.png',
               width: double.infinity,
-              fit: BoxFit.cover,
-            ),
+              fit: BoxFit.fitWidth,
+            ), flex: 9,
           ),
           Column(
             children: <Widget>[
               RaisedButton(
                 onPressed: () {
                   Navigator.of(context).push(new MaterialPageRoute(
-                      builder: (context) => SignInPhoneScreen()));
+                      builder: (context) => SignInScreen()));
                 },
                 child: SizedBox(
                   //width: double.infinity,
@@ -59,7 +59,8 @@ class SignInUpScreen extends StatelessWidget {
                 elevation: 0.0,
               )
             ],
-          )
+          ),
+          Expanded(child: Container(),flex: 1,)
         ],
       ),
     );

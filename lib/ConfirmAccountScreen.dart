@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 import 'ResetPasswordScreen.dart';
 import 'package:client_app/Utils/MyBehavior.dart';
@@ -13,7 +14,7 @@ class ConfirmAccountState extends State<ConfirmAccountScreen> {
   @override
   Widget build(BuildContext context) {
 
-    String user_phone = "+3373388383";
+    String user_email = "manfouo89@gmail.com";
     const double padding_from_screen = 30.0;
 
     Container buildCase() {
@@ -29,6 +30,9 @@ class ConfirmAccountState extends State<ConfirmAccountScreen> {
               autofocus: false,
               autocorrect: false,
               textAlign: TextAlign.center,
+              inputFormatters:[
+                LengthLimitingTextInputFormatter(1),
+              ],
               maxLines: 1,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
@@ -61,6 +65,33 @@ class ConfirmAccountState extends State<ConfirmAccountScreen> {
           ]),
     );
 
+    Widget buttonSection = Container(
+      margin: EdgeInsets.only(top: 20.0),
+        padding: EdgeInsets.only(
+            left: padding_from_screen, right: padding_from_screen, top: 10.0, bottom: 15.0),
+        child: Center(
+          child: RaisedButton(
+            onPressed: () {
+              Navigator.of(context).push(new MaterialPageRoute(
+                  builder: (context) => ResetPasswordScreen()));
+            },
+            child: SizedBox(
+
+              child: Text("VALIDER",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.bold,
+                  )),
+            ),
+            shape: new RoundedRectangleBorder(
+                borderRadius: new BorderRadius.circular(30.0)),
+            textColor: Colors.white,
+            color: Colors.lightGreen,
+            elevation: 1.0,
+          ),
+        ));
+
     return Material(
       child: Scaffold(
         body: Stack(
@@ -84,14 +115,14 @@ class ConfirmAccountState extends State<ConfirmAccountScreen> {
                           children: [
                             new TextSpan(
                                 text:
-                                'Saississez le code à 4 chiffres reçu au numéro ',
+                                'Saississez le code envoyé à l\'adresse ',
                                 style: new TextStyle(
                                   color: Colors.black54,
                                   fontSize: 18.0,
                                   fontWeight: FontWeight.bold,
                                 )),
                             new TextSpan(
-                                text: user_phone,
+                                text: user_email,
                                 style: new TextStyle(
                                   color: Colors.black,
                                   fontSize: 18.0,
@@ -102,15 +133,15 @@ class ConfirmAccountState extends State<ConfirmAccountScreen> {
                       ),
                     ),
                     codeSection,
+                    buttonSection,
                     Row(children: <Widget>[
                       PositionedTapDetector(
                           onTap: (position) {
-                            Navigator.of(context).push(new MaterialPageRoute(
-                                builder: (context) => ResetPasswordScreen()));
+
                           },
                           child: Container(
                             margin: EdgeInsets.only(
-                                left: padding_from_screen, right: padding_from_screen, top: 60.0, bottom: 20.0),
+                                left: padding_from_screen, right: padding_from_screen, top: 30.0, bottom: 20.0),
                             child: Text('J\'ai un problème',
                                 style: new TextStyle(
                                   color: Colors.lightGreen,

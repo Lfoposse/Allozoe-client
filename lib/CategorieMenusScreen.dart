@@ -7,6 +7,7 @@ import 'DAO/Presenters/CategorieMenusPresenter.dart';
 import 'Utils/Loading.dart';
 import 'Utils/MyBehavior.dart';
 import 'ProductDetailScreen.dart';
+import 'Database/DatabaseHelper.dart';
 
 class CategorieMenusScreen extends StatefulWidget {
   Categorie categorie;
@@ -21,9 +22,11 @@ class CategorieMenusScreenState extends State<CategorieMenusScreen>
   int stateIndex;
   List<Produit> produits;
   CategorieMenusPresenter _presenter;
+  DatabaseHelper db;
 
   @override
   void initState() {
+    db = new DatabaseHelper();
     stateIndex = 0;
     produits = null;
     _presenter = new CategorieMenusPresenter(this);
@@ -244,8 +247,13 @@ class CategorieMenusScreenState extends State<CategorieMenusScreen>
           child: PositionedTapDetector(
             onTap: (position){
               // afficher la description du produit selectionner
-              Navigator.of(context).push(
-                  new MaterialPageRoute(builder: (context) => ProductDetailScreen(produits[itemIndex])));
+              db.isInCart(produits[itemIndex]).then((inCart){
+
+                if(!inCart) // si le produit n'a pas encore ete ajouter au panier
+                  Navigator.of(context).push(
+                      new MaterialPageRoute(builder: (context) => ProductDetailScreen(produits[itemIndex])));
+              });
+
             },
             child: Row(
               mainAxisSize: MainAxisSize.max,
@@ -268,7 +276,7 @@ class CategorieMenusScreenState extends State<CategorieMenusScreen>
                               fontWeight: FontWeight.bold,
                             )),
                         Container(
-                          margin: EdgeInsets.symmetric(vertical: 5.0),
+                          margin: EdgeInsets.symmetric(vertical: 3.0),
                           child: Text(produits[itemIndex].description == null || produits[itemIndex].description.length == 0 ?
                               "Aucune description donnée sur ce produit": produits[itemIndex].description,
                               maxLines: 3,

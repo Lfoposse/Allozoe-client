@@ -1,6 +1,11 @@
-import 'package:client_app/Models/Produit.dart';
+import '../Models/Produit.dart';
 import 'package:flutter/material.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
+import '../Database/PanierPresenter.dart';
+import '../Utils/Loading.dart';
+import '../Database/DatabaseHelper.dart';
+import '../Utils/MyBehavior.dart';
+
 
 class Panier extends StatefulWidget {
 
@@ -8,40 +13,29 @@ class Panier extends StatefulWidget {
   State<StatefulWidget> createState() => new PanierState();
 }
 
-class PanierState extends State<Panier>{
+class PanierState extends State<Panier> implements PanierContract{
 
   List<Produit> produits;
   double fraisLivraison ;
-  int index;
+  int stateIndex;
+  DatabaseHelper db;
 
   @override
   void initState() {
 
-    produits = new List();
-    index = 0;
+    db = new DatabaseHelper();
     fraisLivraison = 1000.0;
-
-    Produit produit = new Produit.empty();
-    produit.name = "Filet de boeuf aux pétits légumes";
-    produit.prix = 10000.0;
-    produit.favoris = true;
-    produit.qteCmder = 1;
-    produits.add(produit);
-
-    produit = new Produit.empty();
-    produit.name = "Salade farcis aux oignons";
-    produit.prix = 5000.0;
-    produit.favoris = false;
-    produit.qteCmder = 2;
-    produits.add(produit);
-
-    produit = new Produit.empty();
-    produit.name = "Bouillie senegalaise aux piment. Hahaha";
-    produit.prix = 1000.0;
-    produit.favoris = true;
-    produit.qteCmder = 10;
-    produits.add(produit);
+    _updateView();
+    super.initState();
   }
+
+  _updateView(){
+    setState(() {
+      stateIndex = 0;
+      new PanierPresenter(this).loadPanier();
+    });
+  }
+
 
   Widget researchBox(String hintText, Color bgdColor, Color textColor, Color borderColor) {
     return Container(
@@ -102,8 +96,8 @@ class PanierState extends State<Panier>{
             padding: EdgeInsets.only(left: 5.0, right: 5.0, top: 15.0, bottom: 15.0),
             child: Row(
               children: <Widget>[
-                Expanded(child: Image.asset(
-                  'images/plat.png',
+                Expanded(child: Image.network(
+                  produits[index].photo,
                   width: double.infinity,
                   height: double.infinity,
                   fit: BoxFit.cover,
@@ -111,9 +105,11 @@ class PanierState extends State<Panier>{
                 Expanded(child: Column(
                   children: <Widget>[
                     Container(
-                      margin: EdgeInsets.only(bottom: 15.0, left: 15.0),
+                      margin: EdgeInsets.only(bottom: 12.0, left: 15.0),
                       width: double.infinity,
                       child: Text(produits[index].name,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.left,
                           style: new TextStyle(
                             color: Colors.black,
@@ -124,7 +120,7 @@ class PanierState extends State<Panier>{
                       ,),
                     Container(
                       width: double.infinity,
-                      margin: EdgeInsets.only(left: 15.0),
+                      margin: EdgeInsets.only(left: 15.0, bottom: 12.0),
                       child: Text(
                           produits[index].prix.toString(),
                           textAlign: TextAlign.left,
@@ -134,7 +130,23 @@ class PanierState extends State<Panier>{
                             fontSize: 15.0,
                             fontWeight: FontWeight.bold,
                           )),
-                    )
+                    ),
+
+                    Expanded(child: Container(
+                      width: double.infinity,
+                      margin: EdgeInsets.only(left: 15.0),
+                      child: Text(
+                          produits[index].description == null ? "" : produits[index].description,
+                          maxLines: 4,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.left,
+                          style: new TextStyle(
+                            color: Colors.black,
+                            decoration: TextDecoration.none,
+                            fontSize: 13.0,
+                            fontWeight: FontWeight.normal,
+                          )),
+                    ))
                   ],
                 ), flex: 1,)
               ],
@@ -164,9 +176,12 @@ class PanierState extends State<Panier>{
                         ),
                         PositionedTapDetector(
                           onTap: (position){
-                            setState(() {
-                              produits.removeAt(index);
-                            });
+                            db.deleteProduit(produits[index]);
+                            produits.removeAt(index);
+                            if(produits.length == 0)
+                              _updateView();
+                            else
+                              setState(() {});
                           },
                           child: Text(
                               "SUPPRIMER",
@@ -190,9 +205,9 @@ class PanierState extends State<Panier>{
                         onTap: (position){
 
                           if(produits[index].nbCmds > 1){
-                            setState(() {
-                              produits[index].qteCmder = produits[index].nbCmds - 1;
-                            });
+                            produits[index].qteCmder = produits[index].nbCmds - 1;
+                            db.updateQuantite(produits[index]);
+                            setState(() {});
                           }
                         },
                         child: Container(
@@ -218,9 +233,9 @@ class PanierState extends State<Panier>{
                       ),
                       PositionedTapDetector(
                         onTap: (position){
-                          setState(() {
-                            produits[index].qteCmder = produits[index].nbCmds + 1;
-                          });
+                          produits[index].qteCmder = produits[index].nbCmds + 1;
+                          db.updateQuantite(produits[index]);
+                          setState(() {});
                         },
                         child: Container(
                           decoration: new BoxDecoration(
@@ -254,7 +269,7 @@ class PanierState extends State<Panier>{
                     ),
                     textAlign: TextAlign.left,
                   ),
-                  Text((produits[index].prix * produits[index].nbCmds).toString(),
+                  Text((produits[index].prix * produits[index].nbCmds).truncateToDouble().toString(),
                     style: TextStyle(
                         color: Colors.black,
                         fontSize: 14.0,
@@ -337,14 +352,40 @@ class PanierState extends State<Panier>{
     for(int i = 0; i < produits.length; i++){
       total = total + produits[i].prix * produits[i].nbCmds;
     }
-    return total + fraisLivraison;
+    return (total + fraisLivraison).truncateToDouble();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-        color: Color.fromARGB(25, 0, 0, 0),
-        child: Column(
+  Widget getSceneView(){
+
+    switch(stateIndex){
+
+      case 0 :
+        return Container(color: Colors.white, child: ShowLoadingView(),);
+
+      case 1 : return Container(
+        color: Colors.white,
+        child: Center(child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Container(
+              margin: EdgeInsets.only(bottom: 10.0),
+              child: Icon(Icons.remove_shopping_cart, size: 60.0, color: Colors.lightGreen,),
+            ),
+            Text("Panier vide. \n\nAucun produit trouvé dans le panier",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18.0,
+                  color: Colors.black
+              ),)
+          ],
+        ),),
+      );
+
+      default:
+        return Column(
           children: <Widget>[
             Expanded(
               child: Container(
@@ -386,13 +427,13 @@ class PanierState extends State<Panier>{
 
                     Expanded(
                       child: Container(
-                        child: PageView.builder(
+                        child: ScrollConfiguration(behavior: MyBehavior(), child: PageView.builder(
                             scrollDirection: Axis.horizontal,
                             controller: null,
-                            itemCount: produits.length /*litems.length*/,
+                            itemCount: produits.length,
                             itemBuilder: (BuildContext ctxt, int index) {
                               return getItem(index);
-                            }),
+                            })),
                       ),
                       flex: 7,
                     ),
@@ -411,7 +452,9 @@ class PanierState extends State<Panier>{
                       child: Center(
                         child: PositionedTapDetector(
                             onTap: (position) {
-                              // effectuer l'action associer au bouton
+                              // Commander et vider le panier
+                              db.clearPanier();
+                              _updateView();
                             },
                             child: Container(
                               width: double.infinity,
@@ -445,6 +488,32 @@ class PanierState extends State<Panier>{
               flex: 7,
             ),
           ],
-        ));
+        );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        color: Color.fromARGB(25, 0, 0, 0),
+        child: getSceneView()
+    );
+  }
+
+  @override
+  void onLoadingError() {
+
+    setState(() {
+      stateIndex = 1;
+    });
+  }
+
+  @override
+  void onLoadingSuccess(List<Produit> produits) {
+
+    setState(() {
+      this.produits = produits;
+      stateIndex = 2;
+    });
   }
 }

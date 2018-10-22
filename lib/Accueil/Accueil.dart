@@ -6,6 +6,7 @@ import '../Utils/Loading.dart';
 import '../Utils/AppBars.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 import '../ProductDetailScreen.dart';
+import '../Database/DatabaseHelper.dart';
 
 class Accueil extends StatefulWidget {
 
@@ -19,10 +20,12 @@ class AccueilState extends State<Accueil> implements AccueilContract{
   int stateIndex;
   List<Categorie> categories;
   AccueilPresenter _presenter;
+  DatabaseHelper db;
 
 
   @override
   void initState() {
+    db = new DatabaseHelper();
     stateIndex = 0;
     categories = null;
     _presenter = new AccueilPresenter(this);
@@ -46,7 +49,7 @@ class AccueilState extends State<Accueil> implements AccueilContract{
       return Container(
         margin: EdgeInsets.only(right: 10.0),
         padding: EdgeInsets.all(8.0),
-        color: Colors.white,
+        //color:  db.isInCart(categories[sectionIndex].produits[itemIndex]) ? Colors.black12 : Colors.white,
         width: 230.0,
         child: Column(
           mainAxisSize: MainAxisSize.max,
@@ -56,8 +59,13 @@ class AccueilState extends State<Accueil> implements AccueilContract{
               child: PositionedTapDetector(
                 onTap: (position){
                   // afficher la description du produit selectionner
-                  Navigator.of(context).push(
-                      new MaterialPageRoute(builder: (context) => ProductDetailScreen(categories[sectionIndex].produits[itemIndex])));
+                  db.isInCart(categories[sectionIndex].produits[itemIndex]).then((inCart){
+
+                    if(!inCart)// si le produit n'a pas encore ete ajouter au panier
+                      Navigator.of(context).push(
+                          new MaterialPageRoute(builder: (context) => ProductDetailScreen(categories[sectionIndex].produits[itemIndex])));
+                  });
+
                 },
                 child: Container(
                   margin: EdgeInsets.only(bottom: 4.0),

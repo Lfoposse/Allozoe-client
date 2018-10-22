@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'Utils/AppBars.dart';
 import 'Models/Produit.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
+import 'Database/DatabaseHelper.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   ProductDetailScreen(this.produit);
@@ -233,7 +234,11 @@ class ProductDetailScreenState extends State<ProductDetailScreen> {
                   child: RaisedButton(
                     onPressed: () {
 
-                      //TODO : inserer la commande dans le panier en base de donnees locale
+                      new DatabaseHelper().addProduit(widget.produit).then((insertedId){
+                        if(insertedId > 0) Navigator.of(context).pop();
+                      }).catchError((error){
+                        print("Erreur : " + error.toString());
+                      });
 
                     },
                     child: SizedBox(

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 import '../Utils/AppSharedPreferences.dart';
-import 'package:client_app/Login/SignInPhoneScreen.dart';
+import '../SignInScreen.dart';
 import '../AccountScreen.dart';
 
 class Profil extends StatefulWidget {
@@ -40,7 +40,7 @@ Future<Null> _confirmerDeconnexion(BuildContext context) async {
                   false); // on memorise qu'un compte s'est connecter
               Navigator.of(context).pushAndRemoveUntil(
                   new MaterialPageRoute(
-                      builder: (context) => SignInPhoneScreen()),
+                      builder: (context) => SignInScreen()),
                   ModalRoute.withName(Navigator.defaultRouteName));
             },
           ),
@@ -110,7 +110,7 @@ Future<Null> _changerInfosBancaires(BuildContext context) async {
 }
 
 class ProfilState extends State<Profil> {
-  int index = 0;
+  int index = -1;
 
   Color setButtonsTint(int button_index) {
     Color selectedColor = Colors.lightGreen;
@@ -200,28 +200,32 @@ class ProfilState extends State<Profil> {
       child: Column(
         children: <Widget>[
           Expanded(
-            child: Center(
-              child: Container(
-                  width: 200.0,
-                  height: 200.0,
-                  decoration: new BoxDecoration(
-                    border: new Border.all(
-                        color: Colors.lightGreen,
-                        style: BorderStyle.solid,
-                        width: 4.0),
-                    shape: BoxShape.circle,
-                    image: new DecorationImage(
-                      fit: BoxFit.cover,
-                      image: AssetImage('images/plat.png'),
-                    ),
-                  )),
+            child: Container(
+              color: Colors.white,
+              child: Center(
+                child: Container(
+                    width: 200.0,
+                    height: 200.0,
+                    decoration: new BoxDecoration(
+                      border: new Border.all(
+                          color: Colors.lightGreen,
+                          style: BorderStyle.solid,
+                          width: 4.0),
+                      shape: BoxShape.circle,
+                      image: new DecorationImage(
+                        fit: BoxFit.cover,
+                        image: AssetImage('images/plat.png'),
+                      ),
+                    )),
+              ),
             ),
             flex: 5,
           ),
           buildOptionsButton("Mon profil", 0, true),
           buildOptionsButton("Changer le mot de passe", 1, true),
           buildOptionsButton("Changer les infos de paiement", 2, true),
-          buildOptionsButton("Déconnecter", 3, false),
+          buildOptionsButton("Déconnecter", 3, true),
+          Expanded(child: Container(color: Colors.white,),)
         ],
       ),
     );

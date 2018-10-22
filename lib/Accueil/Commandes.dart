@@ -93,7 +93,7 @@ class CommandesState extends State<Commandes> {
             },
             child: Container(
               height: double.infinity,
-              margin: EdgeInsets.only(right: 5.0),
+              margin: EdgeInsets.only(right: 5.0, left: 5.0),
               decoration: BoxDecoration(border: Border.all(color: cliked == 0 ? Colors.lightGreen : Colors.grey, width: 2.0),),
               child: Center(
                 child: Text("Semaine"),
@@ -147,7 +147,7 @@ class CommandesState extends State<Commandes> {
               _selectDate();
             },
             child: Container(
-              margin: EdgeInsets.only(left: 5.0),
+              margin: EdgeInsets.only(left: 5.0, right: 5.0),
               height: double.infinity,
               decoration: BoxDecoration(border: Border.all(color: cliked == 3 ? Colors.lightGreen : Colors.grey, width: 2.0)),
               child: Center(

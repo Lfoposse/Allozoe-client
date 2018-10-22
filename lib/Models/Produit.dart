@@ -28,6 +28,8 @@ class Produit {
   }
 
 
+  Produit(this._qteCmder, this._favoris, this._id, this._name, this._description, this._photo, this._prix);
+
   Produit.map(dynamic obj) {
 
     this._qteCmder = 1;
@@ -56,14 +58,13 @@ class Produit {
 
   Map<String, dynamic> toMap() {
     var map = new Map<String, dynamic>();
-    map["id"] = _id;
+    map["prod_id"] = _id;
     map["name"] = _name;
     map["description"] = _description;
     map["prix"] = _prix;
     map["photo"] = _photo;
     map["favoris"] = _favoris;
     map["nbCmds"] = _qteCmder;
-    map["restaurant"] = _restaurant;
     return map;
   }
 
