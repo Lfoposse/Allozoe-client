@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:client_app/SignUpFirstPageScreen.dart';
+import 'package:client_app/SignUpScreen.dart';
 
 class Product {
   const Product({this.name});

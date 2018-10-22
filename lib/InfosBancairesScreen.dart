@@ -65,12 +65,11 @@ class SignUpSegondPageScreen extends StatelessWidget {
             left: padding_from_screen, right: padding_from_screen, top: 30.0, bottom: 20.0),
         child: RaisedButton(
           onPressed: () {
-            Navigator.of(context).push(new MaterialPageRoute(
-                builder: (context) => ConfirmAccountScreen()));
+            // todo : Enregistrer la carte
           },
           child: SizedBox(
             width: double.infinity,
-            child: Text("S'INSCRIRE",
+            child: Text("ENREGISTRER",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16.0,

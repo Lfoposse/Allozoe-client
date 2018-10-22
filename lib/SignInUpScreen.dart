@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'SignUpFirstPageScreen.dart';
+import 'SignUpScreen.dart';
 import 'package:client_app/SignInScreen.dart';
 
 
@@ -43,7 +43,7 @@ class SignInUpScreen extends StatelessWidget {
               RaisedButton(
                 onPressed: () {
                   Navigator.of(context).push(new MaterialPageRoute(
-                      builder: (context) => SignUpFirstPageScreen()));
+                      builder: (context) => SignUpScreen()));
                 },
                 child: SizedBox(
 //                  width: double.infinity,

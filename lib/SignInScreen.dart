@@ -1,12 +1,13 @@
+import 'ConfirmAccountScreen.dart';
+import 'SignUpScreen.dart';
 import 'HomeScreen.dart';
 import 'package:flutter/material.dart';
 import 'Utils/MyBehavior.dart';
 import 'Utils/AppSharedPreferences.dart';
-import 'SignUpFirstPageScreen.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 import 'DAO/Presenters/LoginPresenter.dart';
 import 'Models/Client.dart';
-import 'ConfirmAccountScreen.dart';
+import 'EmailRecoveryAccountScreen.dart';
 
 class SignInScreen extends StatefulWidget {
   @override
@@ -24,7 +25,7 @@ class SignInScreenState extends State<SignInScreen>
   final emailKey = new GlobalKey<FormState>();
   final passKey = new GlobalKey<FormState>();
   final scaffoldKey = new GlobalKey<ScaffoldState>();
-  String _password, _username;
+  String _password, _email;
 
   LoginPresenter _presenter;
 
@@ -36,7 +37,7 @@ class SignInScreenState extends State<SignInScreen>
     emailKey.currentState.save();
     passKey.currentState.save();
 
-    if (_username.length == 0 || _password.length == 0) {
+    if (_email.length == 0 || _password.length == 0) {
       setState(() {
         _errorMsg = "Renseigner vos identifiants";
         _showError = true;
@@ -45,7 +46,7 @@ class SignInScreenState extends State<SignInScreen>
       Pattern pattern =
           r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
       RegExp regex = new RegExp(pattern);
-      if (!regex.hasMatch(_username)) {
+      if (!regex.hasMatch(_email)) {
         setState(() {
           _errorMsg = "Email invalide";
           _showError = true;
@@ -55,7 +56,7 @@ class SignInScreenState extends State<SignInScreen>
           _isLoading = true;
           _showError = false;
         });
-        _presenter.doLogin(_username, _password, false);
+        _presenter.doLogin(_email, _password, false);
       }
     }
   }
@@ -108,7 +109,7 @@ class SignInScreenState extends State<SignInScreen>
                     child: Container(
                         padding: EdgeInsets.only(left: 10.0, right: 10.0),
                         child: TextFormField(
-                            onSaved: (val) => _username = val,
+                            onSaved: (val) => _email = val,
 //                        validator: (val) {
 ////                          if(val.length == 0)
 ////                              return "Aucun email entré";
@@ -236,7 +237,7 @@ class SignInScreenState extends State<SignInScreen>
               child: PositionedTapDetector(
                   onTap: (position) {
                     Navigator.of(context).push(new MaterialPageRoute(
-                        builder: (context) => SignUpFirstPageScreen()));
+                        builder: (context) => SignUpScreen()));
                   },
                   child: Text('  S\'inscrire',
                       style: new TextStyle(
@@ -297,7 +298,7 @@ class SignInScreenState extends State<SignInScreen>
                       PositionedTapDetector(
                           onTap: (position) {
                             Navigator.of(context).push(new MaterialPageRoute(
-                                builder: (context) => ConfirmAccountScreen()));
+                                builder: (context) => EmailRecoveryAccountScreen()));
                           },
                           child: Container(
                               margin: EdgeInsets.only(
@@ -318,7 +319,7 @@ class SignInScreenState extends State<SignInScreen>
             Container(
               height: AppBar().preferredSize.height,
               child: AppBar(
-                title: Text('Identification'),
+                title: Text('Connexion au compte'),
                 centerTitle: true,
                 backgroundColor: Colors.transparent,
                 elevation: 0.0,
@@ -341,10 +342,21 @@ class SignInScreenState extends State<SignInScreen>
 
   @override
   void onLoginSuccess(Client client) async {
+
     setState(() => _isLoading = false);
-    AppSharedPreferences().setAppLoggedIn(true); // on memorise qu'un compte s'est connecter
-    Navigator.of(context)
-        .pushAndRemoveUntil(new MaterialPageRoute(builder: (context) => HomeScreen()), ModalRoute.withName(Navigator.defaultRouteName));
+    if(true) { // si le compte est activee
+
+      AppSharedPreferences().setAppLoggedIn(true); // on memorise qu'un compte s'est connecter
+      Navigator.of(context)
+          .pushAndRemoveUntil(
+          new MaterialPageRoute(builder: (context) => HomeScreen()),
+          ModalRoute.withName(Navigator.defaultRouteName));
+
+    }else{ // si le compte n'est pas activee
+
+      Navigator.of(context).push(new MaterialPageRoute(
+          builder: (context) => ConfirmAccountScreen(clientId: client.id, isForResetPassword: false, clientEmail: _email,)));
+    }
   }
 
   @override

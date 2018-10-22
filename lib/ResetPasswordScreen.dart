@@ -2,71 +2,119 @@ import 'package:flutter/material.dart';
 import 'package:client_app/Utils/MyBehavior.dart';
 import 'HomeScreen.dart';
 import 'Utils/AppSharedPreferences.dart';
+import 'DAO/Presenters/ResetPassPresenter.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
+
+  final int clientId;
+  ResetPasswordScreen({@required this.clientId});
+
   @override
   createState() => new ResetPasswordScreenState();
 }
 
-class ResetPasswordScreenState extends State<ResetPasswordScreen> {
-
+class ResetPasswordScreenState extends State<ResetPasswordScreen>
+    implements ResetPassContract {
   static const double padding_from_screen = 30.0;
-  bool hide_content = true;
+
+  bool _showError = false;
+  bool _isLoading = false;
+  String _errorMsg;
+
+  final passKey = new GlobalKey<FormState>();
+  final confirmKey = new GlobalKey<FormState>();
+  final scaffoldKey = new GlobalKey<ScaffoldState>();
+
+  String _pass, _confirm;
+  ResetPassPresenter _presenter;
+
+  ResetPasswordScreenState() {
+    _presenter = new ResetPassPresenter(this);
+  }
+
+  void _showSnackBar(String text) {
+    scaffoldKey.currentState
+        .showSnackBar(new SnackBar(content: new Text(text)));
+  }
+
+  void _submit() {
+    confirmKey.currentState.save();
+    passKey.currentState.save();
+
+    if (_pass.length == 0 || _confirm.length == 0) {
+      setState(() {
+        _errorMsg = "Renseigner tous les champs";
+        _showError = true;
+      });
+    } else if (_pass != _confirm) {
+      setState(() {
+        _errorMsg = "Mot de passe et confirmation différents";
+        _showError = true;
+      });
+    } else {
+      setState(() {
+        _isLoading = true;
+        _showError = false;
+      });
+
+      _presenter.resetPassword(_pass);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    void _update_state() {
-      setState(() {
-        hide_content = !hide_content;
-      });
-    }
-
-    Container buildPassEntry(String hintText) {
+    Container buildPassEntry(key, String hintText) {
       Color color = Colors.black12;
       return Container(
         decoration: new BoxDecoration(border: new Border.all(color: color)),
         padding: EdgeInsets.only(left: 10.0, right: 10.0),
-        child: Row(
-          children: [
-            Expanded(
-                child: Container(
-                    padding: EdgeInsets.only(left: 10.0, right: 10.0),
-                    child: TextFormField(
-                        obscureText: hide_content,
-                        autofocus: false,
-                        autocorrect: false,
-                        maxLines: 1,
-                        keyboardType: TextInputType.text,
-                        decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: hintText,
-                            hintStyle: TextStyle(
-                                color: Colors.black12, fontSize: 14.0)),
-                        style: TextStyle(
-                          fontSize: 16.0,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                        )))),
-//            IconButton(
-//                onPressed: _update_state,
-//                icon: Icon(
-//                  hide_content ? Icons.visibility : Icons.visibility_off,
-//                  color: Colors.grey,
-//                ))
-          ],
-        ),
+        child: Form(
+            key: key,
+            child: Row(
+              children: [
+                Icon(Icons.lock, color: Colors.grey),
+                Expanded(
+                    child: Container(
+                        padding: EdgeInsets.only(left: 10.0, right: 10.0),
+                        child: TextFormField(
+                            onSaved: (val) {
+                              if (key == passKey) {
+                                _pass = val;
+                              } else if (key == confirmKey) {
+                                _confirm = val;
+                              }
+                            },
+                            obscureText: true,
+                            autofocus: false,
+                            autocorrect: false,
+                            maxLines: 1,
+                            keyboardType: TextInputType.text,
+                            decoration: InputDecoration(
+                                border: InputBorder.none,
+                                hintText: hintText,
+                                hintStyle: TextStyle(
+                                    color: Colors.black12, fontSize: 14.0)),
+                            style: TextStyle(
+                              fontSize: 16.0,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            )))),
+              ],
+            )),
       );
     }
 
     Widget buttonSection = Container(
         padding: const EdgeInsets.only(
-            left: padding_from_screen, right: padding_from_screen, top: 40.0, bottom: 20.0),
+            left: padding_from_screen + 20.0,
+            right: padding_from_screen + 20.0,
+            top: 40.0,
+            bottom: 20.0),
         child: RaisedButton(
-          onPressed: () {
-
+          onPressed: (){
             AppSharedPreferences().setAppLoggedIn(true); // on memorise qu'un compte s'est connecter
-            Navigator.of(context)
-                .pushAndRemoveUntil(new MaterialPageRoute(builder: (context) => HomeScreen()), ModalRoute.withName(Navigator.defaultRouteName));
+            Navigator.of(context).pushAndRemoveUntil(
+                new MaterialPageRoute(builder: (context) => HomeScreen()), ModalRoute.withName(Navigator.defaultRouteName));
           },
           child: SizedBox(
             width: double.infinity,
@@ -84,13 +132,35 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
           elevation: 1.0,
         ));
 
+    Widget showError() {
+      return _showError
+          ? Container(
+              margin: EdgeInsets.only(
+                  left: padding_from_screen,
+                  right: padding_from_screen,
+                  top: 15.0),
+              child: Center(
+                child: Text(
+                  _errorMsg,
+                  style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+            )
+          : Container();
+    }
+
     return Material(
       child: Scaffold(
+        key: scaffoldKey,
         body: Stack(
           children: <Widget>[
             ScrollConfiguration(
                 behavior: new MyBehavior(),
-                child: ListView(physics: new ClampingScrollPhysics(), children: [
+                child:
+                    ListView(physics: new ClampingScrollPhysics(), children: [
                   Image.asset(
                     'images/header.jpg',
                     width: double.infinity,
@@ -99,7 +169,10 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   ),
                   Container(
                     margin: EdgeInsets.only(
-                        top: 50.0, bottom: 20.0, left: padding_from_screen, right: padding_from_screen),
+                        top: 20.0,
+                        bottom: 40.0,
+                        left: padding_from_screen,
+                        right: padding_from_screen),
                     child: new Text(
                         'Définissez un nouveau mot de passe pour votre compte',
                         style: new TextStyle(
@@ -110,16 +183,33 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   ),
                   Container(
                     color: Colors.black12,
-                    margin:
-                    EdgeInsets.only(left: padding_from_screen, right: padding_from_screen, bottom: 20.0),
-                    child: buildPassEntry("Saisissez le nouveau mot de passe"),
+                    margin: EdgeInsets.only(
+                        left: padding_from_screen,
+                        right: padding_from_screen,
+                        bottom: 10.0),
+                    child: buildPassEntry(
+                        passKey, "Saisissez le nouveau mot de passe"),
                   ),
                   Container(
                     color: Colors.black12,
-                    margin: EdgeInsets.only(left: padding_from_screen, right: padding_from_screen),
-                    child: buildPassEntry("Confirmer le mot de passe"),
+                    margin: EdgeInsets.only(
+                        left: padding_from_screen, right: padding_from_screen),
+                    child:
+                        buildPassEntry(confirmKey, "Confirmer le mot de passe"),
                   ),
-                  buttonSection
+                  showError(),
+                  _isLoading
+                      ? Container(
+                          padding: const EdgeInsets.only(
+                              left: padding_from_screen,
+                              right: padding_from_screen,
+                              top: 30.0,
+                              bottom: 15.0),
+                          child: Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        )
+                      : buttonSection
                 ])),
             Container(
               height: AppBar().preferredSize.height,
@@ -134,5 +224,28 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void onConnectionError() {
+    _showSnackBar("Échec de connexion. Vérifier votre connexion internet");
+    setState(() => _isLoading = false);
+  }
+
+  @override
+  void onResetError() {
+    setState(() {
+      _isLoading = false;
+      _errorMsg = "Erreur survénue. Réessayez SVP!";
+      _showError = true;
+    });
+  }
+
+  @override
+  void onResetSuccess() {
+
+    AppSharedPreferences().setAppLoggedIn(true); // on memorise qu'un compte s'est connecter
+    Navigator.of(context).pushAndRemoveUntil(
+        new MaterialPageRoute(builder: (context) => HomeScreen()), ModalRoute.withName(Navigator.defaultRouteName));
   }
 }
