@@ -1,36 +1,34 @@
-import '../Models/Restaurant.dart';
+import 'Models/Restaurant.dart';
 import 'package:flutter/material.dart';
-import '../Utils/MyBehavior.dart';
-import '../DAO/Presenters/RestaurantsPresenter.dart';
-import '../Utils/Loading.dart';
-import '../Utils/AppBars.dart';
+import 'Models/Categorie.dart';
+import 'Utils/AppBars.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
-import '../RestaurantCategorizedMenus.dart';
-import '../Database/DatabaseHelper.dart';
-import 'package:location/location.dart';
+import 'DAO/Presenters/CategorieRestaurantsPresenter.dart';
+import 'Utils/Loading.dart';
+import 'Utils/MyBehavior.dart';
+import 'RestaurantMenusScreen.dart';
 
-class Accueil extends StatefulWidget {
+class CategorieRestaurantssScreen extends StatefulWidget {
+  final Categorie categorie;
+  CategorieRestaurantssScreen(this.categorie);
 
   @override
-  State<StatefulWidget> createState() => new AccueilState();
+  State<StatefulWidget> createState() => new CategorieRestaurantsScreenState();
 }
 
-
-class AccueilState extends State<Accueil> implements RestaurantContract{
+class CategorieRestaurantsScreenState extends State<CategorieRestaurantssScreen>
+    implements CategorieRestaurantsContract {
 
   int stateIndex;
   List<Restaurant> restaurants;
-  RestaurantPresenter _presenter;
-  DatabaseHelper db;
+  CategorieRestaurantsPresenter _presenter;
 
 
   @override
   void initState() {
-    db = new DatabaseHelper();
     stateIndex = 0;
-    restaurants = null;
-    _presenter = new RestaurantPresenter(this);
-    _presenter.loadRestaurants();
+    _presenter = new CategorieRestaurantsPresenter(this);
+    _presenter.loadCategorieRestaurantsList(widget.categorie.id);
     super.initState();
   }
 
@@ -38,7 +36,7 @@ class AccueilState extends State<Accueil> implements RestaurantContract{
   void _onRetryClick(){
     setState(() {
       stateIndex = 0;
-      _presenter.loadRestaurants();
+      _presenter.loadCategorieRestaurantsList(widget.categorie.id);
     });
   }
 
@@ -59,9 +57,9 @@ class AccueilState extends State<Accueil> implements RestaurantContract{
             Expanded(
               child: PositionedTapDetector(
                 onTap: (position){
-                  // afficher la description du produit selectionner
+                  //afficher les restaurants dans cette categorie
                   Navigator.of(context).push(
-                      new MaterialPageRoute(builder: (context) => RestaurantCategorizedMenus(restaurants[itemIndex])));
+                      new MaterialPageRoute(builder: (context) => RestaurantMenusScreen(restaurants[itemIndex], widget.categorie)));
 
                 },
                 child: Container(
@@ -212,33 +210,75 @@ class AccueilState extends State<Accueil> implements RestaurantContract{
       );
     }
 
+    Widget getAppropriateScene(){
 
-    switch(stateIndex){
+      switch(stateIndex){
 
-      case 0 : return ShowLoadingView();
+        case 0 : return ShowLoadingView();
 
-      case 1 : return ShowLoadingErrorView(_onRetryClick);
+        case 1 : return ShowLoadingErrorView(_onRetryClick);
 
-      case 2 : return ShowConnectionErrorView(_onRetryClick);
+        case 2 : return ShowConnectionErrorView(_onRetryClick);
 
-      default : return Column(
-        children: <Widget>[
-          researchBox("Recherche", Colors.white70, Colors.black12, Colors.grey),
-          Flexible(child: Container(
-              color: Colors.black12,
-              child: ScrollConfiguration(
-                behavior: MyBehavior(),
-                child: new ListView.builder(
-                    padding: EdgeInsets.all(0.0),
-                    scrollDirection: Axis.vertical,
-                    itemCount: restaurants.length ,
-                    itemBuilder: (BuildContext ctxt, int index) {
-                      return getItem(index);
-                    }),
-              )))
-        ],
-      );
+        default :
+          return Column(
+            children: <Widget>[
+              Expanded(
+                child: Column(
+                  children: <Widget>[
+                    Container(
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: Colors.lightGreen, width: 2.0,)
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 10.0),
+                      child: Center(child: Text(widget.categorie.name, style: TextStyle(color: Colors.lightGreen, fontSize: 26.0, fontWeight: FontWeight.bold))),
+                    ),
+                    Flexible(child: Container(
+                        color: Colors.black12,
+                        child: ScrollConfiguration(
+                          behavior: MyBehavior(),
+                          child: new ListView.builder(
+                              padding: EdgeInsets.all(0.0),
+                              scrollDirection: Axis.vertical,
+                              itemCount: restaurants.length ,
+                              itemBuilder: (BuildContext ctxt, int index) {
+                                return getItem(index);
+                              }),
+                        )))
+                  ],
+                ),
+              ),
+            ],
+          );
+      }
+
     }
+
+    return Material(
+      child: Stack(
+        children: <Widget>[
+          Column(
+            children: <Widget>[
+              HomeAppBar(),
+              Expanded(
+                child: getAppropriateScene(),
+              ),
+            ],
+          ),
+          Container(
+            height: AppBar().preferredSize.height,
+            child: AppBar(
+              iconTheme: IconThemeData(
+                color: Colors.black, //change your color here
+              ),
+              backgroundColor: Colors.transparent,
+              elevation: 0.0,
+            ),
+          )
+        ],
+      ),
+    );
 
   }
 
@@ -263,5 +303,4 @@ class AccueilState extends State<Accueil> implements RestaurantContract{
       stateIndex = 3;
     });
   }
-
 }

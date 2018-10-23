@@ -26,6 +26,7 @@ dependencies:
   easy_alert: ^0.0.2
   sqflite: ^0.12.1
   path_provider: ^0.4.1
+  location: ^1.4.1
 
 dev_dependencies:
   flutter_test:

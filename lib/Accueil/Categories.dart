@@ -4,7 +4,9 @@ import '../Utils/Loading.dart';
 import '../Models/Categorie.dart';
 import '../DAO/Presenters/CategoriesPresenter.dart';
 import '../Utils/AppBars.dart';
-import '../CategorieMenusScreen.dart';
+import '../CategorieRestaurantsScreen.dart';
+import '../RestaurantMenusScreen.dart';
+import 'package:location/location.dart';
 
 
 class Categories extends StatefulWidget {
@@ -23,9 +25,9 @@ class CategoriesState extends State<Categories> implements CategoriesContract{
   @override
   void initState() {
     stateIndex = 0;
-    categories = null;
     _presenter = new CategoriesPresenter(this);
     _presenter.loadCategorieList();
+    super.initState();
   }
 
   PositionedTapDetector getItem(int index) {
@@ -33,7 +35,7 @@ class CategoriesState extends State<Categories> implements CategoriesContract{
       onTap: (position){
         // afficher la liste des menus de cette categorie
         Navigator.of(context).push(
-            new MaterialPageRoute(builder: (context) => CategorieMenusScreen(categories[index])));
+            new MaterialPageRoute(builder: (context) => CategorieRestaurantssScreen(categories[index])));
       },
       child: Container(
         padding: EdgeInsets.only(right: 8.0, bottom: 8.0),

@@ -1,43 +1,44 @@
 import 'Models/Produit.dart';
-import 'package:flutter/material.dart';
 import 'Models/Categorie.dart';
+import 'package:flutter/material.dart';
+import 'Models/Restaurant.dart';
 import 'Utils/AppBars.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
-import 'DAO/Presenters/CategorieMenusPresenter.dart';
+import 'DAO/Presenters/RestaurantMenusPresenter.dart';
 import 'Utils/Loading.dart';
 import 'Utils/MyBehavior.dart';
 import 'ProductDetailScreen.dart';
 import 'Database/DatabaseHelper.dart';
 
-class CategorieMenusScreen extends StatefulWidget {
-  Categorie categorie;
-  CategorieMenusScreen(this.categorie);
+class RestaurantMenusScreen extends StatefulWidget {
+  final Restaurant restaurant;
+  final Categorie categorie;
+  RestaurantMenusScreen(this.restaurant, this.categorie);
 
   @override
-  State<StatefulWidget> createState() => new CategorieMenusScreenState();
+  State<StatefulWidget> createState() => new RestaurantMenusScreenState();
 }
 
-class CategorieMenusScreenState extends State<CategorieMenusScreen>
-    implements CategorieMenusContract {
+class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
+    implements RestaurantMenusContract {
   int stateIndex;
   List<Produit> produits;
-  CategorieMenusPresenter _presenter;
+  RestaurantMenusPresenter _presenter;
   DatabaseHelper db;
 
   @override
   void initState() {
     db = new DatabaseHelper();
     stateIndex = 0;
-    produits = null;
-    _presenter = new CategorieMenusPresenter(this);
-    _presenter.loadCategorieList(widget.categorie.id);
+    _presenter = new RestaurantMenusPresenter(this);
+    _presenter.loadRestaurantMenusList(widget.restaurant.id);
     super.initState();
   }
 
   void _onRetryClick() {
     setState(() {
       stateIndex = 0;
-      _presenter.loadCategorieList(widget.categorie.id);
+      _presenter.loadRestaurantMenusList(widget.restaurant.id);
     });
   }
 
@@ -101,7 +102,7 @@ class CategorieMenusScreenState extends State<CategorieMenusScreen>
             padding: EdgeInsets.all(5.0),
             margin: EdgeInsets.only(bottom: 40.0),
             child: Image.network(
-              widget.categorie.photo,
+              widget.restaurant.photo,
               width: double.infinity,
               height: double.infinity,
               fit: BoxFit.cover,
@@ -133,7 +134,7 @@ class CategorieMenusScreenState extends State<CategorieMenusScreen>
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
                   Text(
-                    widget.categorie.name,
+                    widget.restaurant.name,
                     textAlign: TextAlign.left,
                     style: TextStyle(
                         fontSize: 26.0,
@@ -143,11 +144,12 @@ class CategorieMenusScreenState extends State<CategorieMenusScreen>
                   Container(
                     margin: EdgeInsets.symmetric(vertical: 5.0),
                     child: Text(
-                      "Grillarde. France",
+                      widget.categorie.name,
                       textAlign: TextAlign.left,
                       style: TextStyle(
                         fontSize: 16.0,
                         color: Colors.black54,
+                        fontWeight: FontWeight.bold
                       ),
                     ),
                   ),

@@ -40,7 +40,7 @@ class Produit {
     this._description = obj["description"];
     this._photo = obj["image"];
     this._prix =  double.parse(obj["price"].toString());
-    this._restaurant = Restaurant.map(obj["restaurant"]);
+    //this._restaurant = Restaurant.map(obj["restaurant"]);
   }
 
   int get id => _id;

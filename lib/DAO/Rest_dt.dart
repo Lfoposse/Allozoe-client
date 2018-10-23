@@ -3,6 +3,7 @@ import 'NetworkUtil.dart';
 import '../Models/Client.dart';
 import '../Models/Categorie.dart';
 import '../Models/Produit.dart';
+import '../Models/Restaurant.dart';
 
 class RestDatasource {
 
@@ -11,7 +12,8 @@ class RestDatasource {
   static final LOGIN_URL = BASE_URL + "/auth/login";
   static final LOAD_CATEGORIE_LIST_URL = BASE_URL + "/api/categories";
   static final LOAD_ALL_MENUS_LIST_URL = BASE_URL + "/api/menus";
-
+  static final LOAD_RESTAURANT_LIST_URL = BASE_URL + "/api/restaurants";
+  static final LOAD_CATEGORIE_RESTAURANTS_URL = BASE_URL + "/api/restaurants";
 
 
   ///retourne les informations d'un compte client a partir de ses identifiants
@@ -30,7 +32,7 @@ class RestDatasource {
   }
 
 
-   ///Retourne la liste des produits d'une categorie precise
+  ///Retourne la liste des produits d'une categorie precise
   Future<List<Produit>> loadCategorieMenus(int categorieID) {
     return _netUtil.get(LOAD_CATEGORIE_LIST_URL + "/" + categorieID.toString() + "/menus").then((dynamic res) {
 
@@ -70,5 +72,49 @@ class RestDatasource {
 
     }).catchError((onError) => new Future.error(new Exception(onError.toString())));
   }
+
+
+  ///Retourne la liste des restaurants
+  Future<List<Restaurant>> loadRestaurants() {
+    return _netUtil.get(LOAD_RESTAURANT_LIST_URL).then((dynamic res) {
+
+      print(res.toString());
+      if(res["code"] == 200)
+        return (res['items'] as List).map((item) => new Restaurant.map(item)).toList();
+      else
+        return null as List<Restaurant>;
+
+    }).catchError((onError) => new Future.error(new Exception(onError.toString())));
+  }
+
+
+  ///Retourne la liste des restaurants appartenant a une categorie precise
+  Future<List<Restaurant>> loadCategorieRestaurants(int categorieID) {
+    return _netUtil.get(LOAD_CATEGORIE_LIST_URL + "/" + categorieID.toString() + "/restaurants").then((dynamic res) {
+
+      print(res.toString());
+      if(res["code"] == 200)
+        return (res['items'] as List).map((item) => new Restaurant.map(item)).toList();
+      else
+        return null as List<Restaurant>;
+
+    }).catchError((onError) => new Future.error(new Exception(onError.toString())));
+  }
+
+
+  ///Retourne la liste des produits d'un restaurant precis
+  Future<List<Produit>> loadRestaurantMenus(int restaurantID) {
+    return _netUtil.get(LOAD_RESTAURANT_LIST_URL + "/" + restaurantID.toString() + "/menus").then((dynamic res) {
+
+      print(res.toString());
+      if(res["code"] == 200)
+        return (res['items'] as List).map((item) => new Produit.map(item)).toList();
+      else
+        return null as List<Produit>;
+
+    }).catchError((onError) => new Future.error(new Exception(onError.toString())));
+  }
+
+
 
 }

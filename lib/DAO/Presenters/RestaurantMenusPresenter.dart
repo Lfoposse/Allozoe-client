@@ -1,20 +1,20 @@
 import '../Rest_dt.dart';
 import '../../Models/Produit.dart';
 
-abstract class CategorieMenusContract {
+abstract class RestaurantMenusContract {
   void onLoadingSuccess(List<Produit> produits);
   void onLoadingError();
   void onConnectionError();
 }
 
-class CategorieMenusPresenter {
-  CategorieMenusContract _view;
+class RestaurantMenusPresenter {
+  RestaurantMenusContract _view;
   RestDatasource api = new RestDatasource();
-  CategorieMenusPresenter(this._view);
+  RestaurantMenusPresenter(this._view);
 
 
-  loadCategorieList(int categorieID) {
-    api.loadCategorieMenus(categorieID).then((List<Produit> produits) {
+  loadRestaurantMenusList(int restaurantID) {
+    api.loadRestaurantMenus(restaurantID).then((List<Produit> produits) {
       if (produits != null)
         _view.onLoadingSuccess(produits);
       else
