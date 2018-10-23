@@ -25,7 +25,7 @@ class _SplashScreenState extends State<SplashScreen>
 
         AppSharedPreferences().setAppFirstLaunch(false);
         Navigator.pushReplacement(context, new MaterialPageRoute(builder: (BuildContext context) {
-          return SignInUpScreen();
+          return SignInScreen();
         }));
 
       }else{
@@ -39,7 +39,7 @@ class _SplashScreenState extends State<SplashScreen>
     }, onError: (e){
 
       Navigator.pushReplacement(context, new MaterialPageRoute(builder: (BuildContext context) {
-        return SignInUpScreen();
+        return SignInScreen();
       }));
 
     });

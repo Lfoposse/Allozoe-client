@@ -144,7 +144,7 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
                   Container(
                     margin: EdgeInsets.symmetric(vertical: 5.0),
                     child: Text(
-                      widget.categorie.name,
+                      widget.categorie != null ? widget.categorie.name : "Catégorie inconnu",
                       textAlign: TextAlign.left,
                       style: TextStyle(
                         fontSize: 16.0,
