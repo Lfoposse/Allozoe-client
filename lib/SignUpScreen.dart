@@ -63,7 +63,7 @@ class SignUpScreenState extends State<SignUpScreen> implements SignUpContract{
         });
       } else {
 
-        Client client = new Client(-1, _name, _password, _surname, _email, _selectContry.getSelectedIsoCode() + _phone);
+        Client client = new Client(-1, _name, _password, _surname, _email, "+" + _selectContry.getSelectedPhoneCode() + _phone);
 
         setState(() {
           _isLoading = true;
@@ -86,6 +86,7 @@ class SignUpScreenState extends State<SignUpScreen> implements SignUpContract{
         child: Center(
           child: Text(
             _errorMsg,
+            textAlign: TextAlign.center,
             style: TextStyle(
                 color: Colors.red,
                 fontSize: 14.0,
@@ -183,10 +184,7 @@ class SignUpScreenState extends State<SignUpScreen> implements SignUpContract{
         padding: const EdgeInsets.only(
             left: padding_from_screen, right: padding_from_screen, top: 10.0, bottom: 15.0),
         child: RaisedButton(
-          onPressed: (){ // _submit()
-            Navigator.of(context).push(new MaterialPageRoute(
-                builder: (context) => ConfirmAccountScreen(clientId: -1, isForResetPassword: false, clientEmail: _email,)));
-          },
+          onPressed: _submit,
           child: SizedBox(
             width: double.infinity,
             child: Text("S'INSCRIRE",
@@ -312,11 +310,11 @@ class SignUpScreenState extends State<SignUpScreen> implements SignUpContract{
   }
 
   @override
-  void onSignUpSuccess() {
+  void onSignUpSuccess(int clientID) {
 
     setState(() => _isLoading = false);
     Navigator.of(context).push(new MaterialPageRoute(
-        builder: (context) => ConfirmAccountScreen(clientId: -1, isForResetPassword: false, clientEmail: _email,)));
+        builder: (context) => ConfirmAccountScreen(clientId: clientID, isForResetPassword: false, clientEmail: _email,)));
   }
 
 }

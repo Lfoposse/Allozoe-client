@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 import 'ResetPasswordScreen.dart';
 import 'package:client_app/Utils/MyBehavior.dart';
-import 'DAO/Presenters/ConfirmPresenter.dart';
+import 'DAO/Presenters/ConfirmAccountPresenter.dart';
 import 'HomeScreen.dart';
 import 'Utils/AppSharedPreferences.dart';
 
@@ -18,7 +18,7 @@ class ConfirmAccountScreen extends StatefulWidget {
   createState() => new ConfirmAccountState();
 }
 
-class ConfirmAccountState extends State<ConfirmAccountScreen> implements ConfirmContract{
+class ConfirmAccountState extends State<ConfirmAccountScreen> implements ConfirmAccountContract{
 
   bool _showError = false;
   bool _isLoading = false;
@@ -31,10 +31,10 @@ class ConfirmAccountState extends State<ConfirmAccountScreen> implements Confirm
   final scaffoldKey = new GlobalKey<ScaffoldState>();
 
   String _un, _deux, _trois, _quatre;
-  ConfirmPresenter _presenter;
+  ConfirmAccountPresenter _presenter;
 
   ConfirmAccountState() {
-    _presenter = new ConfirmPresenter(this);
+    _presenter = new ConfirmAccountPresenter(this);
   }
 
   void _showSnackBar(String text) {
@@ -61,7 +61,7 @@ class ConfirmAccountState extends State<ConfirmAccountScreen> implements Confirm
         _showError = false;
       });
 
-      _presenter.verifyCode(code);
+      _presenter.confirmAccount(widget.clientId, code);
     }
   }
 
@@ -73,6 +73,7 @@ class ConfirmAccountState extends State<ConfirmAccountScreen> implements Confirm
       child: Center(
         child: Text(
           _errorMsg,
+          textAlign: TextAlign.center,
           style: TextStyle(
               color: Colors.red,
               fontSize: 14.0,
@@ -82,8 +83,6 @@ class ConfirmAccountState extends State<ConfirmAccountScreen> implements Confirm
     )
         : Container();
   }
-
-
 
 
   @override
@@ -159,19 +158,7 @@ class ConfirmAccountState extends State<ConfirmAccountScreen> implements Confirm
             left: padding_from_screen, right: padding_from_screen, top: 25.0, bottom: 20.0),
         child: Center(
           child: RaisedButton(
-            onPressed: (){ //_submit()
-              if(widget.isForResetPassword) {
-
-                Navigator.of(context).push(new MaterialPageRoute(
-                    builder: (context) => ResetPasswordScreen(clientId: widget.clientId,)));
-
-              }else{
-
-                AppSharedPreferences().setAppLoggedIn(true); // on memorise qu'un compte s'est connecter
-                Navigator.of(context).pushAndRemoveUntil(
-                    new MaterialPageRoute(builder: (context) => HomeScreen()), ModalRoute.withName(Navigator.defaultRouteName));
-              }
-            },
+            onPressed: _submit,
             child: SizedBox(
 
               child: Text("VALIDER",
@@ -262,6 +249,8 @@ class ConfirmAccountState extends State<ConfirmAccountScreen> implements Confirm
       ),
     );
   }
+
+
 
   @override
   void onConfirmError() {

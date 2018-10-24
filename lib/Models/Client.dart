@@ -48,12 +48,12 @@ class Client {
 
   Map<String, dynamic> toMap() {
     var map = new Map<String, dynamic>();
-    map["id"] = _password;
+    map["id"] = _id;
     map["username"] = _username;
     map["password"] = _password;
-    map["lastname"] = _lastname;
+    map["firstname"] = _lastname;
     map["email"] = _email;
-    map["phone"] = _phone;
+    map["phone-number"] = _phone;
     //map["roles"] = _roles;
 
     return map;

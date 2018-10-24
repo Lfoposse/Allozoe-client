@@ -5,7 +5,7 @@ import '../DAO/Presenters/RestaurantsPresenter.dart';
 import '../Utils/Loading.dart';
 import '../Utils/AppBars.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
-import '../RestaurantMenusScreen.dart';
+import '../RestaurantCategorizedMenus.dart';
 import '../Database/DatabaseHelper.dart';
 import 'package:location/location.dart';
 
@@ -61,7 +61,7 @@ class AccueilState extends State<Accueil> implements RestaurantContract{
                 onTap: (position){
                   // afficher la description du produit selectionner
                   Navigator.of(context).push(
-                      new MaterialPageRoute(builder: (context) => RestaurantMenusScreen(restaurants[itemIndex], null)));
+                      new MaterialPageRoute(builder: (context) => RestaurantCategorizedMenus(restaurants[itemIndex])));
 
                 },
                 child: Container(

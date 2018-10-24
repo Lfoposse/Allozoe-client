@@ -28,17 +28,17 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
 
   @override
   void initState() {
-    db = new DatabaseHelper();
     stateIndex = 0;
+    db = new DatabaseHelper();
     _presenter = new RestaurantMenusPresenter(this);
-    _presenter.loadRestaurantMenusList(widget.restaurant.id);
+    _presenter.loadRestaurantCategorieMenusList(widget.restaurant.id, widget.categorie.id);
     super.initState();
   }
 
   void _onRetryClick() {
     setState(() {
       stateIndex = 0;
-      _presenter.loadRestaurantMenusList(widget.restaurant.id);
+      _presenter.loadRestaurantCategorieMenusList(widget.restaurant.id, widget.categorie.id);
     });
   }
 
@@ -238,83 +238,111 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
     );
   }
 
-  Column getItem(itemIndex) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        getDivider(1.0, horizontal: true),
-        Container(
-          height: 150.0,
-          padding: EdgeInsets.symmetric(vertical: 8.0),
-          child: PositionedTapDetector(
-            onTap: (position){
-              // afficher la description du produit selectionner
-              db.isInCart(produits[itemIndex]).then((inCart){
+  Widget getItem(itemIndex) {
+    return FutureBuilder(
+      future: db.getProduit(produits[itemIndex].id),
+        builder: (BuildContext context, AsyncSnapshot snapshot){
+          if(snapshot.hasData){
 
-                if(!inCart) // si le produit n'a pas encore ete ajouter au panier
-                  Navigator.of(context).push(
-                      new MaterialPageRoute(builder: (context) => ProductDetailScreen(produits[itemIndex])));
-              });
+            Produit prod = snapshot.data;
+            bool isProductInCart;
 
-            },
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
+            if(prod.id < 0){ // si le produit n'est pas dans le panier
+              isProductInCart = false;
+            }else {
+              isProductInCart = true;
+              produits[itemIndex].qteCmder = prod.nbCmds;
+            }
+
+            return Column(
+              mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                Expanded(
-                  child: Container(
-                    margin: EdgeInsets.only(right: 15.0, left: 3.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                getDivider(1.0, horizontal: true),
+                Container(
+                  height: 150.0,
+                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                  child: PositionedTapDetector(
+                    onTap: (position){
+                      // afficher la description du produit selectionner
+                      Navigator.of(context).push(
+                          new MaterialPageRoute(builder: (context) => ProductDetailScreen(produits[itemIndex])));
+
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
                       children: <Widget>[
-                        Text(produits[itemIndex].name,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.left,
-                            maxLines: 2,
-                            style: new TextStyle(
-                              color: Colors.black87,
-                              fontSize: 20.0,
-                              fontWeight: FontWeight.bold,
-                            )),
-                        Container(
-                          margin: EdgeInsets.symmetric(vertical: 3.0),
-                          child: Text(produits[itemIndex].description == null || produits[itemIndex].description.length == 0 ?
-                              "Aucune description donnée sur ce produit": produits[itemIndex].description,
-                              maxLines: 3,
-                              textAlign: TextAlign.left,
-                              overflow: TextOverflow.ellipsis,
-                              style: new TextStyle(
-                                color: Colors.black54,
-                                fontSize: 15.0,
-                                fontWeight: FontWeight.normal,
-                              )),
-                        ),
-                        Text(produits[itemIndex].prix.toString(),
-                            textAlign: TextAlign.left,
-                            style: new TextStyle(
-                              color: Colors.lightGreen,
-                              fontSize: 20.0,
-                              fontWeight: FontWeight.bold,
-                            ))
+                        Expanded(
+                          child: Container(
+                            margin: EdgeInsets.only(right: 15.0, left: 3.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(produits[itemIndex].name,
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.left,
+                                    maxLines: 2,
+                                    style: new TextStyle(
+                                      color: Colors.black87,
+                                      fontSize: 20.0,
+                                      fontWeight: FontWeight.bold,
+                                    )),
+                                Container(
+                                  margin: EdgeInsets.symmetric(vertical: 3.0),
+                                  child: Text(produits[itemIndex].description == null || produits[itemIndex].description.length == 0 ?
+                                  "Aucune description donnée sur ce produit": produits[itemIndex].description,
+                                      maxLines: 3,
+                                      textAlign: TextAlign.left,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: new TextStyle(
+                                        color: Colors.black54,
+                                        fontSize: 15.0,
+                                        fontWeight: FontWeight.normal,
+                                      )),
+                                ),
+                                Row(
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: <Widget>[
+                                    Expanded(
+                                        child: Text(produits[itemIndex].prix.toString(),
+                                            textAlign: TextAlign.left,
+                                            style: new TextStyle(
+                                              color: Colors.lightGreen,
+                                              fontSize: 20.0,
+                                              fontWeight: FontWeight.bold,
+                                            )
+                                        )
+                                    ),
+                                    isProductInCart ? Icon(Icons.shopping_cart, color: Color.fromARGB(255, 255, 215, 0),size: 25.0, ) : Container()
+                                  ],
+                                )
+                              ],
+                            ),
+                          ), flex: 3,),
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.only(right: 3.0),
+                            child: Image.network(
+                              produits[itemIndex].photo,
+                              width: double.infinity,
+                              height: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
+                          ), flex: 2,)
                       ],
                     ),
-                  ), flex: 3,),
-                Expanded(
-                  child: Container(
-                    padding: EdgeInsets.only(right: 3.0),
-                    child: Image.network(
-                      produits[itemIndex].photo,
-                      width: double.infinity,
-                      height: double.infinity,
-                      fit: BoxFit.cover,
-                    ),
-                  ), flex: 2,)
+                  ),
+                )
               ],
-            ),
-          ),
-        )
-      ],
+            );
+
+          }else return Container(
+              height: double.infinity,
+              width: double.infinity,
+              child: Center(child: CircularProgressIndicator(),)
+          );
+        }
     );
   }
 

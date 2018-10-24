@@ -127,10 +127,7 @@ class EmailRecoveryAccountScreenState extends State<EmailRecoveryAccountScreen>
             top: 40.0,
             bottom: 15.0),
         child: RaisedButton(
-          onPressed: (){ // _submit
-            Navigator.of(context).push(new MaterialPageRoute(
-                builder: (context) => ConfirmAccountScreen(clientId: -1, isForResetPassword: true, clientEmail: _email,)));
-          },
+          onPressed: _submit,
           child: SizedBox(
             width: double.infinity,
             child: Text("SUIVANT",

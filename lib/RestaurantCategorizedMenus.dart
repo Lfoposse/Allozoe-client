@@ -1,14 +1,14 @@
 import 'Models/Categorie.dart';
 import 'package:flutter/material.dart';
 import 'Utils/MyBehavior.dart';
-import 'DAO/Presenters/AccueilPresenter.dart';
+import 'DAO/Presenters/RestaurantsCategorizedMenusPresenter.dart';
 import 'Utils/Loading.dart';
 import 'Utils/AppBars.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 import 'ProductDetailScreen.dart';
 import 'Models/Restaurant.dart';
 import 'Database/DatabaseHelper.dart';
-import 'package:location/location.dart';
+import 'Models/Produit.dart';
 
 class RestaurantCategorizedMenus extends StatefulWidget {
 
@@ -20,21 +20,21 @@ class RestaurantCategorizedMenus extends StatefulWidget {
 }
 
 
-class RestaurantCategorizedMenusState extends State<RestaurantCategorizedMenus> implements AccueilContract{
+class RestaurantCategorizedMenusState extends State<RestaurantCategorizedMenus> implements RestaurantCategorizedMenusContract{
 
   int stateIndex;
   List<Categorie> categories;
-  AccueilPresenter _presenter;
+  RestaurantCategorizedMenusPresenter _presenter;
   DatabaseHelper db;
 
 
   @override
   void initState() {
-    db = new DatabaseHelper();
     stateIndex = 0;
+    db = new DatabaseHelper();
     categories = null;
-    _presenter = new AccueilPresenter(this);
-    _presenter.loadCategorieList();
+    _presenter = new RestaurantCategorizedMenusPresenter(this);
+    _presenter.loadCategorieList(widget.restaurant.id);
     super.initState();
   }
 
@@ -42,7 +42,7 @@ class RestaurantCategorizedMenusState extends State<RestaurantCategorizedMenus> 
   void _onRetryClick(){
     setState(() {
       stateIndex = 0;
-      _presenter.loadCategorieList();
+      _presenter.loadCategorieList(widget.restaurant.id);
     });
   }
 
@@ -64,12 +64,8 @@ class RestaurantCategorizedMenusState extends State<RestaurantCategorizedMenus> 
               child: PositionedTapDetector(
                 onTap: (position){
                   // afficher la description du produit selectionner
-                  db.isInCart(categories[sectionIndex].produits[itemIndex]).then((inCart){
-
-                    if(!inCart)// si le produit n'a pas encore ete ajouter au panier
-                      Navigator.of(context).push(
-                          new MaterialPageRoute(builder: (context) => ProductDetailScreen(categories[sectionIndex].produits[itemIndex])));
-                  });
+                  Navigator.of(context).push(
+                      new MaterialPageRoute(builder: (context) => ProductDetailScreen(categories[sectionIndex].produits[itemIndex])));
 
                 },
                 child: Container(
@@ -119,7 +115,16 @@ class RestaurantCategorizedMenusState extends State<RestaurantCategorizedMenus> 
                             fontWeight: FontWeight.normal,
                           ))
                       ),
-                      Icon(Icons.shopping_cart, color: Color.fromARGB(255, 255, 215, 0),size: 14.0, ),
+                      FutureBuilder(
+                        future: db.getProduit(categories[sectionIndex].produits[itemIndex].id),
+                        builder: (BuildContext context, AsyncSnapshot snapshot ){
+
+                          if(snapshot.hasData){
+                            Produit prod = snapshot.data;
+                            return prod.id > 0 ? Icon(Icons.shopping_cart, color: Color.fromARGB(255, 255, 215, 0),size: 20.0):Container();
+                          }else return Container();
+                        }
+                      )
                     ],
                   ),
                 ),
@@ -233,32 +238,62 @@ class RestaurantCategorizedMenusState extends State<RestaurantCategorizedMenus> 
       );
     }
 
-    switch(stateIndex){
+    Widget getAppropriateScene(){
 
-      case 0 : return ShowLoadingView();
+      switch(stateIndex){
 
-      case 1 : return ShowLoadingErrorView(_onRetryClick);
+        case 0 : return ShowLoadingView();
 
-      case 2 : return ShowConnectionErrorView(_onRetryClick);
+        case 1 : return ShowLoadingErrorView(_onRetryClick);
 
-      default : return Column(
-        children: <Widget>[
-          researchBox("Recherche", Colors.white70, Colors.black12, Colors.grey),
-          Flexible(child: Container(
-              color: Colors.black12,
-              child: ScrollConfiguration(
-                behavior: MyBehavior(),
-                child: new ListView.builder(
-                    padding: EdgeInsets.all(0.0),
-                    scrollDirection: Axis.vertical,
-                    itemCount: categories.length ,
-                    itemBuilder: (BuildContext ctxt, int index) {
-                      return getSection(index);
-                    }),
-              )))
-        ],
-      );
+        case 2 : return ShowConnectionErrorView(_onRetryClick);
+
+        default :
+          return Column(
+            children: <Widget>[
+              researchBox("Recherche", Colors.white70, Colors.black12, Colors.grey),
+              Flexible(child: Container(
+                  color: Colors.black12,
+                  child: ScrollConfiguration(
+                    behavior: MyBehavior(),
+                    child: new ListView.builder(
+                        padding: EdgeInsets.all(0.0),
+                        scrollDirection: Axis.vertical,
+                        itemCount: categories.length ,
+                        itemBuilder: (BuildContext ctxt, int index) {
+                          return getSection(index);
+                        }),
+                  )))
+            ],
+          );
+      }
+
     }
+
+    return Material(
+      child: Stack(
+        children: <Widget>[
+          Column(
+            children: <Widget>[
+              HomeAppBar(),
+              Expanded(
+                child: getAppropriateScene(),
+              ),
+            ],
+          ),
+          Container(
+            height: AppBar().preferredSize.height,
+            child: AppBar(
+              iconTheme: IconThemeData(
+                color: Colors.black, //change your color here
+              ),
+              backgroundColor: Colors.transparent,
+              elevation: 0.0,
+            ),
+          )
+        ],
+      ),
+    );
 
   }
 

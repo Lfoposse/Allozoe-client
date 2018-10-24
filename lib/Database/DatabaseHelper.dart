@@ -66,6 +66,17 @@ class DatabaseHelper {
   }
 
 
+  Future<Produit> getProduit(int produitID) async {
+    var dbProduit = await db;
+    List<Map> list = await dbProduit.rawQuery('SELECT * FROM Produit WHERE prod_id = ?', [produitID]);
+    print(list.toString());
+    if(list.length > 0)
+    return new Produit(list[0]["nbCmds"], list[0]["favoris"] == 1, list[0]["prod_id"], list[0]["name"], list[0]["description"],
+        list[0]["photo"], list[0]["prix"]);
+    return new Produit.empty();
+  }
+
+
   Future<int> deleteProduit(Produit produit) async {
     var dbProduit = await db;
     int res = await dbProduit.rawDelete('DELETE FROM Produit WHERE prod_id = ?', [produit.id]);

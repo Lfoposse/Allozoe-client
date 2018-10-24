@@ -221,6 +221,14 @@ class ProfilState extends State<Profil> {
             ),
             flex: 5,
           ),
+          Container(
+              decoration: new BoxDecoration(
+                  border: new Border(
+                      top: BorderSide(
+                          color: Colors.grey,
+                          style: BorderStyle.solid,
+                          width: 1.0)),)
+          ),
           buildOptionsButton("Mon profil", 0, true),
           buildOptionsButton("Changer le mot de passe", 1, true),
           buildOptionsButton("Changer les infos de paiement", 2, true),

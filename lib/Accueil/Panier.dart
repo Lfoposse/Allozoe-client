@@ -355,6 +355,13 @@ class PanierState extends State<Panier> implements PanierContract{
     return (total + fraisLivraison).truncateToDouble();
   }
 
+  void _finaliserCommandePanier(){
+
+
+    db.clearPanier();
+    _updateView();
+  }
+
   Widget getSceneView(){
 
     switch(stateIndex){
@@ -452,9 +459,7 @@ class PanierState extends State<Panier> implements PanierContract{
                       child: Center(
                         child: PositionedTapDetector(
                             onTap: (position) {
-                              // Commander et vider le panier
-                              db.clearPanier();
-                              _updateView();
+                              _finaliserCommandePanier();
                             },
                             child: Container(
                               width: double.infinity,

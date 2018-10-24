@@ -8,9 +8,14 @@ class SelectCountry extends StatefulWidget {
   final bool showname;
   final String initialCountryCode;
   String selectedIsoCode;
+  String selectedPhoneCode;
 
   String getSelectedIsoCode() {
     return selectedIsoCode;
+  }
+
+  String getSelectedPhoneCode() {
+    return selectedPhoneCode;
   }
 
   @override
@@ -29,6 +34,7 @@ class SelectCountryState extends State<SelectCountry> {
       builded = true;
     }
     widget.selectedIsoCode = _selectedDialogCountry.isoCode;
+    widget.selectedPhoneCode = _selectedDialogCountry.phoneCode;
 
     Widget _buildDialogItem(Country country) => Row(
           children: <Widget>[
@@ -64,6 +70,7 @@ class SelectCountryState extends State<SelectCountry> {
                   onValuePicked: (Country country) => setState(() {
                         _selectedDialogCountry = country;
                         widget.selectedIsoCode = country.isoCode;
+                        widget.selectedPhoneCode = country.phoneCode;
                       }),
                   itemBuilder: _buildDialogItem)),
         );

@@ -10,6 +10,8 @@ class RestDatasource {
   NetworkUtil _netUtil = new NetworkUtil();
   static final BASE_URL = "http://brservtest.com";
   static final LOGIN_URL = BASE_URL + "/auth/login";
+  static final SIGNUP_URL = BASE_URL + "/api/clients";
+  static final CONFIRM_ACCOUNT_URL = BASE_URL + "/api/clients/";
   static final LOAD_CATEGORIE_LIST_URL = BASE_URL + "/api/categories";
   static final LOAD_ALL_MENUS_LIST_URL = BASE_URL + "/api/menus";
   static final LOAD_RESTAURANT_LIST_URL = BASE_URL + "/api/restaurants";
@@ -29,6 +31,21 @@ class RestDatasource {
       else return null;
 
     }).catchError((onError) => new Future.error(new Exception(onError.toString())));
+  }
+
+
+  // confirmer la possession d'un compte par le code de validation
+  Future<bool> confirmAccount(int clientID, String code) {
+    print("clientID : " + clientID.toString() + ", code : " + code);
+    return _netUtil.post(CONFIRM_ACCOUNT_URL + clientID.toString() + "/account-activation", body: {
+      "code": code,
+    }).then((dynamic res) {
+
+      print(res.toString());
+      if(res["code"] == 200) return true;
+      else return false;
+
+    }).catchError((onError) => new Future.error(false));
   }
 
 
@@ -116,5 +133,36 @@ class RestDatasource {
   }
 
 
+  ///Retourne la liste des produits d'un restaurant precis appartenant a une categorie precise
+  Future<List<Produit>> loadRestaurantCategorieMenus(int restaurantID, categorieID) {
+    return _netUtil.get(LOAD_RESTAURANT_LIST_URL + "/" + restaurantID.toString() + "/menus?category=" + categorieID.toString()).then((dynamic res) {
+
+      print(res.toString());
+      if(res["code"] == 200)
+        return (res['items'] as List).map((item) => new Produit.map(item)).toList();
+      else
+        return null as List<Produit>;
+
+    }).catchError((onError) => new Future.error(new Exception(onError.toString())));
+  }
+
+
+  ///Creer un compte et retourne son identifiant
+  Future<int> signup(Client client) {
+    return _netUtil.post(SIGNUP_URL, body: {
+
+      "username": client.username,
+      "firstname": client.lastname,
+      "phone_number": client.phone,
+      "email":client.email,
+      "password": client.password
+
+    }).then((dynamic res) {
+      print(res.toString());
+      if(res["code"] == 201) return res["data"]["client_id"] as int;
+      else return -1;
+
+    }).catchError((onError) => new Future.error(-1));
+  }
 
 }
