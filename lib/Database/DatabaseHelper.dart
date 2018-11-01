@@ -3,6 +3,7 @@ import 'dart:io' as io;
 
 import 'package:path/path.dart';
 import '../Models/Produit.dart';
+import '../Models/Client.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -22,13 +23,15 @@ class DatabaseHelper {
 
   initDb() async {
     io.Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String path = join(documentsDirectory.path, "allozoeclient.db");
-    var theDb = await openDatabase(path, version: 3, onCreate: _onCreate);
+    String path = join(documentsDirectory.path, "allozoeclientdb.db");
+    var theDb = await openDatabase(path, version: 2, onCreate: _onCreate);
     return theDb;
   }
 
   void _onCreate(Database db, int version) async {
-    // When creating the db, create the table
+    // When creating the db, create the database tables
+
+    // create table produit where store the cart products
     await db.execute(
         "CREATE TABLE Produit("
             "id INTEGER PRIMARY KEY, "
@@ -41,11 +44,63 @@ class DatabaseHelper {
             "nbCmds INTEGER "
             ")"
     );
+
+
+    // create table client where store the connected account informations
+    await db.execute(
+        "CREATE TABLE Client("
+            "id INTEGER PRIMARY KEY, "
+            "client_id INTEGER NOT NULL UNIQUE, "
+            "username TEXT, "
+            "firstname TEXT, "
+            "lastname TEXT, "
+            "email TEXT NOT NULL, "
+            "phone TEXT "
+            ")"
+    );
+  }
+
+
+  /// FONCTION TO DEAL WITH THE CLIENT TABLE
+  Future<Client> loadClient() async {
+    var dbProduit = await db;
+    List<Map> list = await dbProduit.rawQuery('SELECT * FROM Client ');
+    print(list.toString());
+    if(list.length == 1)
+      return new Client(list[0]["client_id"], list[0]["username"], null, list[0]["lastname"], list[0]["email"], list[0]["phone"].toString(), true,
+          list[0]["firstname"]);
+    return null as Future<Client>;
+  }
+
+
+  Future<int> clearClient() async {
+    var dbProduit = await db;
+    int res = await dbProduit.rawDelete('DELETE FROM Client');
+    return res;
+  }
+
+
+  Future<int> saveClient(Client client) async {
+    var dbProduit = await db;
+    int res = await dbProduit.insert("Client", client.toMap());
+    print("saved client id = " + res.toString());
+    return res;
+  }
+
+
+  Future<bool> updateClient(Client client) async {
+    print("update client  = " + client.toMap().toString());
+    var dbProduit = await db;
+    int res =   await dbProduit.update("Client", client.toMap(),
+        where: "client_id = ?", whereArgs: <int>[client.id]);
+    return res > 0 ;
   }
 
 
 
 
+
+  /// FONCTION TO DEAL WITH THE PRODUIT TABLE
   Future<int> addProduit(Produit produit) async {
     var dbProduit = await db;
     int res = await dbProduit.insert("Produit", produit.toMap());
@@ -95,7 +150,7 @@ class DatabaseHelper {
     var dbProduit = await db;
     int res =   await dbProduit.update("Produit", produit.toMap(),
         where: "prod_id = ?", whereArgs: <int>[produit.id]);
-    return res > 0 ? true : false;
+    return res > 0;
   }
 
 

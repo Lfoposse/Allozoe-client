@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'Utils/MyBehavior.dart';
-import 'DAO/Presenters/LoginPresenter.dart';
+import 'DAO/Presenters/EmailRecoveryAccountPresenter.dart';
 import 'Models/Client.dart';
 import 'ConfirmAccountScreen.dart';
 
@@ -10,7 +10,7 @@ class EmailRecoveryAccountScreen extends StatefulWidget {
 }
 
 class EmailRecoveryAccountScreenState extends State<EmailRecoveryAccountScreen>
-    implements LoginContract{
+    implements EmailRecoveryAccountContract{
 
   bool _isLoading = false;
   bool _showError = false;
@@ -21,10 +21,10 @@ class EmailRecoveryAccountScreenState extends State<EmailRecoveryAccountScreen>
   final scaffoldKey = new GlobalKey<ScaffoldState>();
   String _email;
 
-  LoginPresenter _presenter;
+  EmailRecoveryAccountPresenter _presenter;
 
   EmailRecoveryAccountScreenState() {
-    _presenter = new LoginPresenter(this);
+    _presenter = new EmailRecoveryAccountPresenter(this);
   }
 
   void _submit() {
@@ -52,7 +52,7 @@ class EmailRecoveryAccountScreenState extends State<EmailRecoveryAccountScreen>
             _isLoading = true;
             _showError = false;
           });
-          _presenter.doLogin(_email, "", true);
+          _presenter.checkAccount(_email);
         }
       }
 
@@ -212,7 +212,7 @@ class EmailRecoveryAccountScreenState extends State<EmailRecoveryAccountScreen>
   }
 
   @override
-  void onLoginError() {
+  void onLoadingError() {
     setState(() {
       _isLoading = false;
       _errorMsg = "Email non reconnu";
@@ -222,11 +222,11 @@ class EmailRecoveryAccountScreenState extends State<EmailRecoveryAccountScreen>
   }
 
   @override
-  void onLoginSuccess(Client client) async {
+  void onLoadingSuccess(int clientID) async {
 
     setState(() => _isLoading = false);
     Navigator.of(context).push(new MaterialPageRoute(
-        builder: (context) => ConfirmAccountScreen(clientId: -1, isForResetPassword: true, clientEmail: _email,)));
+        builder: (context) => ConfirmAccountScreen(clientId: clientID, isForResetPassword: true, clientEmail: _email,)));
   }
 
   @override

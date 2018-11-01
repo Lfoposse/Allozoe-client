@@ -8,6 +8,7 @@ import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 import 'DAO/Presenters/LoginPresenter.dart';
 import 'Models/Client.dart';
 import 'EmailRecoveryAccountScreen.dart';
+import 'Database/DatabaseHelper.dart';
 
 class SignInScreen extends StatefulWidget {
   @override
@@ -21,6 +22,7 @@ class SignInScreenState extends State<SignInScreen>
   bool hide_content = true;
   String _errorMsg ;
   static const double padding_from_screen = 30.0;
+
 
   final emailKey = new GlobalKey<FormState>();
   final passKey = new GlobalKey<FormState>();
@@ -344,8 +346,9 @@ class SignInScreenState extends State<SignInScreen>
   void onLoginSuccess(Client client) async {
 
     setState(() => _isLoading = false);
-    if(true) { // si le compte est activee
+    if(client.active) { // si le compte est activee
 
+      new DatabaseHelper().saveClient(client);
       AppSharedPreferences().setAppLoggedIn(true); // on memorise qu'un compte s'est connecter
       Navigator.of(context)
           .pushAndRemoveUntil(
@@ -354,8 +357,34 @@ class SignInScreenState extends State<SignInScreen>
 
     }else{ // si le compte n'est pas activee
 
-      Navigator.of(context).push(new MaterialPageRoute(
-          builder: (context) => ConfirmAccountScreen(clientId: client.id, isForResetPassword: false, clientEmail: _email,)));
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          // return object of type Dialog
+          return AlertDialog(
+            title: new Text("Compte non activé"),
+            content: new Text(
+                "Vous n'avez pas encore activé votre compte.\nActivez le afin de vous connecter"),
+            actions: <Widget>[
+              new FlatButton(
+                child: new Text("Annuler"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              new FlatButton(
+                child: new Text("Activer"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).push(new MaterialPageRoute(
+                      builder: (context) => ConfirmAccountScreen(clientId: client.id, isForResetPassword: false, clientEmail: _email,)));
+                },
+              )
+
+            ],
+          );
+        },
+      );
     }
   }
 

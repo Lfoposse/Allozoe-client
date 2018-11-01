@@ -5,6 +5,8 @@ import '../Database/PanierPresenter.dart';
 import '../Utils/Loading.dart';
 import '../Database/DatabaseHelper.dart';
 import '../Utils/MyBehavior.dart';
+import '../RecapitulatifCommande.dart';
+
 
 
 class Panier extends StatefulWidget {
@@ -24,10 +26,11 @@ class PanierState extends State<Panier> implements PanierContract{
   void initState() {
 
     db = new DatabaseHelper();
-    fraisLivraison = 1000.0;
+    fraisLivraison = 0.0;
     _updateView();
     super.initState();
   }
+
 
   _updateView(){
     setState(() {
@@ -122,7 +125,7 @@ class PanierState extends State<Panier> implements PanierContract{
                       width: double.infinity,
                       margin: EdgeInsets.only(left: 15.0, bottom: 12.0),
                       child: Text(
-                          produits[index].prix.toString(),
+                          produits[index].prix.toString() + "€",
                           textAlign: TextAlign.left,
                           style: new TextStyle(
                             color: Colors.lightGreen,
@@ -269,7 +272,7 @@ class PanierState extends State<Panier> implements PanierContract{
                     ),
                     textAlign: TextAlign.left,
                   ),
-                  Text((produits[index].prix * produits[index].nbCmds).truncateToDouble().toString(),
+                  Text((produits[index].prix * produits[index].nbCmds).truncateToDouble().toString() + "€",
                     style: TextStyle(
                         color: Colors.black,
                         fontSize: 14.0,
@@ -304,7 +307,7 @@ class PanierState extends State<Panier> implements PanierContract{
                   ),
                   textAlign: TextAlign.left,
                 ),
-                Text(this.fraisLivraison.toString(),
+                Text(this.fraisLivraison.toString() + "€",
                   style: TextStyle(
                       color: Colors.black38,
                       fontSize: 14.0,
@@ -331,7 +334,7 @@ class PanierState extends State<Panier> implements PanierContract{
                   ),
                   textAlign: TextAlign.left,
                 ),
-                Text(getTotal().toString(),
+                Text(getTotal().toString() + "€",
                   style: TextStyle(
                       color: Colors.black,
                       fontSize: 14.0,
@@ -353,13 +356,6 @@ class PanierState extends State<Panier> implements PanierContract{
       total = total + produits[i].prix * produits[i].nbCmds;
     }
     return (total + fraisLivraison).truncateToDouble();
-  }
-
-  void _finaliserCommandePanier(){
-
-
-    db.clearPanier();
-    _updateView();
   }
 
   Widget getSceneView(){
@@ -459,7 +455,11 @@ class PanierState extends State<Panier> implements PanierContract{
                       child: Center(
                         child: PositionedTapDetector(
                             onTap: (position) {
-                              _finaliserCommandePanier();
+                              Navigator.of(context).push(
+                                  new MaterialPageRoute(builder: (context) => RecapitulatifCommande(produits: produits, fraisLivraison: fraisLivraison,)))
+                              .then((value){
+                                _updateView();
+                              });
                             },
                             child: Container(
                               width: double.infinity,

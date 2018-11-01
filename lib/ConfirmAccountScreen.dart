@@ -6,6 +6,8 @@ import 'package:client_app/Utils/MyBehavior.dart';
 import 'DAO/Presenters/ConfirmAccountPresenter.dart';
 import 'HomeScreen.dart';
 import 'Utils/AppSharedPreferences.dart';
+import 'Models/Client.dart';
+import 'Database/DatabaseHelper.dart';
 
 class ConfirmAccountScreen extends StatefulWidget {
   @override
@@ -61,7 +63,7 @@ class ConfirmAccountState extends State<ConfirmAccountScreen> implements Confirm
         _showError = false;
       });
 
-      _presenter.confirmAccount(widget.clientId, code);
+      _presenter.confirmAccount(widget.clientId, code, widget.isForResetPassword);
     }
   }
 
@@ -262,7 +264,7 @@ class ConfirmAccountState extends State<ConfirmAccountScreen> implements Confirm
   }
 
   @override
-  void onConfirmSuccess() {
+  void onConfirmSuccess(Client client) {
 
     setState(() => _isLoading = false);
     if(widget.isForResetPassword) {
@@ -272,6 +274,7 @@ class ConfirmAccountState extends State<ConfirmAccountScreen> implements Confirm
 
     }else{
 
+      new DatabaseHelper().saveClient(client);
       AppSharedPreferences().setAppLoggedIn(true); // on memorise qu'un compte s'est connecter
       Navigator.of(context).pushAndRemoveUntil(
           new MaterialPageRoute(builder: (context) => HomeScreen()), ModalRoute.withName(Navigator.defaultRouteName));
@@ -283,4 +286,5 @@ class ConfirmAccountState extends State<ConfirmAccountScreen> implements Confirm
     _showSnackBar("Échec de connexion. Vérifier votre connexion internet");
     setState(() => _isLoading = false);
   }
+
 }

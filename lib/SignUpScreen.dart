@@ -15,8 +15,8 @@ class SignUpScreenState extends State<SignUpScreen> implements SignUpContract{
 
   static const double padding_from_screen = 30.0;
   bool _showError = false;
-  bool _isLoading = false;
   String _errorMsg ;
+  bool _isLoading = false;
 
   final nameKey = new GlobalKey<FormState>();
   final surnameKey = new GlobalKey<FormState>();
@@ -63,7 +63,7 @@ class SignUpScreenState extends State<SignUpScreen> implements SignUpContract{
         });
       } else {
 
-        Client client = new Client(-1, _name, _password, _surname, _email, "+" + _selectContry.getSelectedPhoneCode() + _phone);
+        Client client = new Client(-1, _name + " " + _surname, _password, _surname, _email, "+" + _selectContry.getSelectedPhoneCode() + _phone, false, _name);
 
         setState(() {
           _isLoading = true;

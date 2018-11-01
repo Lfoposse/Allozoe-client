@@ -68,6 +68,14 @@ class Produit {
     return map;
   }
 
+  Map<String, dynamic> toMapRequest() {
+    var map = new Map<String, dynamic>();
+    map["id"] = _id;
+    map["quantity"] = _qteCmder;
+    map["options"] = [];
+    return map;
+  }
+
   set qteCmder(int value) {
     _qteCmder = value;
   }

@@ -18,6 +18,8 @@ class AppSharedPreferences {
     return prefs.getBool(_IsFirstLaunch) ?? true;
   }
 
+
+
   /// ----------------------------------------------------------
   /// Method that saves the the first connection to app status
   /// ----------------------------------------------------------
@@ -37,6 +39,7 @@ class AppSharedPreferences {
 
     return prefs.getBool(_IsLoggedIn) ?? false;
   }
+
 
   /// ----------------------------------------------------------
   /// Method that saves the app logged In status

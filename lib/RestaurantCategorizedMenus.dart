@@ -105,7 +105,7 @@ class RestaurantCategorizedMenusState extends State<RestaurantCategorizedMenus> 
                   child: Row(
                     children: <Widget>[
                       Expanded(child: new Text(
-                          categories[sectionIndex].produits[itemIndex].prix.toString(),
+                          categories[sectionIndex].produits[itemIndex].prix.toString()+ "€",
                           textAlign: TextAlign.left,
                           style: new TextStyle(
                             color: Colors.black,

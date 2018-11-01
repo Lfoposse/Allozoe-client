@@ -12,11 +12,10 @@ class ResetPassPresenter {
   RestDatasource api = new RestDatasource();
   ResetPassPresenter(this._view);
 
-  resetPassword(String password) {
-    api.login("", "", false).then((Client client) {
-      if (client != null)
-        _view.onResetSuccess();
-      else
+  resetPassword(int clientID, String password) {
+    api.resetPass(clientID, password).then((bool resetSuccess) {
+      resetSuccess ?
+        _view.onResetSuccess() :
         _view.onResetError();
     }).catchError((onError){
       _view.onConnectionError();

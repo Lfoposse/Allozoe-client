@@ -12,8 +12,8 @@ class RestaurantPresenter {
   RestDatasource api = new RestDatasource();
   RestaurantPresenter(this._view);
 
-  loadRestaurants() {
-    api.loadRestaurants().then((List<Restaurant> restaurants) {
+  loadRestaurants(double latitude, double longitude) {
+    api.loadRestaurants(latitude, longitude).then((List<Restaurant> restaurants) {
       if (restaurants != null)
         _view.onLoadingSuccess(restaurants);
       else

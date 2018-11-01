@@ -305,7 +305,7 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
                                   mainAxisSize: MainAxisSize.max,
                                   children: <Widget>[
                                     Expanded(
-                                        child: Text(produits[itemIndex].prix.toString(),
+                                        child: Text(produits[itemIndex].prix.toString() + "€",
                                             textAlign: TextAlign.left,
                                             style: new TextStyle(
                                               color: Colors.lightGreen,

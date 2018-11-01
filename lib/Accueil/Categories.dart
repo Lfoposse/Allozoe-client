@@ -5,8 +5,6 @@ import '../Models/Categorie.dart';
 import '../DAO/Presenters/CategoriesPresenter.dart';
 import '../Utils/AppBars.dart';
 import '../CategorieRestaurantsScreen.dart';
-import '../RestaurantMenusScreen.dart';
-import 'package:location/location.dart';
 
 
 class Categories extends StatefulWidget {
@@ -59,17 +57,23 @@ class CategoriesState extends State<Categories> implements CategoriesContract{
                             fit: BoxFit.cover,
                             image: NetworkImage(categories[index].photo),
                           )
-                      )
+                      ),
+                    child: Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                            color: Color.fromARGB(100, 0, 0, 0)
+                        ),
+                    ),
                   ),
                   Align(
-                    alignment: Alignment.bottomRight,
+                    alignment: Alignment.center,
                     child: Container(
                       margin: EdgeInsets.only(bottom: 5.0, right: 5.0),
                       child: Text(categories[index].name,
                           style: TextStyle(
-                            color: Colors.lightGreen,
+                            color: Colors.white,
                             decoration: TextDecoration.none,
-                            fontSize: 14.0,
+                            fontSize: 16.0,
                             fontWeight: FontWeight.bold,
                           )),
                     ),

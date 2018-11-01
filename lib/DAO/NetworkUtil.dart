@@ -11,10 +11,12 @@ class NetworkUtil {
   final JsonDecoder _decoder = new JsonDecoder();
 
   Future<dynamic> get(String url) {
+    print(url.toString());
     return http.get(url).then((http.Response response) {
       final String res = response.body;
       final int statusCode = response.statusCode;
 
+      print(res.toString());
       if (/*statusCode < 200 || statusCode > 400 ||*/ json == null) {
         throw new Exception("Erreur de connexion");
       }
@@ -24,6 +26,7 @@ class NetworkUtil {
   }
 
   Future<dynamic> post(String url, {Map headers, body, encoding}) {
+    print(body.toString());
     return http
         .post(url, body: body, headers: headers, encoding: encoding)
         .then((http.Response response) {
@@ -33,6 +36,25 @@ class NetworkUtil {
       if (/*statusCode < 200 || statusCode > 400 ||*/ json == null) {
         return new Future.error(new Exception("Erreur de connexion"));
       }
+      print(res.toString());
+      return _decoder.convert(res);
+
+    }).catchError((onError) => new Future.error(new Exception(onError.toString())));
+  }
+
+
+  Future<dynamic> put(String url, {Map headers, body, encoding}) {
+    print(body.toString());
+    return http
+        .put(url, body: body, headers: headers, encoding: encoding)
+        .then((http.Response response) {
+      final String res = response.body;
+      final int statusCode = response.statusCode;
+
+      if (/*statusCode < 200 || statusCode > 400 ||*/ json == null) {
+        return new Future.error(new Exception("Erreur de connexion"));
+      }
+      print(res.toString());
       return _decoder.convert(res);
 
     }).catchError((onError) => new Future.error(new Exception(onError.toString())));

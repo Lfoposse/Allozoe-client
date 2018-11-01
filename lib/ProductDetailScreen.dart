@@ -116,7 +116,7 @@ class ProductDetailScreenState extends State<ProductDetailScreen> {
                             MainAxisAlignment.spaceBetween,
                             children: <Widget>[
                               Text(
-                                widget.produit.prix.toString(),
+                                widget.produit.prix.toString() + "€",
                                 style: TextStyle(
                                     color: Colors.lightGreen,
                                     fontSize: 16.0,

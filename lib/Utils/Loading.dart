@@ -16,7 +16,7 @@ class ShowLoadingView extends StatelessWidget {
               padding: EdgeInsets.all(20.0),
               child: CircularProgressIndicator(),
             ),
-            Text("Loading datas",
+            Text("Chargement",
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 16.0
@@ -53,7 +53,7 @@ class ShowConnectionErrorView extends StatelessWidget {
                   child: Icon(Icons.refresh, size: 50.0, color: Colors.blue,)
               ),
             ),
-            Text("It seems that your device has no internet connection.\nPlease check it and retry",
+            Text("Il semble que votre appareil n'est pas connecté à internet.\nVerifiez puis reéssayez",
               textAlign: TextAlign.center,
               style: TextStyle(
                   fontWeight: FontWeight.bold,
@@ -93,7 +93,7 @@ class ShowLoadingErrorView extends StatelessWidget {
                   child: Icon(Icons.refresh, size: 50.0, color: Colors.blue,)
               ),
             ),
-            Text("An error occured. Please retry",
+            Text("Une erreur innattendue est survénue.\nReéssayez",
               style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16.0

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:client_app/Utils/MyBehavior.dart';
-import 'HomeScreen.dart';
+import 'SignInScreen.dart';
 import 'Utils/AppSharedPreferences.dart';
 import 'DAO/Presenters/ResetPassPresenter.dart';
 
@@ -57,7 +57,7 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen>
         _showError = false;
       });
 
-      _presenter.resetPassword(_pass);
+      _presenter.resetPassword(widget.clientId, _pass);
     }
   }
 
@@ -111,11 +111,7 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen>
             top: 40.0,
             bottom: 20.0),
         child: RaisedButton(
-          onPressed: (){
-            AppSharedPreferences().setAppLoggedIn(true); // on memorise qu'un compte s'est connecter
-            Navigator.of(context).pushAndRemoveUntil(
-                new MaterialPageRoute(builder: (context) => HomeScreen()), ModalRoute.withName(Navigator.defaultRouteName));
-          },
+          onPressed: _submit,
           child: SizedBox(
             width: double.infinity,
             child: Text("MODIFIER",
@@ -244,8 +240,31 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen>
   @override
   void onResetSuccess() {
 
-    AppSharedPreferences().setAppLoggedIn(true); // on memorise qu'un compte s'est connecter
-    Navigator.of(context).pushAndRemoveUntil(
-        new MaterialPageRoute(builder: (context) => HomeScreen()), ModalRoute.withName(Navigator.defaultRouteName));
+    setState(() {_isLoading = false;});
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Succès"),
+          content: new Text(
+              "Le mot de passe de votre compte a ete réinitialiser avec succès.\nConnectez vous avec vos nouveaux identifiants"),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pop();
+                AppSharedPreferences().setAppLoggedIn(true); // on memorise qu'un compte s'est connecter
+                Navigator.of(context).pushAndRemoveUntil(
+                    new MaterialPageRoute(builder: (context) => SignInScreen()), ModalRoute.withName(Navigator.defaultRouteName));
+              },
+            ),
+
+          ],
+        );
+      },
+    );
+
   }
 }
