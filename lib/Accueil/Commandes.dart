@@ -8,6 +8,9 @@ import '../Utils/Loading.dart';
 import '../DetailsCommande.dart';
 import '../Models/Client.dart';
 import '../Database/DatabaseHelper.dart';
+import '../Utils/CommandStatusHelper.dart';
+
+
 
 class Commandes extends StatefulWidget {
   @override
@@ -238,10 +241,10 @@ class CommandesState extends State<Commandes>
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Text(/*"Status: " +*/ (this.commandes[index].status.name == "PENDING" ? "En attente de livraison" : this.commandes[index].status.name),
+                Text(getStatusCommandValue(this.commandes[index].status),
                     textAlign: TextAlign.left,
                     style: new TextStyle(
-                      color: this.commandes[index].status.name == "PENDING" ? Colors.black : Colors.black,
+                      color: getStatusCommandValueColor(this.commandes[index].status),
                       decoration: TextDecoration.none,
                       fontSize: 16.0,
                       fontWeight: FontWeight.bold,

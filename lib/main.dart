@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'SignInUpScreen.dart';
 import 'Utils/AppSharedPreferences.dart';
 import 'SignInScreen.dart';
 import 'HomeScreen.dart';

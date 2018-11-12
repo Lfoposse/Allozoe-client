@@ -1,5 +1,6 @@
 import 'Restaurant.dart';
 import 'StatusCommande.dart';
+import 'Deliver.dart';
 
 class Commande {
 
@@ -7,9 +8,12 @@ class Commande {
   String _reference;
   String _date;
   String _heure;
+  String _deliveryAddress;
   double _prix;
   Restaurant _restaurant;
   StatusCommande _status;
+  Deliver _deliver;
+
 
 
 
@@ -21,23 +25,15 @@ class Commande {
     this._status = null;
     this._date = null;
     this._heure = null;
-  }
-
-
-  Commande(this._id, this._reference, this._date, this._heure, this._prix, this._restaurant,
-      this._status);
-
-
-  int get id => _id;
-
-  set id(int value) {
-    _id = value;
+    this._deliver = null;
+    this._deliveryAddress = null;
   }
 
   Commande.map(dynamic obj) {
 
     this._id = obj["id"];
     this._reference = obj["reference"];
+    this._deliveryAddress = obj["delivery_address"];
     this._date = obj["date"];
     this._heure = obj["hour"];
     this._prix =  double.parse(obj["amount"].toString());
@@ -53,10 +49,31 @@ class Commande {
     map["date"] = _date;
     map["hour"] = _heure;
     map["amount"] = _prix;
+    map["deliveryAddress"] = _deliveryAddress;
     map["restaurant"] = _restaurant.toMap();
     map["status"] = _status.toMap();
 
     return map;
+  }
+
+
+  int get id => _id;
+
+  set id(int value) {
+    _id = value;
+  }
+
+  String get deliveryAddress => _deliveryAddress;
+
+  set deliveryAddress(String value) {
+    _deliveryAddress = value;
+  }
+
+
+  Deliver get deliver => _deliver;
+
+  set deliver(Deliver value) {
+    _deliver = value;
   }
 
   String get reference => _reference;

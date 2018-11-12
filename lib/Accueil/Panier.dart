@@ -1,4 +1,7 @@
+import '../Models/Complement.dart';
+
 import '../Models/Produit.dart';
+import '../Models/Client.dart';
 import 'package:flutter/material.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 import '../Database/PanierPresenter.dart';
@@ -79,6 +82,7 @@ class PanierState extends State<Panier> implements PanierContract{
     );
   }
 
+
   Widget getDivider(double height, {bool horizontal}){
 
     return Container(
@@ -88,13 +92,114 @@ class PanierState extends State<Panier> implements PanierContract{
     );
   }
 
+
+  Widget getOptionsSection(int prod_index) {
+
+    List<Complement> complements = new List();
+    for(int i = 0; i < produits[prod_index].options.length; i++)
+      for(int j = 0; j < produits[prod_index].options[i].complements.length; j++)
+        complements.add(produits[prod_index].options[i].complements[j]);
+
+    return Container(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Container(
+              padding: EdgeInsets.only(left: 10.0),
+              child: Text("Complements (" + complements.length.toString() + " produits)",
+                style: TextStyle(
+                    color: Colors.blueGrey,
+                    fontSize: 15.0,
+                    fontWeight: FontWeight.bold
+                ),
+              ),
+            ),
+            Expanded(child: Container(
+              child: ScrollConfiguration(
+                  behavior: MyBehavior(),
+                  child: ListView.builder(
+                    padding: EdgeInsets.all(0.0),
+                      scrollDirection: Axis.vertical,
+                      itemCount: complements.length,
+                      itemBuilder: (BuildContext ctxt, int index) {
+                        return getComplementItem(complements[index]);
+                      })),
+            ))
+          ],
+        ));
+  }
+
+
+  Widget getComplementItem(Complement complement){
+
+    return Container(
+      height: 80.0,
+      margin: EdgeInsets.symmetric(vertical: 5.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Expanded(
+            child: Image.network(
+              complement.image,
+              width: double.infinity,
+              height: double.infinity,
+              fit: BoxFit.contain,
+            ), flex: 2,
+          ),
+          Expanded(child: Container(
+            margin: EdgeInsets.symmetric(horizontal: 10.0),
+            height: double.infinity,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisSize: MainAxisSize.max,
+              children: <Widget>[
+                Text(complement.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                        color: Colors.grey,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14.0
+                    )
+                ),
+                Text(complement.price == 0 ? "Offert" : complement.price.toString() + " €",
+                    style: TextStyle(
+                        color: Colors.lightGreen,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14.0
+                    )
+                )
+              ],
+            ),
+          ),flex: 3,)
+        ],
+      ),
+    );
+  }
+
+
+  double getItemTotal(int index){
+
+    double total = produits[index].prix;
+    if(produits[index].options == null || produits[index].options.length == 0) return total * produits[index].nbCmds;
+    for(int i = 0; i < produits[index].options.length; i++){
+      if(produits[index].options[i].complements == null || produits[index].options[i].complements.length == 0) continue;
+      for(int j = 0; j < produits[index].options[i].complements.length; j++){
+        if(produits[index].options[i].complements[j].selected)
+          total += produits[index].options[i].complements[j].price;
+      }
+    }
+    return total * produits[index].nbCmds;
+  }
+
+
   Widget getItem(int index){
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.0),
       child: Column(
         children: <Widget>[
-
           Expanded(child: Container(
             padding: EdgeInsets.only(left: 5.0, right: 5.0, top: 15.0, bottom: 15.0),
             child: Row(
@@ -105,53 +210,55 @@ class PanierState extends State<Panier> implements PanierContract{
                   height: double.infinity,
                   fit: BoxFit.cover,
                 ), flex: 1,),
-                Expanded(child: Column(
-                  children: <Widget>[
-                    Container(
-                      margin: EdgeInsets.only(bottom: 12.0, left: 15.0),
-                      width: double.infinity,
-                      child: Text(produits[index].name,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.left,
-                          style: new TextStyle(
-                            color: Colors.black,
-                            decoration: TextDecoration.none,
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.bold,
-                          ))
-                      ,),
-                    Container(
-                      width: double.infinity,
-                      margin: EdgeInsets.only(left: 15.0, bottom: 12.0),
-                      child: Text(
-                          produits[index].prix.toString() + "€",
-                          textAlign: TextAlign.left,
-                          style: new TextStyle(
-                            color: Colors.lightGreen,
-                            decoration: TextDecoration.none,
-                            fontSize: 15.0,
-                            fontWeight: FontWeight.bold,
-                          )),
-                    ),
-
-                    Expanded(child: Container(
-                      width: double.infinity,
-                      margin: EdgeInsets.only(left: 15.0),
-                      child: Text(
-                          produits[index].description == null ? "" : produits[index].description,
-                          maxLines: 4,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.left,
-                          style: new TextStyle(
-                            color: Colors.black,
-                            decoration: TextDecoration.none,
-                            fontSize: 13.0,
-                            fontWeight: FontWeight.normal,
-                          )),
-                    ))
-                  ],
-                ), flex: 1,)
+                Expanded(child:Container(
+                  margin: EdgeInsets.only(left: 15.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    mainAxisSize: MainAxisSize.max,
+                    children: <Widget>[
+                      Container(
+                        width: double.infinity,
+                        child: Text(produits[index].name,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.left,
+                            style: new TextStyle(
+                              color: Colors.black,
+                              decoration: TextDecoration.none,
+                              fontSize: 15.0,
+                              fontWeight: FontWeight.bold,
+                            ))
+                        ,),
+                      Container(
+                        width: double.infinity,
+                        child: Text(
+                            produits[index].prix.toString() + "€",
+                            textAlign: TextAlign.left,
+                            style: new TextStyle(
+                              color: Colors.lightGreen,
+                              decoration: TextDecoration.none,
+                              fontSize: 15.0,
+                              fontWeight: FontWeight.bold,
+                            )),
+                      ),
+                      Container(
+                        width: double.infinity,
+                        child: Text(
+                            produits[index].description == null ? "" : produits[index].description,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.left,
+                            style: new TextStyle(
+                              color: Colors.black,
+                              decoration: TextDecoration.none,
+                              fontSize: 13.0,
+                              fontWeight: FontWeight.normal,
+                            )),
+                      )
+                    ],
+                  ),
+                ),
+                  flex: 1,)
               ],
             ),
           ), flex: 4,),
@@ -159,6 +266,14 @@ class PanierState extends State<Panier> implements PanierContract{
 
           getDivider(1.0, horizontal: true),
 
+          produits[index].options != null && produits[index].options.length > 0 ?
+          Expanded(
+            child: getOptionsSection(index),
+            flex: 3,
+          )
+              : Container(),
+
+          produits[index].options != null && produits[index].options.length > 0 ? getDivider(2.0, horizontal: true) : Container(),
 
           Expanded(child: Container(
             padding: EdgeInsets.only(left: 5.0, right: 5.0, top: 10.0, bottom: 10.0),
@@ -272,7 +387,7 @@ class PanierState extends State<Panier> implements PanierContract{
                     ),
                     textAlign: TextAlign.left,
                   ),
-                  Text((produits[index].prix * produits[index].nbCmds).truncateToDouble().toString() + "€",
+                  Text(getItemTotal(index).toString() + "€",
                     style: TextStyle(
                         color: Colors.black,
                         fontSize: 14.0,
@@ -288,6 +403,7 @@ class PanierState extends State<Panier> implements PanierContract{
       ),
     );
   }
+
 
   Widget getPricesSection(){
 
@@ -349,14 +465,16 @@ class PanierState extends State<Panier> implements PanierContract{
     );
   }
 
+
   double getTotal(){
 
     double total = 0.0;
     for(int i = 0; i < produits.length; i++){
-      total = total + produits[i].prix * produits[i].nbCmds;
+      total = total + getItemTotal(i);
     }
-    return (total + fraisLivraison).truncateToDouble();
+    return total + fraisLivraison;
   }
+
 
   Widget getSceneView(){
 
@@ -390,16 +508,16 @@ class PanierState extends State<Panier> implements PanierContract{
       default:
         return Column(
           children: <Widget>[
-            Expanded(
-              child: Container(
-                margin: EdgeInsets.only(top: 5.0),
-                color: Colors.white,
-                child: Center(
-                  child: researchBox("Chercher ici", Color.fromARGB(15, 0, 0, 0), Colors.grey, Colors.transparent) ,
-                ),
-              ),
-              flex: 1,
-            ),
+//            Expanded(
+//              child: Container(
+//                margin: EdgeInsets.only(top: 5.0),
+//                color: Colors.white,
+//                child: Center(
+//                  child: researchBox("Chercher ici", Color.fromARGB(15, 0, 0, 0), Colors.grey, Colors.transparent) ,
+//                ),
+//              ),
+//              flex: 1,
+//            ),
             Expanded(
               child: Container(
                 margin: EdgeInsets.only(top: 4.0, bottom: 5.0),
@@ -438,7 +556,7 @@ class PanierState extends State<Panier> implements PanierContract{
                               return getItem(index);
                             })),
                       ),
-                      flex: 7,
+                      flex: 12,
                     ),
 
                     Expanded(
@@ -455,10 +573,12 @@ class PanierState extends State<Panier> implements PanierContract{
                       child: Center(
                         child: PositionedTapDetector(
                             onTap: (position) {
-                              Navigator.of(context).push(
-                                  new MaterialPageRoute(builder: (context) => RecapitulatifCommande(produits: produits, fraisLivraison: fraisLivraison,)))
-                              .then((value){
-                                _updateView();
+                              db.loadClient().then((Client client){
+                                Navigator.of(context).push(
+                                    new MaterialPageRoute(builder: (context) => RecapitulatifCommande(produits: produits, fraisLivraison: fraisLivraison, client: client)))
+                                    .then((value){
+                                  _updateView();
+                                });
                               });
                             },
                             child: Container(
@@ -497,6 +617,7 @@ class PanierState extends State<Panier> implements PanierContract{
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -505,6 +626,7 @@ class PanierState extends State<Panier> implements PanierContract{
     );
   }
 
+
   @override
   void onLoadingError() {
 
@@ -512,6 +634,7 @@ class PanierState extends State<Panier> implements PanierContract{
       stateIndex = 1;
     });
   }
+
 
   @override
   void onLoadingSuccess(List<Produit> produits) {

@@ -9,10 +9,10 @@ import '../RestaurantCategorizedMenus.dart';
 import '../Database/DatabaseHelper.dart';
 import 'package:flutter_google_places_autocomplete/flutter_google_places_autocomplete.dart';
 import 'package:geolocator/geolocator.dart';
-
-
-
 const kGoogleApiKey = "AIzaSyBNm8cnYw5inbqzgw8LjXyt3rMhFhEVTjY";
+
+
+
 // to get places detail (lat/lng)
 GoogleMapsPlaces _places = new GoogleMapsPlaces(kGoogleApiKey);
 final homeScaffoldKey = new GlobalKey<ScaffoldState>();
@@ -49,53 +49,61 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
     });
 
 
-    // Todo: verifier la permission et que la localisation activee
-    Position position = await geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-    if (position != null) {
-      print("actual position : lat = " +
-          position.latitude.toString() +
-          " long = " +
-          position.longitude.toString());
-      latitude = position.latitude;
-      longitude = position.longitude;
+    GeolocationStatus geolocationStatus = await geolocator.checkGeolocationPermissionStatus();
 
-      _presenter.loadRestaurants(latitude, longitude);
-    } else {
-      Position position = await Geolocator()
-          .getLastKnownPosition(desiredAccuracy: LocationAccuracy.high);
-      if (position == null) {
-        print(" actual position not found");
-        _presenter.loadRestaurants(latitude, longitude);
-      } else {
-        print("last known position : lat = " +
+    if (geolocationStatus == GeolocationStatus.granted) {
+      Position position = await geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+      if (position != null) {
+        print("actual position : lat = " +
             position.latitude.toString() +
             " long = " +
             position.longitude.toString());
         latitude = position.latitude;
         longitude = position.longitude;
         _presenter.loadRestaurants(latitude, longitude);
+
+      } else {
+        Position pos = await Geolocator().getLastKnownPosition(desiredAccuracy: LocationAccuracy.high);
+        if (pos == null) {
+
+          print(" actual position not found");
+          _presenter.loadRestaurants(latitude, longitude);
+
+        } else {
+
+          print("last known position : lat = " + pos.latitude.toString() + " long = " + pos.longitude.toString());
+          latitude = pos.latitude;
+          longitude = pos.longitude;
+          _presenter.loadRestaurants(latitude, longitude);
+        }
       }
+
+    }else{
+
+      print("Permission de geolocation refusee");
+      _presenter.loadRestaurants(latitude, longitude);
     }
   }
+
 
   @override
   void initState() {
     deviceLocationMode = true;
-    geolocator = Geolocator();
+    geolocator = Geolocator()
+    ..forceAndroidLocationManager = false;
     db = new DatabaseHelper();
     restaurants = null;
-    latitude = longitude = 0.0;
+    latitude = 48.9031145;
+    longitude = 2.2638343;
 
     var locationOptions =
         LocationOptions(accuracy: LocationAccuracy.high, distanceFilter: 100);
     geolocator.getPositionStream(locationOptions).listen((Position position) {
-      print("updated position : lat = " +
-          position.latitude.toString() +
-          " long = " +
-          position.longitude.toString());
+      if(position != null){ //  si la position n'est pas nulle
+        print("updated position : lat = " + position.latitude.toString() + " long = " + position.longitude.toString());
 
-      //_presenter.loadRestaurants();
+      }
     });
 
     _presenter = new RestaurantPresenter(this);

@@ -17,11 +17,28 @@ class Restaurant {
     this._longitude = 0.0;
   }
 
-  Restaurant(this._id, this._name, this._photo, this._city, this._address,
-      this._latitude, this._longitude);
 
+  Restaurant(this._id, this._name);
+
+
+  Restaurant copy(){
+
+    Restaurant restaurant = new Restaurant.empty();
+    restaurant.id = _id;
+    restaurant._name = _name;
+    restaurant.photo = _photo;
+    restaurant.city = _city;
+    restaurant.address = _address;
+    restaurant.latitude = _latitude;
+    restaurant.longitude = _longitude;
+
+    return restaurant;
+  }
 
   Restaurant.map(dynamic obj) {
+
+    if(obj is String) return;
+
     this._id = obj["id"];
     this._name = obj["name"];
     this._photo = obj["image"];
@@ -33,13 +50,8 @@ class Restaurant {
 
   Map<String, dynamic> toMap() {
     var map = new Map<String, dynamic>();
-    map["id"] = _id;
+    map["restaurant_id"] = _id;
     map["name"] = _name;
-    map["image"] = _photo;
-    map["city"] = _city;
-    map["address"] = _address;
-    map["latitude"] = _latitude;
-    map["longitude"] = _longitude;
     return map;
   }
 

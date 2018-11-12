@@ -1,11 +1,17 @@
 import 'dart:async';
 import 'dart:io' as io;
 
+import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import '../Models/Produit.dart';
 import '../Models/Client.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
+import '../Models/Option.dart';
+import '../Models/Complement.dart';
+import '../Models/Restaurant.dart';
+import '../Models/CreditCard.dart';
+
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = new DatabaseHelper.internal();
@@ -23,27 +29,35 @@ class DatabaseHelper {
 
   initDb() async {
     io.Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String path = join(documentsDirectory.path, "allozoeclientdb.db");
-    var theDb = await openDatabase(path, version: 2, onCreate: _onCreate);
+    String path = join(documentsDirectory.path, "allozoe19db.db");
+    var theDb = await openDatabase(path, version: 1, onCreate: _onCreate);
+    await theDb.execute("PRAGMA foreign_keys = ON;");
     return theDb;
   }
 
   void _onCreate(Database db, int version) async {
     // When creating the db, create the database tables
 
-    // create table produit where store the cart products
+    // drop every existing tables of the database
+    await db.execute("DROP TABLE IF EXISTS Cards");
+    await db.execute("DROP TABLE IF EXISTS Client");
+    await db.execute("DROP TABLE IF EXISTS Complement");
+    await db.execute("DROP TABLE IF EXISTS Option");
+    await db.execute("DROP TABLE IF EXISTS Produit");
+    await db.execute("DROP TABLE IF EXISTS Restaurant");
+
+
+
+
+    // create table credits cards where store the client credits cards informations
     await db.execute(
-        "CREATE TABLE Produit("
+        "CREATE TABLE Cards("
             "id INTEGER PRIMARY KEY, "
-            "prod_id INTEGER UNIQUE, "
-            "name TEXT, "
-            "description TEXT, "
-            "prix REAL, "
-            "photo TEXT, "
-            "favoris INTEGER, "
-            "nbCmds INTEGER "
+            "card_id INTEGER NOT NULL UNIQUE, "
+            "card_number TEXT NOT NULL UNIQUE "
             ")"
     );
+
 
 
     // create table client where store the connected account informations
@@ -58,13 +72,100 @@ class DatabaseHelper {
             "phone TEXT "
             ")"
     );
+
+
+    // create table Restaurant
+    await db.execute(
+        "CREATE TABLE Restaurant("
+            "id INTEGER PRIMARY KEY, "
+            "restaurant_id INTEGER UNIQUE , "
+            "name TEXT "
+            ")"
+    );
+
+
+    // create table produit where store the cart products
+    await db.execute(
+        "CREATE TABLE Produit("
+            "id INTEGER PRIMARY KEY, "
+            "prod_id INTEGER UNIQUE, "
+            "name TEXT, "
+            "description TEXT, "
+            "prix REAL, "
+            "photo TEXT, "
+            "favoris INTEGER, "
+            "nbCmds INTEGER, "
+            "restaurant_id INTEGER NOT NULL, "
+            "FOREIGN KEY (restaurant_id) REFERENCES Restaurant(restaurant_id) "
+            "ON UPDATE CASCADE "
+            "ON DELETE CASCADE "
+            ")"
+    );
+
+
+    // create table Option
+    await db.execute(
+        "CREATE TABLE Option("
+            "id INTEGER PRIMARY KEY, "
+            "opt_id INTEGER UNIQUE , "
+            "name TEXT, "
+            "prod_id INTEGER NOT NULL, "
+            "FOREIGN KEY (prod_id) REFERENCES Produit(prod_id) "
+            "ON UPDATE CASCADE "
+            "ON DELETE CASCADE "
+            ")"
+    );
+
+
+    // create table complement
+    await db.execute(
+        "CREATE TABLE Complement("
+            "id INTEGER PRIMARY KEY, "
+            "cp_id INTEGER UNIQUE , "
+            "name TEXT, "
+            "price REAL, "
+            "image TEXT, "
+            "opt_id INTEGER NOT NULL, "
+            "FOREIGN KEY (opt_id) REFERENCES Option(opt_id) "
+            "ON UPDATE CASCADE "
+            "ON DELETE CASCADE "
+            ")"
+    );
   }
+
+
+
+  /// FONCTIONS TO DEAL WITH CLIENT CREDITS CARDS INFOS
+  Future<int> addCard(CreditCard card) async {
+    var dbInsert = await db;
+    return await dbInsert.insert("Cards", card.toMap()).catchError((onError){onError.toString();});
+  }
+
+
+  Future<List<CreditCard>> getClientCards() async {
+    var dbProduit = await db;
+    List<Map> list = await dbProduit.rawQuery('SELECT * FROM Cards ORDER BY card_id DESC ');
+    List<CreditCard> cards = new List();
+    for (int i = 0; i < list.length; i++) cards.add(new CreditCard(list[i]["card_id"], list[i]["card_number"]));
+
+    return cards;
+  }
+
+
+  Future<int> deleteCard(CreditCard card) async {
+    var dbProduit = await db;
+    await dbProduit.rawDelete('DELETE FROM Cards WHERE card_id = ?', [card.id]);
+
+    return 0;
+  }
+
+
 
 
   /// FONCTION TO DEAL WITH THE CLIENT TABLE
   Future<Client> loadClient() async {
-    var dbProduit = await db;
-    List<Map> list = await dbProduit.rawQuery('SELECT * FROM Client ');
+    var dbClient = await db;
+    List<Map> list = await dbClient.rawQuery('SELECT * FROM Client ');
     print(list.toString());
     if(list.length == 1)
       return new Client(list[0]["client_id"], list[0]["username"], null, list[0]["lastname"], list[0]["email"], list[0]["phone"].toString(), true,
@@ -83,7 +184,6 @@ class DatabaseHelper {
   Future<int> saveClient(Client client) async {
     var dbProduit = await db;
     int res = await dbProduit.insert("Client", client.toMap());
-    print("saved client id = " + res.toString());
     return res;
   }
 
@@ -102,22 +202,63 @@ class DatabaseHelper {
 
   /// FONCTION TO DEAL WITH THE PRODUIT TABLE
   Future<int> addProduit(Produit produit) async {
-    var dbProduit = await db;
-    int res = await dbProduit.insert("Produit", produit.toMap());
-    return res;
+    var dbInsert = await db;
+    Map<String, dynamic > map;
+
+    // insert product restaurant if not exist
+    List<Map> list = await dbInsert.rawQuery('SELECT * FROM Restaurant WHERE restaurant_id = ? ', [produit.restaurant.id]);
+    if(list.length == 0) await dbInsert.insert("Restaurant", produit.restaurant.toMap());
+
+    // add restaurant id and save product
+    map = new Map<String, dynamic>();
+    map["restaurant_id"] = produit.restaurant.id;
+    map.addAll(produit.toMap());
+    await dbInsert.insert("Produit", map).catchError((onError){onError.toString();});
+
+    // Sauvegarder les options des complements choisies par le client ainsi que les complements eux memes
+    if(produit.options == null) return 0;
+    for(int i = 0; i < produit.options.length; i++){
+
+      List<Complement> complements = new List();
+
+      for(int j = 0; j < (produit.options[i].complements == null ? 0 : produit.options[i].complements.length); j++)
+        if(produit.options[i].complements[j].selected) complements.add(produit.options[i].complements[j]);
+
+      if(complements.length > 0){
+        // sauvegarder les infos de l'option
+        map = new Map<String, dynamic>();
+        map["prod_id"] = produit.id;
+        map.addAll(produit.options[i].toMap());
+        await dbInsert.insert("Option", map).catchError((onError){onError.toString();});
+
+        // sauvegarder les elements choisies de l'option
+        for(Complement complement in complements){
+          map = new Map<String, dynamic>();
+          map["opt_id"] = produit.options[i].id;
+          map.addAll(complement.toMap());
+          await dbInsert.insert("Complement", map).catchError((onError){onError.toString();});
+        }
+      }
+    }
+
+    return 0;
   }
 
 
   Future<List<Produit>> getPanier() async {
     var dbProduit = await db;
-    List<Map> list = await dbProduit.rawQuery('SELECT * FROM Produit ORDER BY id DESC ');
+    List<Map> list = await dbProduit.rawQuery('SELECT prod_id FROM Produit ORDER BY id DESC ');
     List<Produit> panier = new List();
-    for (int i = 0; i < list.length; i++) {
-      var produit = new Produit(list[i]["nbCmds"], list[i]["favoris"] == 1, list[i]["prod_id"], list[i]["name"], list[i]["description"],
-          list[i]["photo"], list[i]["prix"]);
-      panier.add(produit);
-    }
+    for (int i = 0; i < list.length; i++) panier.add(await getProduit(list[i]["prod_id"]));
     return panier;
+  }
+
+
+  Future<int> deleteProduit(Produit produit) async {
+    var dbProduit = await db;
+    await dbProduit.rawDelete('DELETE FROM Produit WHERE prod_id = ?', [produit.id]);
+
+    return 0;
   }
 
 
@@ -125,24 +266,38 @@ class DatabaseHelper {
     var dbProduit = await db;
     List<Map> list = await dbProduit.rawQuery('SELECT * FROM Produit WHERE prod_id = ?', [produitID]);
     print(list.toString());
-    if(list.length > 0)
-    return new Produit(list[0]["nbCmds"], list[0]["favoris"] == 1, list[0]["prod_id"], list[0]["name"], list[0]["description"],
-        list[0]["photo"], list[0]["prix"]);
+    if(list.length > 0) {
+      Produit produit =  new Produit(
+          list[0]["nbCmds"],
+          list[0]["favoris"] == 1,
+          list[0]["prod_id"],
+          list[0]["name"],
+          list[0]["description"],
+          list[0]["photo"],
+          list[0]["prix"],
+          null,
+          null
+      );
+
+      // charge son restaurant
+      produit.restaurant = await getRestaurant(list[0]["restaurant_id"]);
+
+      // charge ses options de menus
+      produit.options = await getOptions(produit.id);
+
+      return produit;
+    }
     return new Produit.empty();
-  }
-
-
-  Future<int> deleteProduit(Produit produit) async {
-    var dbProduit = await db;
-    int res = await dbProduit.rawDelete('DELETE FROM Produit WHERE prod_id = ?', [produit.id]);
-    return res;
   }
 
 
   Future<int> clearPanier() async {
     var dbProduit = await db;
-    int res = await dbProduit.rawDelete('DELETE FROM Produit');
-    return res;
+    await dbProduit.rawDelete('DELETE FROM Produit');
+    await dbProduit.rawDelete('DELETE FROM Restaurant');
+    await dbProduit.rawDelete('DELETE FROM Option');
+    await dbProduit.rawDelete('DELETE FROM Complement');
+    return 0;
   }
 
 
@@ -154,14 +309,50 @@ class DatabaseHelper {
   }
 
 
-  Future<bool> isInCart(Produit produit) async{
+  Future<bool> isComplementInCart({@required int opt_id, @required int cp_id}) async{
 
-    var dbProduit = await db;
-    int count = Sqflite
-        .firstIntValue(await dbProduit.rawQuery("SELECT COUNT(*) FROM Produit WHERE prod_id = ?", [produit.id]));
-    return count > 0;
+    var dbLoad = await db;
+    List<Map> list = await dbLoad.rawQuery('SELECT * FROM Complement WHERE opt_id = ? AND cp_id = ? ', [opt_id, cp_id]);
+    return list.length > 0;
   }
 
 
+  // FONCTIONS TO DEAL WITH RESTAURANT, OPTION AND COMPLEMENT TABLES
+  // find a restaurant with his id
+  Future<Restaurant> getRestaurant(int restaurantID) async {
+    var dbLoad = await db;
+    List<Map> list = await dbLoad.rawQuery('SELECT * FROM Restaurant WHERE restaurant_id = ?', [restaurantID]);
+    print(list.toString());
+    if(list.length > 0)
+      return new Restaurant(list[0]["restaurant_id"], list[0]["name"]);
+    return null;
+  }
+
+
+  // find a product options
+  Future<List<Option>> getOptions(int produitID) async {
+    var dbLoad = await db;
+    List<Map> list = await dbLoad.rawQuery('SELECT * FROM Option WHERE prod_id = ? ORDER BY id ASC ', [produitID]);
+    List<Option> options = new List();
+    for (int i = 0; i < list.length; i++) {
+      var option = new Option(list[i]["opt_id"], list[i]["name"]);
+      option.complements = await getComplements(option.id);
+      options.add(option);
+    }
+    return options;
+  }
+
+
+  // find an option complements
+  Future<List<Complement>> getComplements(int optionID) async {
+    var dbLoad = await db;
+    List<Map> list = await dbLoad.rawQuery('SELECT * FROM Complement WHERE opt_id = ? ORDER BY id ASC ', [optionID]);
+    List<Complement> complements = new List();
+    for (int i = 0; i < list.length; i++) {
+      var complement = new Complement(list[i]["cp_id"], list[i]["name"], list[i]["price"], list[i]["image"], true);
+      complements.add(complement);
+    }
+    return complements;
+  }
 
 }

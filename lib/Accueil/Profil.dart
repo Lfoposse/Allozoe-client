@@ -1,4 +1,7 @@
 import 'dart:async';
+
+import '../Models/CreditCard.dart';
+
 import '../DAO/Presenters/ResetPassPresenter.dart';
 import '../Models/Client.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +10,8 @@ import '../Utils/AppSharedPreferences.dart';
 import '../SignInScreen.dart';
 import '../AccountScreen.dart';
 import '../Database/DatabaseHelper.dart';
+import '../Paiements/CardListScreen.dart';
+
 
 class Profil extends StatefulWidget {
   @override
@@ -99,8 +104,11 @@ class ProfilState extends State<Profil> {
       case 2:
         {
           // lancer la page de modification des infos bancaires
-          Navigator.of(context).push(
-              new MaterialPageRoute(builder: (context) => AccountScreen()));
+          new DatabaseHelper().getClientCards().then((List<CreditCard> cards){
+            Navigator.of(context).push(
+                new MaterialPageRoute(builder: (context) => CardListScreen(forPaiement: false, cards: cards,)));
+          });
+
 
           break;
         }

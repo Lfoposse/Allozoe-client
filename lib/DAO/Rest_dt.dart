@@ -8,6 +8,9 @@ import '../Models/Restaurant.dart';
 import '../Models/Commande.dart';
 import '../Models/StatusCommande.dart';
 import '../Database/DatabaseHelper.dart';
+import '../Models/Deliver.dart';
+import 'package:flutter/material.dart';
+import '../Models/CreditCard.dart';
 
 
 class RestDatasource {
@@ -19,9 +22,10 @@ class RestDatasource {
   static final RECOVERY_ACCOUNT_CONFIRM_URL = BASE_URL + "/api/security/verification";
   static final SIGNUP_URL = BASE_URL + "/api/clients";
   static final LOAD_CATEGORIE_LIST_URL = BASE_URL + "/api/categories";
-  static final LOAD_ALL_MENUS_LIST_URL = BASE_URL + "/api/menus";
+  static final LOAD_MENUS_LIST_URL = BASE_URL + "/api/menus";
   static final LOAD_RESTAURANT_LIST_URL = BASE_URL + "/api/restaurants";
   static final COMMANDS_URL = BASE_URL + "/api/orders";
+  static final DELIVERS_URL = BASE_URL + "/api/delivers";
 
 
   ///retourne les informations d'un compte client a partir de ses identifiants
@@ -32,7 +36,15 @@ class RestDatasource {
     }).then((dynamic res) {
 
       if(checkAccountExists && res["code"] == 4008) return Client.empty();
-      else if(res["code"] == 200 && (res["data"]["role"][0].toString() != "ROLE_DELIVER")) return Client.map(res["data"]);
+      else if(res["code"] == 200 && (res["data"]["role"][0].toString() != "ROLE_DELIVER")){
+
+        // save clients saved credits cards
+        List<CreditCard> cards = (res["data"]['cards'] as List).map((item) => CreditCard.map(item)).toList();
+        DatabaseHelper db = new DatabaseHelper();
+        for(CreditCard card in cards) db.addCard(card);
+
+        return Client.map(res["data"]);
+      }
       else return null;
 
     }).catchError((onError) => new Future.error(new Exception(onError.toString())));
@@ -137,12 +149,26 @@ class RestDatasource {
 
   ///Retourne la liste de tous les produits
   Future<List<Produit>> loadAllMenus() {
-    return _netUtil.get(LOAD_ALL_MENUS_LIST_URL).then((dynamic res) {
+    return _netUtil.get(LOAD_MENUS_LIST_URL).then((dynamic res) {
 
       if(res["code"] == 200)
         return (res['items'] as List).map((item) => new Produit.map(item)).toList();
       else
         return null as List<Produit>;
+
+    }).catchError((onError) => new Future.error(new Exception(onError.toString())));
+  }
+
+
+  // retourne les details d'un produit precis
+  Future<Produit> loadProductDetails( int productID) {
+    return _netUtil.get(LOAD_MENUS_LIST_URL + "/" + productID.toString()).then((dynamic res) {
+
+      if(res["code"] == 200) {
+        return new Produit.map(res["data"]);
+      }
+      else
+        return null as Produit;
 
     }).catchError((onError) => new Future.error(new Exception(onError.toString())));
   }
@@ -284,10 +310,13 @@ class RestDatasource {
   }
 
 
+  /// charge les produits d'une commande ainsi que ses details
   Future<List<Produit>> loadOrderDetails(Commande commande) {
     return _netUtil.get(COMMANDS_URL + "/" + commande.id.toString() ).then((dynamic res) {
 
       if(res["code"] == 200) {
+
+        if(res["data"]["deliver"] != null) commande.deliver = Deliver.map(res["data"]["deliver"]);
         commande.status = StatusCommande.map(res["data"]["status"]);
         commande.restaurant = Restaurant.map(res["data"]["restaurant"]);
         return (res["data"]['menus'] as List).map((item) => new Produit.map(item)).toList();
@@ -296,6 +325,43 @@ class RestDatasource {
         return null as List<Produit>;
 
     }).catchError((onError) => new Future.error(new Exception(onError.toString())));
+  }
+
+
+  /// cherche les information d'un livreur precis, specifiquement sa position
+  Future<Deliver> loadDeliverPosition( int deliverID) {
+    return _netUtil.get(DELIVERS_URL + "/" + deliverID.toString()).then((dynamic res) {
+
+      if(res["code"] == 200) {
+        return new Deliver.empty().mapForTrackingMode(res["data"]);
+      }
+      else
+        return null as Deliver;
+
+    }).catchError((onError) => new Future.error(new Exception(onError.toString())));
+  }
+
+
+  /// Ajoute une nouvelle carte de paiement et retourne son identifiant serveur
+  Future<int> addCreditCard({@required int clientID, @required String ownerName, @required String cardNumber, @required String month, @required String year, @required String security} ) {
+
+    return _netUtil.post(SIGNUP_URL + "/" + clientID.toString() + "bank-card", body: jsonEncode(
+        {
+
+          "id": clientID,
+          "name": ownerName,
+          "card_number": cardNumber,
+          "month": month,
+          "year":year,
+          "security": security
+
+        }
+    )).then((dynamic res) {
+
+      if(res["code"] == 201) return res["bank_card_id"] as int;
+      else return -1;
+
+    }).catchError((onError) => new Future.error(-1));
   }
 
 }

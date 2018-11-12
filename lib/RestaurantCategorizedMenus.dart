@@ -251,7 +251,7 @@ class RestaurantCategorizedMenusState extends State<RestaurantCategorizedMenus> 
         default :
           return Column(
             children: <Widget>[
-              researchBox("Recherche", Colors.white70, Colors.black12, Colors.grey),
+              researchBox("Recherche", Colors.white70, Colors.black54, Colors.transparent),
               Flexible(child: Container(
                   color: Colors.black12,
                   child: ScrollConfiguration(
