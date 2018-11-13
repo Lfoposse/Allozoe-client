@@ -1,20 +1,26 @@
 import '../Database/DatabaseHelper.dart';
-
+import '../Models/Produit.dart';
 import '../Models/CreditCard.dart';
 import 'package:client_app/Utils/AppBars.dart';
 import 'package:flutter/material.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 import '../DAO/Presenters/AddCardPresenter.dart';
+import '../DAO/Presenters/SendCommandePresenter.dart';
 import '../Models/Client.dart';
 
 class AddCardScreen extends StatefulWidget {
   final bool forPaiement;
-  AddCardScreen({@required this.forPaiement});
+  final List<Produit> produits;
+  final String address, phone;
+  final double montantPaiement;
+
+
+  AddCardScreen({@required this.forPaiement, this.montantPaiement, this.produits, this.address, this.phone});
 
   createState() => new AddCardScreenState();
 }
 
-class AddCardScreenState extends State<AddCardScreen> implements AddCardContract {
+class AddCardScreenState extends State<AddCardScreen> implements AddCardContract, SendCommandeContract {
   bool saveCard;
   final nameKey = new GlobalKey<FormState>();
   final numCardKey1 = new GlobalKey<FormState>();
@@ -26,13 +32,15 @@ class AddCardScreenState extends State<AddCardScreen> implements AddCardContract
 
   String ownerName, card1, card2, card3, card4, expireDate, security;
 
-  bool isLoading;
+  bool isLoading, isCommandLoading;
   String errorMsg;
+  SendCommandePresenter _presenter;
 
   @override
   void initState() {
-    saveCard = isLoading = false;
-    errorMsg = "Erreur de connexion. Réessayez!";
+    saveCard = isLoading = isCommandLoading = false;
+    errorMsg = "";
+    _presenter = new SendCommandePresenter(this);
     super.initState();
   }
 
@@ -81,6 +89,25 @@ class AddCardScreenState extends State<AddCardScreen> implements AddCardContract
 
        if (widget.forPaiement) {
 
+         setState(() {
+           isCommandLoading = true;
+         });
+         // TODO : formatter l'envoi des commandes selon les restaurants si necessaires ici
+         new DatabaseHelper().loadClient().then((Client client){
+           _presenter.commander(widget.produits, widget.address, widget.phone,
+               {
+                 "id" : 0,
+                 "name" : ownerName.length == 0 ? client.username : ownerName,
+                 "card_number" : card1 + card2 + card3 + card4,
+                 "month" : month.toString(),
+                 "year" :year.toString(),
+                 "security" : security,
+                 "save_card" : saveCard
+               }
+           );
+         });
+
+
        } else {
          setState(() {
            isLoading = true;
@@ -94,7 +121,6 @@ class AddCardScreenState extends State<AddCardScreen> implements AddCardContract
                month: month.toString(),
                year: year.toString(),
                security: security
-
            );
          });
        }
@@ -357,7 +383,7 @@ class AddCardScreenState extends State<AddCardScreen> implements AddCardContract
                         widget.forPaiement
                             ? Container(
                                 margin: EdgeInsets.symmetric(vertical: 25.0),
-                                child: Text("Montant à payer : " + "165€",
+                                child: Text("Montant à payer : " + widget.montantPaiement.toString() +"€",
                                     style: TextStyle(
                                         fontSize: 17.0,
                                         color: Colors.lightGreen,
@@ -464,7 +490,18 @@ class AddCardScreenState extends State<AddCardScreen> implements AddCardContract
                 backgroundColor: Colors.transparent,
                 elevation: 0.0,
               ),
+            ),
+
+            isCommandLoading
+                ? Container(
+              color: Colors.black26,
+              width: double.infinity,
+              height: double.infinity,
+              child: Center(
+                child: new CircularProgressIndicator(),
+              ),
             )
+                : IgnorePointer(ignoring: true)
           ],
         ),
       ),
@@ -494,5 +531,49 @@ class AddCardScreenState extends State<AddCardScreen> implements AddCardContract
       isLoading = false;
     });
     Navigator.pop(context, card);
+  }
+
+  @override
+  void onCommandError() {
+    setState(() {
+      isCommandLoading = false;
+      errorMsg = "Erreur survénue. Réessayez SVP";
+    });
+  }
+
+  @override
+  void onCommandSuccess(int cardID) {
+
+    if(saveCard && cardID > 0){ // enregistrer la carte si necessaire
+      new DatabaseHelper().addCard(CreditCard(cardID, card1 + card2 + card3 + card4));
+    }
+    new DatabaseHelper().clearPanier(); // vide la panier
+
+    setState(() {
+      isCommandLoading = false;
+    });
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Succes"),
+          content: new Text(
+              "Votre commande a ete enregistree avec succes.\n\nVous pouvez suivre son traitrement depuis l'espace commande"),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("Compris"),
+              onPressed: () {
+                Navigator.of(context).pop(); // ferme le dialogue
+                Navigator.of(context).pop(); // rentre a la liste des cartes
+                Navigator.of(context).pop(); // rentre au recapitulatif
+                Navigator.of(context).pop(); // rentre au panier
+              },
+            )
+          ],
+        );
+      },
+    );
   }
 }

@@ -2,7 +2,7 @@ import '../Rest_dt.dart';
 import '../../Models/Produit.dart';
 
 abstract class SendCommandeContract {
-  void onCommandSuccess();
+  void onCommandSuccess(int card_id);
   void onCommandError();
   void onConnectionError();
 }
@@ -12,9 +12,9 @@ class SendCommandePresenter {
   RestDatasource api = new RestDatasource();
   SendCommandePresenter(this._view);
 
-  commander(List<Produit> panier, String address, String phone) {
-    api.commander(panier, address, phone).then((bool confirmed) {
-      confirmed ? _view.onCommandSuccess() : _view.onCommandError();
+  commander(List<Produit> panier, String address, String phone, dynamic creditcard) {
+    api.commander(panier, address, phone, creditcard).then((int card_id) {
+      card_id >= 0 ? _view.onCommandSuccess(card_id) : _view.onCommandError();
     }).catchError((onError){
       _view.onConnectionError();
     });

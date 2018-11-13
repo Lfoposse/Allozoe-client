@@ -1,4 +1,6 @@
-import 'package:client_app/DAO/Presenters/SendCommandePresenter.dart';
+import '../DAO/Presenters/SendCommandePresenter.dart';
+import '../Database/DatabaseHelper.dart';
+import '../Models/Produit.dart';
 
 import '../Models/CreditCard.dart';
 import 'package:client_app/Utils/AppBars.dart';
@@ -12,8 +14,10 @@ class CardListScreen extends StatefulWidget{
   final bool forPaiement;
   final double montantPaiement;
   final List<CreditCard> cards;
+  final List<Produit> produits;
+  final String address, phone;
 
-  CardListScreen({@required this.forPaiement, this.montantPaiement, this.cards});
+  CardListScreen({@required this.forPaiement, this.montantPaiement, this.cards, this.produits, this.address, this.phone});
 
   createState() =>  new CardListScreenState();
 }
@@ -21,10 +25,31 @@ class CardListScreen extends StatefulWidget{
 
 class CardListScreenState extends State<CardListScreen> implements SendCommandeContract {
 
-  int indexSelected = 0;
+  int indexSelected;
+  bool isLoading;
+  SendCommandePresenter _presenter;
+
+
+  @override
+  void initState() {
+    super.initState();
+    indexSelected = 0;
+    isLoading = false;
+    _presenter = new SendCommandePresenter(this);
+  }
 
   void _submit() {
 
+    setState(() {
+      isLoading = true;
+    });
+
+    // TODO : formatter l'envoi des commandes selon les restaurants si necessaires ici
+    _presenter.commander(widget.produits, widget.address, widget.phone,
+        {
+          "id": widget.cards[indexSelected].id
+        }
+    );
   }
 
   Widget getCardItem(int index){
@@ -98,7 +123,7 @@ class CardListScreenState extends State<CardListScreen> implements SendCommandeC
                         children: <Widget>[
                           widget.forPaiement ? Container(
                             margin: EdgeInsets.symmetric(vertical: 25.0),
-                            child: Text("Montant à payer : " + "165€",
+                            child: Text("Montant à payer : " + widget.montantPaiement.toString() + "€",
                                 style: TextStyle(
                                     fontSize: 17.0,
                                     color: Colors.lightGreen,
@@ -134,7 +159,14 @@ class CardListScreenState extends State<CardListScreen> implements SendCommandeC
                             child: PositionedTapDetector(
                               onTap: (position){
                                 Navigator.of(context).push(
-                                    new MaterialPageRoute(builder: (context) => AddCardScreen(forPaiement: widget.forPaiement,))).then((dynamic res){
+                                    new MaterialPageRoute(builder: (context) => AddCardScreen(
+                                        forPaiement: widget.forPaiement,
+                                      montantPaiement: widget.montantPaiement,
+                                      produits: widget.produits,
+                                      address: widget.address,
+                                      phone: widget.phone,
+                                    ))
+                                ).then((dynamic res){
                                   if(res != null) widget.cards.insert(0, res as CreditCard);
                                   setState(() {});
                                 });
@@ -190,7 +222,18 @@ class CardListScreenState extends State<CardListScreen> implements SendCommandeC
                 backgroundColor: Colors.transparent,
                 elevation: 0.0,
               ),
+            ),
+
+            isLoading
+                ? Container(
+              color: Colors.black26,
+              width: double.infinity,
+              height: double.infinity,
+              child: Center(
+                child: new CircularProgressIndicator(),
+              ),
             )
+                : IgnorePointer(ignoring: true)
           ],
         ),
       ),
@@ -199,17 +242,96 @@ class CardListScreenState extends State<CardListScreen> implements SendCommandeC
 
   @override
   void onCommandError() {
-    // TODO: implement onCommandError
+    setState(() {
+      isLoading = false;
+    });
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Echec"),
+          content: new Text(
+              "La commande n'a pas etre effectuee. Une erreur est survenue. \n\n Reessayez SVP."),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Reessayer"),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _submit();
+              },
+            ),
+
+            new FlatButton(
+              child: new Text("Annuler"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            )
+          ],
+        );
+      },
+    );
   }
 
   @override
-  void onCommandSuccess() {
-    // TODO: implement onCommandSuccess
+  void onCommandSuccess(int cardID) {
+
+    new DatabaseHelper().clearPanier(); // vide la panier
+
+    setState(() {
+      isLoading = false;
+    });
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Succes"),
+          content: new Text(
+              "Votre commande a ete enregistree avec succes.\n\nVous pouvez suivre son traitrement depuis l'espace commande"),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("Compris"),
+              onPressed: () {
+                Navigator.of(context).pop(); // ferme le dialogue
+                Navigator.of(context).pop(); // rentre au recapitulatif
+                Navigator.of(context).pop(); // rentre au panier
+              },
+            )
+          ],
+        );
+      },
+    );
   }
 
   @override
   void onConnectionError() {
-    // TODO: implement onConnectionError
+    setState(() {
+      isLoading = false;
+    });
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Echec de connexion"),
+          content: new Text(
+              "Aucune connexion a internet. Verifier votre connexion a internet et reessayez."),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
 }

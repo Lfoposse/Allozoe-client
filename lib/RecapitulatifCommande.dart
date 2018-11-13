@@ -1,3 +1,6 @@
+import 'Paiements/CardListScreen.dart';
+import 'Models/CreditCard.dart';
+
 import 'Models/Complement.dart';
 import 'package:flutter/material.dart';
 import 'Models/Produit.dart';
@@ -67,18 +70,39 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
     );
   }
 
-  void _submit() {
+  void _submit({@required bool payer}) {
     phoneKey.currentState.save();
 
     if (_address.length == 0 || _phone.length == 0) {
       _showDialog();
     } else {
-      setState(() {
-        isLoading = true;
-      });
+      if(!payer){ // payer lors de la commande
 
-      // TODO : formatter l'envoi des commandes selon les restaurants si necessaires ici
-      _presenter.commander(widget.produits, _address, _phone);
+        setState(() {
+          isLoading = true;
+        });
+
+        // TODO : formatter l'envoi des commandes selon les restaurants si necessaires ici
+        _presenter.commander(widget.produits, _address, _phone,
+            {
+              "id": -1
+            }
+        );
+
+      }else{ // commander sans payer
+
+        new DatabaseHelper().getClientCards().then((List<CreditCard> cards){
+          Navigator.of(context).push(
+              new MaterialPageRoute(builder: (context) => CardListScreen(
+                  forPaiement: true,
+                  montantPaiement: getTotal(false) + widget.fraisLivraison,
+                  cards: cards,
+                produits: widget.produits,
+                address: _address,
+                phone: _phone,
+              )));
+        });
+      }
     }
   }
 
@@ -505,29 +529,58 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
                           horizontal: PADDING_HORIZONTAL),
                       margin: EdgeInsets.only(bottom: 15.0, top: 10.0),
                       child: Center(
-                        child: PositionedTapDetector(
-                            onTap: (position) {
-                              _submit();
-                            },
-                            child: Container(
-                              width: double.infinity,
-                              padding: EdgeInsets.symmetric(vertical: 15.0),
-                              decoration: BoxDecoration(
-                                  border: Border.all(
-                                      color: Colors.lightGreen,
-                                      style: BorderStyle.solid,
-                                      width: 1.0),
-                                  color: Colors.lightGreen),
-                              child: Text("PAIEMENT",
-                                  textAlign: TextAlign.center,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: new TextStyle(
-                                    color: Colors.white,
-                                    decoration: TextDecoration.none,
-                                    fontSize: 16.0,
-                                    fontWeight: FontWeight.bold,
-                                  )),
-                            )),
+                        child: Row(
+                          children: <Widget>[
+                            Expanded(child: PositionedTapDetector(
+                                onTap: (position) {
+                                  _submit(payer: false);
+                                },
+                                child: Container(
+                                  width: double.infinity,
+                                  margin: EdgeInsets.symmetric(horizontal: 10.0),
+                                  padding: EdgeInsets.symmetric(vertical: 15.0),
+                                  decoration: BoxDecoration(
+                                      border: Border.all(
+                                          color: Colors.lightGreen,
+                                          style: BorderStyle.solid,
+                                          width: 1.0),
+                                      color: Colors.lightGreen),
+                                  child: Text("COMMANDER",
+                                      textAlign: TextAlign.center,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: new TextStyle(
+                                        color: Colors.white,
+                                        decoration: TextDecoration.none,
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.bold,
+                                      )),
+                                ))),
+                            Expanded(child: PositionedTapDetector(
+                                onTap: (position) {
+                                  _submit(payer: true);
+                                },
+                                child: Container(
+                                  width: double.infinity,
+                                  margin: EdgeInsets.symmetric(horizontal: 10.0),
+                                  padding: EdgeInsets.symmetric(vertical: 15.0),
+                                  decoration: BoxDecoration(
+                                      border: Border.all(
+                                          color: Colors.lightGreen,
+                                          style: BorderStyle.solid,
+                                          width: 1.0),
+                                      color: Colors.lightGreen),
+                                  child: Text("PAIEMENT",
+                                      textAlign: TextAlign.center,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: new TextStyle(
+                                        color: Colors.white,
+                                        decoration: TextDecoration.none,
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.bold,
+                                      )),
+                                )))
+                          ],
+                        ),
                       ),
                     )
                   ],
@@ -580,7 +633,7 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
               child: new Text("Reessayer"),
               onPressed: () {
                 Navigator.of(context).pop();
-                _submit();
+                _submit(payer: false);
               },
             ),
 
@@ -597,7 +650,10 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
   }
 
   @override
-  void onCommandSuccess() {
+  void onCommandSuccess(int cardID) {
+
+    new DatabaseHelper().clearPanier(); // vide le panier
+
     setState(() {
       isLoading = false;
     });
@@ -613,9 +669,8 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
             new FlatButton(
               child: new Text("Compris"),
               onPressed: () {
-                Navigator.of(context).pop();
-                new DatabaseHelper().clearPanier();
-                Navigator.of(context).pop();
+                Navigator.of(context).pop();// ferme le dialogue
+                Navigator.of(context).pop(); // rentre au panier
               },
             )
           ],

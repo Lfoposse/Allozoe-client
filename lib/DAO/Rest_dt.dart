@@ -249,7 +249,7 @@ class RestDatasource {
 
 
   /// Effectue la commande des produits selectionnes par un client
-  Future<bool> commander(List<Produit> produits, String address, String phone) {
+  Future<int> commander(List<Produit> produits, String address, String phone, dynamic creditcard) {
     return DatabaseHelper().loadClient().then((Client client){
 
       List prods = new List();
@@ -259,6 +259,7 @@ class RestDatasource {
         "delivery_address": address,
         "delivery_phone": phone,
         "restaurant": 1,
+        "creditcard" : creditcard,
         "menus": prods
       };
 
@@ -266,13 +267,13 @@ class RestDatasource {
 
       })).then((dynamic res) {
 
-        if(res["code"] == 201) return true;
-        else return false;
+        if(res["code"] == 201) return res["data"]["card_id"] != null ?  res["data"]["card_id"] as int : 0;
+        else return -1;
 
       }).catchError((onError){
         print(onError.toString());
 
-        return false;
+        return -1;
       });
 
     });
@@ -344,19 +345,17 @@ class RestDatasource {
 
   /// Ajoute une nouvelle carte de paiement et retourne son identifiant serveur
   Future<int> addCreditCard({@required int clientID, @required String ownerName, @required String cardNumber, @required String month, @required String year, @required String security} ) {
-
-    return _netUtil.post(SIGNUP_URL + "/" + clientID.toString() + "bank-card", body: jsonEncode(
+    Map<String, String> lHeaders = {"Content-type": "application/json", "Accept": "application/json"};
+    return _netUtil.post(SIGNUP_URL + "/" + clientID.toString() + "/bank-card", body: jsonEncode(
         {
-
-          "id": clientID,
-          "name": ownerName,
-          "card_number": cardNumber,
-          "month": month,
-          "year":year,
-          "security": security
-
+          "id" : clientID,
+          "name" : ownerName,
+          "card_number" : cardNumber,
+          "month" : month,
+          "year" :year,
+          "security" : security
         }
-    )).then((dynamic res) {
+    ), headers: lHeaders).then((dynamic res) {
 
       if(res["code"] == 201) return res["bank_card_id"] as int;
       else return -1;
