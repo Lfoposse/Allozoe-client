@@ -7,6 +7,7 @@ import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 import '../DAO/Presenters/AddCardPresenter.dart';
 import '../DAO/Presenters/SendCommandePresenter.dart';
 import '../Models/Client.dart';
+import '../Utils/PriceFormatter.dart';
 
 class AddCardScreen extends StatefulWidget {
   final bool forPaiement;
@@ -103,7 +104,12 @@ class AddCardScreenState extends State<AddCardScreen> implements AddCardContract
                  "year" :year.toString(),
                  "security" : security,
                  "save_card" : saveCard
-               }
+               },
+
+             {
+               "id" : -1
+             },
+             1
            );
          });
 
@@ -383,7 +389,7 @@ class AddCardScreenState extends State<AddCardScreen> implements AddCardContract
                         widget.forPaiement
                             ? Container(
                                 margin: EdgeInsets.symmetric(vertical: 25.0),
-                                child: Text("Montant à payer : " + widget.montantPaiement.toString() +"€",
+                                child: Text("Montant à payer : " + PriceFormatter.formatPrice(price: widget.montantPaiement),
                                     style: TextStyle(
                                         fontSize: 17.0,
                                         color: Colors.lightGreen,

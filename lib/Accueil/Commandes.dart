@@ -9,8 +9,7 @@ import '../DetailsCommande.dart';
 import '../Models/Client.dart';
 import '../Database/DatabaseHelper.dart';
 import '../Utils/CommandStatusHelper.dart';
-
-
+import '../Utils/PriceFormatter.dart';
 
 class Commandes extends StatefulWidget {
   @override
@@ -23,12 +22,40 @@ class CommandesState extends State<Commandes>
   List<Commande> commandes;
   int stateIndex;
   Client client;
+  List<Commande>
+      searchResultCommandes; // les commandes du resultat de la recherche
+  bool isSearching; // determine si une recherche est en cours ou pas
+  final controller = new TextEditingController();
+
 
   @override
   void initState() {
     stateIndex = 0;
     commandes = null;
+    isSearching = false;
     _presenter = new CommandeHistoryPresenter(this);
+
+    controller.addListener(() {
+      String currentText = controller.text;
+      if(currentText.length > 0){
+
+        setState(() {
+          searchResultCommandes = new List<Commande>();
+          for(Commande commande in commandes){ // pour chaque commande
+            if(commande.reference.toLowerCase().contains(currentText.toLowerCase())){ // si ca commence par le texte taper
+              searchResultCommandes.add(commande); // l'ajouter au resultat de recherche
+            }
+          }
+          isSearching = true;
+        });
+
+      }else{
+
+        setState(() {
+          isSearching = false;
+        });
+      }
+    });
 
     DatabaseHelper().loadClient().then((Client client) {
       this.client = client;
@@ -51,6 +78,9 @@ class CommandesState extends State<Commandes>
       color: Color.fromARGB(15, 0, 0, 0),
     );
   }
+
+
+
 
   Widget researchBox(
       String hintText, Color bgdColor, Color textColor, Color borderColor) {
@@ -79,6 +109,7 @@ class CommandesState extends State<Commandes>
             child: Container(
                 padding: EdgeInsets.only(left: 10.0, right: 10.0),
                 child: TextFormField(
+                  controller: controller,
                     autofocus: false,
                     autocorrect: false,
                     maxLines: 1,
@@ -96,6 +127,8 @@ class CommandesState extends State<Commandes>
     );
   }
 
+
+
   String _value = new DateTime.now().toString().substring(0, 11);
   int cliked = 2;
 
@@ -108,6 +141,7 @@ class CommandesState extends State<Commandes>
     if (picked != null)
       setState(() => _value = picked.toString().substring(0, 11));
   }
+
 
   Widget getDatedBox() {
     return Row(
@@ -132,7 +166,9 @@ class CommandesState extends State<Commandes>
                     width: 2.0),
               ),
               child: Center(
-                child: Text("Semaine", style: TextStyle(color: cliked == 0 ? Colors.lightGreen : Colors.black)),
+                child: Text("Semaine",
+                    style: TextStyle(
+                        color: cliked == 0 ? Colors.lightGreen : Colors.black)),
               ),
             ),
           ),
@@ -154,11 +190,13 @@ class CommandesState extends State<Commandes>
                       color: cliked == 1 ? Colors.lightGreen : Colors.grey,
                       width: 2.0)),
               child: Center(
-                child: Text("Mois", style: TextStyle(color: cliked == 1 ? Colors.lightGreen : Colors.black)),
+                child: Text("Mois",
+                    style: TextStyle(
+                        color: cliked == 1 ? Colors.lightGreen : Colors.black)),
               ),
             ),
           ),
-          flex: 2,
+          flex: 1,
         ),
         Expanded(
           child: PositionedTapDetector(
@@ -179,16 +217,19 @@ class CommandesState extends State<Commandes>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    Icon(
-                      Icons.calendar_today,
-                      size: 15.0,
-                        color: cliked == 2 ? Colors.lightGreen : Colors.black
-                    ),
+                    Icon(Icons.calendar_today,
+                        size: 15.0,
+                        color: cliked == 2 ? Colors.lightGreen : Colors.black),
                     Container(
                       margin: EdgeInsets.symmetric(horizontal: 5.0),
-                      child: Text(_value, style: TextStyle(color: cliked == 2 ? Colors.lightGreen : Colors.black)),
+                      child: Text(_value,
+                          style: TextStyle(
+                              color: cliked == 2
+                                  ? Colors.lightGreen
+                                  : Colors.black)),
                     ),
-                    Icon(Icons.arrow_drop_down, color: cliked == 2 ? Colors.lightGreen : Colors.black)
+                    Icon(Icons.arrow_drop_down,
+                        color: cliked == 2 ? Colors.lightGreen : Colors.black)
                   ],
                 ),
               ),
@@ -200,12 +241,15 @@ class CommandesState extends State<Commandes>
     );
   }
 
+
   Widget getItem(int index) {
     return PositionedTapDetector(
         onTap: (position) {
           Navigator.of(context)
               .push(new MaterialPageRoute(
-                  builder: (context) => DetailsCommande(commande: commandes[index],)))
+                  builder: (context) => DetailsCommande(
+                        commande: isSearching ? searchResultCommandes[index] : commandes[index],
+                      )))
               .then((value) {
             setState(() {});
           });
@@ -228,7 +272,7 @@ class CommandesState extends State<Commandes>
                           fontWeight: FontWeight.bold,
                         )),
                     new TextSpan(
-                        text: this.commandes[index].reference,
+                        text: isSearching ? searchResultCommandes[index].reference : this.commandes[index].reference,
                         style: new TextStyle(
                           color: Colors.black54,
                           fontSize: 18.0,
@@ -244,12 +288,16 @@ class CommandesState extends State<Commandes>
                 Text(getStatusCommandValue(this.commandes[index].status),
                     textAlign: TextAlign.left,
                     style: new TextStyle(
-                      color: getStatusCommandValueColor(this.commandes[index].status),
+                      color: getStatusCommandValueColor(
+                          isSearching ? searchResultCommandes[index].status : this.commandes[index].status),
                       decoration: TextDecoration.none,
                       fontSize: 16.0,
                       fontWeight: FontWeight.bold,
                     )),
-                Text("Total: " + this.commandes[index].prix.toString() + "€",
+                Text(
+                    "Total: " +
+                        PriceFormatter.formatPrice(
+                            price: isSearching ? searchResultCommandes[index].prix : this.commandes[index].prix),
                     textAlign: TextAlign.left,
                     style: new TextStyle(
                       color: Colors.blue[900],
@@ -264,7 +312,7 @@ class CommandesState extends State<Commandes>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Text(this.commandes[index].date,
+                  Text(isSearching ? searchResultCommandes[index].date : this.commandes[index].date,
                       textAlign: TextAlign.left,
                       style: new TextStyle(
                         color: Colors.black54,
@@ -272,7 +320,7 @@ class CommandesState extends State<Commandes>
                         fontSize: 16.0,
                         fontWeight: FontWeight.normal,
                       )),
-                  Text(this.commandes[index].heure,
+                  Text(isSearching ? searchResultCommandes[index].heure : this.commandes[index].heure,
                       textAlign: TextAlign.left,
                       style: new TextStyle(
                         color: Colors.black54,
@@ -286,6 +334,7 @@ class CommandesState extends State<Commandes>
           ],
         ));
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -301,79 +350,110 @@ class CommandesState extends State<Commandes>
 
       default:
         return new Container(
-            padding: EdgeInsets.symmetric(vertical: commandes != null && commandes.length > 0 ? 5.0 : 0.0),
+            padding: EdgeInsets.symmetric(
+                vertical:
+                    commandes != null && commandes.length > 0 ? 5.0 : 0.0),
             color: Color.fromARGB(25, 0, 0, 0),
             child: Container(
               color: Colors.white,
-              child: commandes != null && commandes.length > 0 ?
-              Column(
-                children: <Widget>[
-                  Expanded(
-                    child: Container(
-                      padding: EdgeInsets.only(top: 5.0),
-                      child: getDatedBox(),
-                    ),
-                    flex: 1,
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(vertical: 15.0),
-                    child: researchBox(
-                        "Chercher ici",
-                        Color.fromARGB(15, 0, 0, 0),
-                        Colors.grey,
-                        Colors.transparent),
-                  ),
-                  Expanded(
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 20.0),
-                      child:ScrollConfiguration(
-                              behavior: MyBehavior(),
-                              child: ListView.builder(
-                                  padding: EdgeInsets.all(0.0),
-                                  scrollDirection: Axis.vertical,
-                                  itemCount: this.commandes.length,
-                                  itemBuilder: (BuildContext ctxt, int index) {
-                                    return getItem(index);
-                                  }),
+              child: commandes != null && commandes.length > 0
+                  ? Column(
+                      children: <Widget>[
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.only(top: 5.0),
+                            margin: EdgeInsets.symmetric(horizontal: 5.0),
+                            child: getDatedBox(),
+                          ),
+                          flex: 1,
+                        ),
+                        Container(
+                          padding: EdgeInsets.symmetric(vertical: 15.0),
+                          child: researchBox(
+                              "Chercher ici",
+                              Color.fromARGB(15, 0, 0, 0),
+                              Colors.grey,
+                              Colors.transparent),
+                        ),
+                        Expanded(
+                          child: isSearching
+                              ? (searchResultCommandes != null &&
+                                      searchResultCommandes.length > 0)
+                                  ? Container(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 20.0),
+                                      child: ScrollConfiguration(
+                                        behavior: MyBehavior(),
+                                        child: ListView.builder(
+                                            padding: EdgeInsets.all(0.0),
+                                            scrollDirection: Axis.vertical,
+                                            itemCount: this.searchResultCommandes.length,
+                                            itemBuilder:
+                                                (BuildContext ctxt, int index) {
+                                              return getItem(index);
+                                            }),
+                                      ))
+                                  : Container(
+                                      padding: EdgeInsets.symmetric(horizontal: 20.0),
+                                      child: Text(
+                                        "Commande inexistante",
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18.0,
+                                            color: Colors.black),
+                                      ))
+                              : Container(
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 20.0),
+                                  child: ScrollConfiguration(
+                                    behavior: MyBehavior(),
+                                    child: ListView.builder(
+                                        padding: EdgeInsets.all(0.0),
+                                        scrollDirection: Axis.vertical,
+                                        itemCount: this.commandes.length,
+                                        itemBuilder:
+                                            (BuildContext ctxt, int index) {
+                                          return getItem(index);
+                                        }),
+                                  )),
+                          flex: 8,
+                        )
+                      ],
+                    )
+                  : Container(
+                      color: Colors.white,
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            Container(
+                              margin: EdgeInsets.only(bottom: 10.0),
+                              child: Icon(
+                                Icons.subtitles,
+                                size: 60.0,
+                                color: Colors.lightGreen,
+                              ),
+                            ),
+                            Text(
+                              "Historique des commandes vides. \n\nVous n'avez encore effectué aucune commande. N'hesitez surtout "
+                                  "pas à passer vos commandes.\n\nNous vous garantissons une livraison dans les délais",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18.0,
+                                  color: Colors.black),
                             )
-                    ),
-                    flex: 8,
-                  )
-                ],
-              ) :
-              Container(
-                color: Colors.white,
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment:
-                    MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      Container(
-                        margin: EdgeInsets.only(bottom: 10.0),
-                        child: Icon(
-                          Icons.subtitles,
-                          size: 60.0,
-                          color: Colors.lightGreen,
+                          ],
                         ),
                       ),
-                      Text(
-                        "Historique des commandes vides. \n\nVous n'avez encore effectué aucune commande. N'hesitez surtout "
-                            "pas à passer vos commandes.\n\nNous vous garantissons une livraison dans les délais",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18.0,
-                            color: Colors.black),
-                      )
-                    ],
-                  ),
-                ),
-              ),
+                    ),
             ));
     }
   }
+
 
   @override
   void onConnectionError() {

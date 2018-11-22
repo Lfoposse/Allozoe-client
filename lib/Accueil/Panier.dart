@@ -9,6 +9,7 @@ import '../Utils/Loading.dart';
 import '../Database/DatabaseHelper.dart';
 import '../Utils/MyBehavior.dart';
 import '../RecapitulatifCommande.dart';
+import '../Utils/PriceFormatter.dart';
 
 
 
@@ -163,7 +164,7 @@ class PanierState extends State<Panier> implements PanierContract{
                         fontSize: 14.0
                     )
                 ),
-                Text(complement.price == 0 ? "Offert" : complement.price.toString() + " €",
+                Text(complement.price == 0 ? "Offert" : PriceFormatter.formatPrice(price: complement.price) ,
                     style: TextStyle(
                         color: Colors.lightGreen,
                         fontWeight: FontWeight.bold,
@@ -232,7 +233,7 @@ class PanierState extends State<Panier> implements PanierContract{
                       Container(
                         width: double.infinity,
                         child: Text(
-                            produits[index].prix.toString() + "€",
+                            PriceFormatter.formatPrice(price: produits[index].prix),
                             textAlign: TextAlign.left,
                             style: new TextStyle(
                               color: Colors.lightGreen,
@@ -387,7 +388,7 @@ class PanierState extends State<Panier> implements PanierContract{
                     ),
                     textAlign: TextAlign.left,
                   ),
-                  Text(getItemTotal(index).toString() + "€",
+                  Text(PriceFormatter.formatPrice(price: (getItemTotal(index))),
                     style: TextStyle(
                         color: Colors.black,
                         fontSize: 14.0,
@@ -423,7 +424,7 @@ class PanierState extends State<Panier> implements PanierContract{
                   ),
                   textAlign: TextAlign.left,
                 ),
-                Text(this.fraisLivraison.toString() + "€",
+                Text(PriceFormatter.formatPrice(price: this.fraisLivraison),
                   style: TextStyle(
                       color: Colors.black38,
                       fontSize: 14.0,
@@ -450,7 +451,7 @@ class PanierState extends State<Panier> implements PanierContract{
                   ),
                   textAlign: TextAlign.left,
                 ),
-                Text(getTotal().toString() + "€",
+                Text(PriceFormatter.formatPrice(price: getTotal()),
                   style: TextStyle(
                       color: Colors.black,
                       fontSize: 14.0,

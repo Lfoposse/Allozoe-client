@@ -11,6 +11,7 @@ import 'Utils/MyBehavior.dart';
 import 'DAO/Presenters/SendCommandePresenter.dart';
 import 'Database/DatabaseHelper.dart';
 import 'package:flutter_google_places_autocomplete/flutter_google_places_autocomplete.dart';
+import 'Utils/PriceFormatter.dart';
 
 const kGoogleApiKey = "AIzaSyBNm8cnYw5inbqzgw8LjXyt3rMhFhEVTjY";
 GoogleMapsPlaces _places =
@@ -86,7 +87,11 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
         _presenter.commander(widget.produits, _address, _phone,
             {
               "id": -1
-            }
+            },
+          {
+            "id": -1
+          },
+          1
         );
 
       }else{ // commander sans payer
@@ -149,7 +154,7 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
           Text(
             complement.price == 0
                 ? "Offert"
-                : complement.price.toString() + "€",
+                : PriceFormatter.formatPrice(price: complement.price),
             textAlign: TextAlign.left,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -205,7 +210,7 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
                   textAlign: TextAlign.left,
                 ),
                 Text(
-                  getTotal(true).toString() + "€",
+                  PriceFormatter.formatPrice(price: getTotal(true)),
                   style: TextStyle(
                       color: Colors.blueGrey,
                       fontSize: 18.0,
@@ -229,7 +234,7 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
                   textAlign: TextAlign.left,
                 ),
                 Text(
-                  widget.fraisLivraison.toString() + "€",
+                  PriceFormatter.formatPrice(price: widget.fraisLivraison),
                   style: TextStyle(
                       color: Colors.black38,
                       fontSize: 16.0,
@@ -254,7 +259,7 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
                   textAlign: TextAlign.left,
                 ),
                 Text(
-                  (getTotal(false) + widget.fraisLivraison).toString() + "€",
+                  PriceFormatter.formatPrice(price: getTotal(false) + widget.fraisLivraison),
                   style: TextStyle(
                       color: Colors.lightGreen,
                       fontSize: 18.0,
@@ -371,7 +376,7 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
                             fontWeight: FontWeight.bold),
                       ))),
               Text(
-                widget.produits[index].prix.toString() + "€",
+                PriceFormatter.formatPrice(price: widget.produits[index].prix),
                 textAlign: TextAlign.left,
                 style: TextStyle(
                     fontSize: 18.0,
@@ -408,7 +413,7 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   Text(
-                    getItemTotal(index, false).toString() + "€",
+                    PriceFormatter.formatPrice(price: getItemTotal(index, false)),
                     textAlign: TextAlign.left,
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
@@ -430,7 +435,7 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
                 ],
               )),
               Text(
-                getItemTotal(index, true).toString() + "€",
+                PriceFormatter.formatPrice(price: getItemTotal(index, true)),
                 textAlign: TextAlign.left,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
@@ -569,7 +574,7 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
                                           style: BorderStyle.solid,
                                           width: 1.0),
                                       color: Colors.lightGreen),
-                                  child: Text("PAIEMENT",
+                                  child: Text("PAYER",
                                       textAlign: TextAlign.center,
                                       overflow: TextOverflow.ellipsis,
                                       style: new TextStyle(

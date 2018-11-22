@@ -17,10 +17,10 @@ String getStatusCommandValue(StatusCommande statusCommande){
 
   switch(statusCommande.id){
     case 1 : return "En attente de livraison";
-    case 2 : return "Livraison en cours";
-    case 3 : return "Livraison en cours";
+    case 2 : return "En attente de livraison";
+    case 3 : return "En attente de livraison";
     case 4 : return "Livraison en cours";
-    default: return "Livrée";
+    default: return "En attente de livraison";
   }
 }
 
@@ -29,10 +29,10 @@ Color getStatusCommandValueColor(StatusCommande statusCommande){
 
   switch(statusCommande.id){
     case 1 : return Colors.brown;
-    case 2 : return Colors.lightGreen;
-    case 3 : return Colors.lightGreen;
+    case 2 : return Colors.brown;
+    case 3 : return Colors.brown;
     case 4 : return Colors.lightGreen;
-    default: return Colors.black;
+    default: return Colors.brown;
   }
 }
 

@@ -8,6 +8,7 @@ import 'Models/Produit.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 import 'Database/DatabaseHelper.dart';
 import 'DAO/Presenters/ProductDetailPresenter.dart';
+import 'Utils/PriceFormatter.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   ProductDetailScreen(this.produit);
@@ -112,7 +113,7 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
                       fontSize: 18.0
                   )
                 ),
-                Text(this.produit.options[optIndex].complements[cplIndex].price == 0 ? "Offert" : this.produit.options[optIndex].complements[cplIndex].price.toString() + " €",
+                Text(this.produit.options[optIndex].complements[cplIndex].price == 0 ? "Offert" : PriceFormatter.formatPrice(price: this.produit.options[optIndex].complements[cplIndex].price),
                     style: TextStyle(
                         color: Colors.lightGreen,
                         fontWeight: FontWeight.bold,
@@ -258,7 +259,7 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
                               Text(
-                                getTotal().toString() + "€",
+                                PriceFormatter.formatPrice(price: getTotal()),
                                 style: TextStyle(
                                     color: Colors.lightGreen,
                                     fontSize: 16.0,

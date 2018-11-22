@@ -11,6 +11,7 @@ import '../Database/DatabaseHelper.dart';
 import '../Models/Deliver.dart';
 import 'package:flutter/material.dart';
 import '../Models/CreditCard.dart';
+import '../Models/Ticket.dart';
 
 
 class RestDatasource {
@@ -249,7 +250,7 @@ class RestDatasource {
 
 
   /// Effectue la commande des produits selectionnes par un client
-  Future<int> commander(List<Produit> produits, String address, String phone, dynamic creditcard) {
+  Future<int> commander(List<Produit> produits, String address, String phone, dynamic creditcard, dynamic ticket, int payment_mode) {
     return DatabaseHelper().loadClient().then((Client client){
 
       List prods = new List();
@@ -258,8 +259,10 @@ class RestDatasource {
         "client" : client.id,
         "delivery_address": address,
         "delivery_phone": phone,
+        "payment_mode" : payment_mode,
         "restaurant": 1,
         "creditcard" : creditcard,
+        "ticket" : ticket,
         "menus": prods
       };
 
@@ -363,4 +366,16 @@ class RestDatasource {
     }).catchError((onError) => new Future.error(-1));
   }
 
+
+  ///Retourne la liste des tickets d'un client
+  Future<List<Ticket>> loadClientTicket(int clientID) {
+    return _netUtil.get(SIGNUP_URL + "/" + clientID.toString() + "/tickets").then((dynamic res) {
+
+      if(res["code"] == 200 && res['items'] != null)
+        return (res['items'] as List).map((item) => new Ticket.map(item)).toList();
+      else
+        return null as List<Ticket>;
+
+    }).catchError((onError) => new Future.error(new Exception(onError.toString())));
+  }
 }

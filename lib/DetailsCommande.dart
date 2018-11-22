@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 import 'TrackingCommandScreen.dart';
 import 'Utils/CommandStatusHelper.dart';
+import 'Utils/PriceFormatter.dart';
 
 
 _openMap(double lat, double lng, String title) async {
@@ -143,7 +144,7 @@ class DetailsCommandeState extends State<DetailsCommande> implements OrderDetail
                   textAlign: TextAlign.left,
                 ),
                 Text(
-                  widget.commande.prix.toString() + "€",
+                  PriceFormatter.formatPrice(price: widget.commande.prix),
                   style: TextStyle(
                       color: Colors.lightGreen,
                       fontSize: 20.0,
@@ -238,7 +239,7 @@ class DetailsCommandeState extends State<DetailsCommande> implements OrderDetail
                 ],
               ))),
           Text(
-            complement.price == 0 ? "Offert" : complement.price.toString() + "€",
+            complement.price == 0 ? "Offert" : PriceFormatter.formatPrice(price: complement.price),
             textAlign: TextAlign.left,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -286,7 +287,7 @@ class DetailsCommandeState extends State<DetailsCommande> implements OrderDetail
                         fontWeight: FontWeight.bold),
                   ))),
               Text(
-                produits[index].prix.toString() + "€",
+                PriceFormatter.formatPrice(price: produits[index].prix),
                 textAlign: TextAlign.left,
                 style: TextStyle(
                     fontSize: 18.0,
@@ -320,7 +321,7 @@ class DetailsCommandeState extends State<DetailsCommande> implements OrderDetail
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       Text(
-                        getItemTotal(index, false).toString() + "€",
+                        PriceFormatter.formatPrice(price: getItemTotal(index, false)),
                         textAlign: TextAlign.left,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
@@ -342,7 +343,7 @@ class DetailsCommandeState extends State<DetailsCommande> implements OrderDetail
                     ],
                   )),
               Text(
-                getItemTotal(index, true).toString() + "€",
+                PriceFormatter.formatPrice(price: getItemTotal(index, true)),
                 textAlign: TextAlign.left,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,

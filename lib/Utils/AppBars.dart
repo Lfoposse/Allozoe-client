@@ -55,7 +55,7 @@ class HomeAppBarState extends State<HomeAppBar> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.grey,
+      color: Colors.white,
       child: Container(
           height: 56.0, // in logical pixels
           margin: EdgeInsets.only(

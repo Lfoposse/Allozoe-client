@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/services.dart';
+
 import 'Models/Restaurant.dart';
 import 'package:client_app/Utils/AppBars.dart';
 import 'package:flutter/material.dart';
@@ -29,20 +31,29 @@ class TrackingCommandeScreenState extends State<TrackingCommandeScreen> implemen
   double percent;
   int temps, distance;
   DeliverPositionPresenter _presenter;
+  bool firstCheck; // determine si la recherche initiale a deja ete effectue avec succes ou pas
   int stateIndex;
+  bool stop;
 
   @override
   void initState() {
     super.initState();
 
+    firstCheck = true;
+    stop = false;
     stateIndex = 0;
     percent = 0.0;
     temps = 0;
     distance = 0;
     _presenter = new DeliverPositionPresenter(this);
     _presenter.getDeliverPosition(widget.deliver.id);
-  }
 
+    SystemChannels.lifecycle.setMessageHandler((msg){
+      if(msg == AppLifecycleState.suspending) setState(() {
+        stop = true;
+      });
+    });
+  }
 
   Widget getInfos(String title, String value) {
     return Container(
@@ -82,7 +93,7 @@ class TrackingCommandeScreenState extends State<TrackingCommandeScreen> implemen
 
       case 3 : {
         return Text(
-          ((percent > 1.0 ? 0.0 : percent)*100).ceil().toString() + "% \n Effectuée",
+            ((percent)*100).ceil().toString() + "% \n Effectuée",
           textAlign: TextAlign.center,
           style: TextStyle(
               fontSize: 26.0,
@@ -181,7 +192,7 @@ class TrackingCommandeScreenState extends State<TrackingCommandeScreen> implemen
                                 radius: 200.0,
                                 fillColor: Colors.white,
                                 lineWidth: 20.0,
-                                percent: percent > 1.0 ? 0.0 : percent,
+                                percent: percent,
                                 center: getAppropriateView(),
                                 progressColor: Colors.green,
                                 backgroundColor: Colors.black38,
@@ -190,12 +201,12 @@ class TrackingCommandeScreenState extends State<TrackingCommandeScreen> implemen
                           ), flex: 3,),
                           Expanded(child: Container(
                             child: Center(
-                              child: getInfos("Livraison dans environ : ", stateIndex != 3 ? "Estimation en cours" : (temps).toString() + " min"),
+                              child: getInfos("Livraison dans environ : ", stateIndex != 3 ? "Estimation en cours" : temps.toString() + " min"),
                             ),
                           ), flex: 1,),
                           Expanded(child: Container(
                             child: Center(
-                              child: getInfos("Proximité du livreur : ", stateIndex != 3 ? "Estimation en cours" :( distance == 0 ? "Au lieu de livraison" : (distance / 1000).toString() + " Km")),
+                              child: getInfos("Proximité du livreur : ", stateIndex != 3 ? "Estimation en cours" :( distance == 0 ? "Au lieu de livraison" : "Environ " + distance.toString() + " m")),
                             ),
                           ), flex: 1,),
                           Expanded(child: Container(), flex: 1,)
@@ -225,60 +236,78 @@ class TrackingCommandeScreenState extends State<TrackingCommandeScreen> implemen
 
   @override
   void onConnectionError() {
-    setState(() {
-      stateIndex = 2;
-    });
+    if(stop) return;
+
+    if(firstCheck){
+      setState(() {
+        stateIndex = 2;
+      });
+    }else
+      _presenter.getDeliverPosition(widget.deliver.id);
   }
 
   @override
   void onLoadingError() {
-    setState(() {
-      stateIndex = 1;
-    });
+    if(stop) return;
+
+    if(firstCheck){
+      setState(() {
+        stateIndex = 1;
+      });
+    }else
+      _presenter.getDeliverPosition(widget.deliver.id);
   }
 
   @override
   void onLoadingSuccess(Deliver deliver) async{
 
+    if(stop) return;
+
     try{
       List<Placemark> placemark = await Geolocator().placemarkFromAddress(widget.deliveryAdress);
-      double originalDistance = await Geolocator().distanceBetween(widget.restaurant.latitude, widget.restaurant.latitude, placemark[0].position.latitude, placemark[0].position.longitude);
-      double distanceInMeters = await Geolocator().distanceBetween(deliver.lat, deliver.lng, placemark[0].position.latitude, placemark[0].position.longitude);
-      distance = distanceInMeters.truncate();
-      percent =  distanceInMeters / originalDistance;
 
-      temps = (distanceInMeters / 60000).truncate();
+      double originalDistance = await Geolocator().distanceBetween(placemark[0].position.latitude, placemark[0].position.longitude, widget.restaurant.latitude, widget.restaurant.longitude);
+      double distanceInMeters = await Geolocator().distanceBetween(placemark[0].position.latitude, placemark[0].position.longitude, deliver.lat, deliver.lng);
+
+//      // santa lucia
+//      double deliv_lat = 4.092629;
+//      double deliv_lng = 9.746420;
+//
+//      // bureau
+//      double res_lat = 4.0922813;
+//      double res_lng = 9.748298;
+//
+//      double originalDistance = await Geolocator().distanceBetween(deliv_lat, deliv_lng, res_lat, res_lng);
+//      double distanceInMeters = await Geolocator().distanceBetween(deliv_lat, deliv_lng, deliver.lat, deliver.lng);
+
+      setState(() {
+        distance = distanceInMeters.truncate();
+        temps = (distanceInMeters / 60).truncate();
+
+        percent =  distanceInMeters > originalDistance ? 0 : 1 - (distanceInMeters / originalDistance);
+      });
 
       print("dis = " + distanceInMeters.toString());
       print("tot = " + originalDistance.toString());
       print("percent = " + percent.toString());
-      setState(() {
+
+      if(firstCheck) setState(() { // si c'est le resultat de la recherche initiale
         stateIndex = 3;
+        firstCheck = false; // on signale que l'etape de recherche initiale a ete traversee
       });
-    }catch(error){ setState(() {
-      stateIndex = 1;
-    });}
+      _presenter.getDeliverPosition(widget.deliver.id);
 
-    do{
+    }catch(error){
+      if(firstCheck){
+        setState(() {
+          stateIndex = 1;
+        });
+      }else
+        _presenter.getDeliverPosition(widget.deliver.id);
+    }
 
-      try{
-        List<Placemark> placemark = await Geolocator().placemarkFromAddress(widget.deliveryAdress);
-        double originalDistance = await Geolocator().distanceBetween(widget.restaurant.latitude, widget.restaurant.latitude, placemark[0].position.latitude, placemark[0].position.longitude);
-        double distanceInMeters = await Geolocator().distanceBetween(deliver.lat, deliver.lng, placemark[0].position.latitude, placemark[0].position.longitude);
-        distance = distanceInMeters.truncate();
-        percent =  distanceInMeters / originalDistance;
 
-        temps = (distanceInMeters / 60000).truncate();
 
-        print("dis = " + distanceInMeters.toString());
-        print("tot = " + originalDistance.toString());
-        print("percent = " + percent.toString());
-        setState(() {});
-      }catch(error){ setState(() {
-        print(error.toString());
-      });}
-
-    }while(true);
   }
 }
 

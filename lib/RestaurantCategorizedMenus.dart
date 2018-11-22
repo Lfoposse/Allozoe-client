@@ -9,6 +9,7 @@ import 'ProductDetailScreen.dart';
 import 'Models/Restaurant.dart';
 import 'Database/DatabaseHelper.dart';
 import 'Models/Produit.dart';
+import 'Utils/PriceFormatter.dart';
 
 class RestaurantCategorizedMenus extends StatefulWidget {
 
@@ -105,7 +106,7 @@ class RestaurantCategorizedMenusState extends State<RestaurantCategorizedMenus> 
                   child: Row(
                     children: <Widget>[
                       Expanded(child: new Text(
-                          categories[sectionIndex].produits[itemIndex].prix.toString()+ "€",
+                          PriceFormatter.formatPrice(price: categories[sectionIndex].produits[itemIndex].prix),
                           textAlign: TextAlign.left,
                           style: new TextStyle(
                             color: Colors.black,
