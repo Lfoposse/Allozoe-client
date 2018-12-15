@@ -9,6 +9,7 @@ import 'DAO/Presenters/LoginPresenter.dart';
 import 'Models/Client.dart';
 import 'EmailRecoveryAccountScreen.dart';
 import 'Database/DatabaseHelper.dart';
+import 'StringKeys.dart';
 
 class SignInScreen extends StatefulWidget {
   @override
@@ -41,7 +42,7 @@ class SignInScreenState extends State<SignInScreen>
 
     if (_email.length == 0 || _password.length == 0) {
       setState(() {
-        _errorMsg = "Renseigner vos identifiants";
+        _errorMsg = getLocaleText(context: context, strinKey: StringKeys.ERROR_ENTER_ALL_CREDENTIALS);
         _showError = true;
       });
     } else {
@@ -50,7 +51,7 @@ class SignInScreenState extends State<SignInScreen>
       RegExp regex = new RegExp(pattern);
       if (!regex.hasMatch(_email)) {
         setState(() {
-          _errorMsg = "Email invalide";
+          _errorMsg = getLocaleText(context: context, strinKey: StringKeys.ERROR_INVALID_EMAIL);
           _showError = true;
         });
       } else {
@@ -112,19 +113,6 @@ class SignInScreenState extends State<SignInScreen>
                         padding: EdgeInsets.only(left: 10.0, right: 10.0),
                         child: TextFormField(
                             onSaved: (val) => _email = val,
-//                        validator: (val) {
-////                          if(val.length == 0)
-////                              return "Aucun email entré";
-////                          else {
-////                            Pattern pattern =
-////                                r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-////                            RegExp regex = new RegExp(pattern);
-////                            if (!regex.hasMatch(val))
-////                              return "Entrer un email valide";
-////                            else
-////                              return null;
-////                          }
-//                        },
                             obscureText: hide_content,
                             autofocus: false,
                             autocorrect: false,
@@ -201,7 +189,7 @@ class SignInScreenState extends State<SignInScreen>
           onPressed: _submit,
           child: SizedBox(
             width: double.infinity,
-            child: Text("ME CONNECTER",
+            child: Text(getLocaleText(context: context, strinKey: StringKeys.LOGIN_BTN_TITLE),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16.0,
@@ -226,7 +214,7 @@ class SignInScreenState extends State<SignInScreen>
             text: new TextSpan(
               children: [
                 new TextSpan(
-                    text: 'Vous n\'avez pas de compte?',
+                    text: getLocaleText(context: context, strinKey: StringKeys.NOT_HAVE_ACCOUNT),
                     style: new TextStyle(
                       color: Colors.black,
                       fontSize: 16.0,
@@ -236,18 +224,20 @@ class SignInScreenState extends State<SignInScreen>
             ),
           ),
           Expanded(
-              child: PositionedTapDetector(
-                  onTap: (position) {
-                    Navigator.of(context).push(new MaterialPageRoute(
-                        builder: (context) => SignUpScreen()));
-                  },
-                  child: Text('  S\'inscrire',
-                      style: new TextStyle(
-                        color: Colors.lightGreen,
-                        decoration: TextDecoration.none,
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.bold,
-                      ))))
+              child: Container()
+          ),
+          PositionedTapDetector(
+              onTap: (position) {
+                Navigator.of(context).push(new MaterialPageRoute(
+                    builder: (context) => SignUpScreen()));
+              },
+              child: Text(getLocaleText(context: context, strinKey: StringKeys.SIGN_UP),
+                  style: new TextStyle(
+                    color: Colors.lightGreen,
+                    decoration: TextDecoration.none,
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.bold,
+                  )))
         ]));
 
     return Material(
@@ -272,16 +262,16 @@ class SignInScreenState extends State<SignInScreen>
                           left: padding_from_screen,
                           right: padding_from_screen),
                       child: new Text(
-                          'Heureux de vous revoir ! Connectez-vous pour continuer',
+                          getLocaleText(context: context, strinKey: StringKeys.WELCOME_TEXT),
                           style: new TextStyle(
                             color: Colors.black54,
                             fontSize: 18.0,
                             fontWeight: FontWeight.bold,
                           )),
                     ),
-                    buildEntrieRow(Icons.email, null, "Entrer un email",
+                    buildEntrieRow(Icons.email, null, getLocaleText(context: context, strinKey: StringKeys.EMAIL_HINT),
                         TextInputType.emailAddress, false),
-                    buildPassEntry("Entrer le mot de passe"),
+                    buildPassEntry(getLocaleText(context: context, strinKey: StringKeys.PASSWORD_HINT)),
                     showError(),
                     _isLoading
                         ? Container(
@@ -305,7 +295,7 @@ class SignInScreenState extends State<SignInScreen>
                           child: Container(
                               margin: EdgeInsets.only(
                                   left: padding_from_screen, right: padding_from_screen, bottom: 15.0),
-                              child: Text('Mot de passe oublié ?',
+                              child: Text(getLocaleText(context: context, strinKey: StringKeys.FORGOT_PASSWORD),
                                   style: new TextStyle(
                                     color: Colors.lightGreen,
                                     decoration: TextDecoration.underline,
@@ -321,7 +311,7 @@ class SignInScreenState extends State<SignInScreen>
             Container(
               height: AppBar().preferredSize.height,
               child: AppBar(
-                title: Text('Connexion au compte'),
+                title: Text(getLocaleText(context: context, strinKey: StringKeys.LOGIN_PAGE_TITLE)),
                 centerTitle: true,
                 backgroundColor: Colors.transparent,
                 elevation: 0.0,
@@ -337,7 +327,7 @@ class SignInScreenState extends State<SignInScreen>
   void onLoginError() {
     setState(() {
       _isLoading = false;
-      _errorMsg = "Email ou mot de passe erroné";
+      _errorMsg = getLocaleText(context: context, strinKey: StringKeys.ERROR_WRONG_CREDENTIALS);
       _showError = true;
     });
   }
@@ -357,40 +347,14 @@ class SignInScreenState extends State<SignInScreen>
 
     }else{ // si le compte n'est pas activee
 
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          // return object of type Dialog
-          return AlertDialog(
-            title: new Text("Compte non activé"),
-            content: new Text(
-                "Vous n'avez pas encore activé votre compte.\nActivez le afin de vous connecter"),
-            actions: <Widget>[
-              new FlatButton(
-                child: new Text("Annuler"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              new FlatButton(
-                child: new Text("Activer"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  Navigator.of(context).push(new MaterialPageRoute(
-                      builder: (context) => ConfirmAccountScreen(clientId: client.id, isForResetPassword: false, clientEmail: _email,)));
-                },
-              )
-
-            ],
-          );
-        },
-      );
+      Navigator.of(context).push(new MaterialPageRoute(
+          builder: (context) => ConfirmAccountScreen(clientId: client.id, isForResetPassword: false, clientEmail: _email,)));
     }
   }
 
   @override
   void onConnectionError() {
-    _showSnackBar("Échec de connexion. Vérifier votre connexion internet");
+    _showSnackBar(getLocaleText(context: context, strinKey: StringKeys.ERROR_CONNECTION_FAILED));
     setState(() => _isLoading = false);
   }
 }

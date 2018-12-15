@@ -9,14 +9,16 @@ import '../RestaurantCategorizedMenus.dart';
 import '../Database/DatabaseHelper.dart';
 import 'package:flutter_google_places_autocomplete/flutter_google_places_autocomplete.dart';
 import 'package:geolocator/geolocator.dart';
+import '../StringKeys.dart';
+
 const kGoogleApiKey = "AIzaSyBNm8cnYw5inbqzgw8LjXyt3rMhFhEVTjY";
 
 
-
 // to get places detail (lat/lng)
-GoogleMapsPlaces _places = new GoogleMapsPlaces(kGoogleApiKey);
+GoogleMapsPlaces _places = new GoogleMapsPlaces(apiKey: kGoogleApiKey);/*kGoogleApiKey*/
 final homeScaffoldKey = new GlobalKey<ScaffoldState>();
 double latitude, longitude;
+
 
 _showMessage(String message) {
   homeScaffoldKey.currentState
@@ -24,12 +26,10 @@ _showMessage(String message) {
 }
 
 
-
 class Accueil extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => new AccueilState();
 }
-
 
 
 class AccueilState extends State<Accueil> implements RestaurantContract {
@@ -41,10 +41,36 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
   bool deviceLocationMode;
   var geolocator;
 
-  _loadRestaurantNearBy() async {
+  @override
+  void initState() {
+    super.initState();
+    deviceLocationMode = true;
+    geolocator = Geolocator()
+      ..forceAndroidLocationManager = false;
+    db = new DatabaseHelper();
+    restaurants = null;
+    latitude = 48.9031145;
+    longitude = 2.2638343;
+
+    var locationOptions =
+    LocationOptions(accuracy: LocationAccuracy.high, distanceFilter: 100);
+    geolocator.getPositionStream(locationOptions).listen((Position position) {
+      if(position != null){ //  si la position n'est pas nulle
+        debugPrint("updated position : lat = " + position.latitude.toString() + " long = " + position.longitude.toString());
+
+      }
+    });
+
+    _presenter = new RestaurantPresenter(this);
+    loadRestaurantNearBy();
+  }
+
+
+  loadRestaurantNearBy() async {
+
     setState(() {
       stateIndex = 0;
-      adressName = "Restaurants autour de vous ou entrez une adresse";
+      adressName = "Restaurants a proximite";
       deviceLocationMode = true;
     });
 
@@ -55,10 +81,11 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
       Position position = await geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high);
       if (position != null) {
-        print("actual position : lat = " +
+        debugPrint("actual position : lat = " +
             position.latitude.toString() +
             " long = " +
-            position.longitude.toString());
+            position.longitude.toString()
+        );
         latitude = position.latitude;
         longitude = position.longitude;
         _presenter.loadRestaurants(latitude, longitude);
@@ -67,12 +94,12 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
         Position pos = await Geolocator().getLastKnownPosition(desiredAccuracy: LocationAccuracy.high);
         if (pos == null) {
 
-          print(" actual position not found");
+          debugPrint(" actual position not found");
           _presenter.loadRestaurants(latitude, longitude);
 
         } else {
 
-          print("last known position : lat = " + pos.latitude.toString() + " long = " + pos.longitude.toString());
+          debugPrint("last known position : lat = " + pos.latitude.toString() + " long = " + pos.longitude.toString());
           latitude = pos.latitude;
           longitude = pos.longitude;
           _presenter.loadRestaurants(latitude, longitude);
@@ -81,45 +108,26 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
 
     }else{
 
-      print("Permission de geolocation refusee");
+      debugPrint("Permission de geolocation refusee");
       _presenter.loadRestaurants(latitude, longitude);
     }
   }
 
 
-  @override
-  void initState() {
-    deviceLocationMode = true;
-    geolocator = Geolocator()
-    ..forceAndroidLocationManager = false;
-    db = new DatabaseHelper();
-    restaurants = null;
-    latitude = 48.9031145;
-    longitude = 2.2638343;
-
-    var locationOptions =
-        LocationOptions(accuracy: LocationAccuracy.high, distanceFilter: 100);
-    geolocator.getPositionStream(locationOptions).listen((Position position) {
-      if(position != null){ //  si la position n'est pas nulle
-        print("updated position : lat = " + position.latitude.toString() + " long = " + position.longitude.toString());
-
-      }
-    });
-
-    _presenter = new RestaurantPresenter(this);
-    _loadRestaurantNearBy();
-    super.initState();
-  }
 
   void _onRetryClick() {
+
     setState(() {
       stateIndex = 0;
       _presenter.loadRestaurants(latitude, longitude);
     });
   }
 
+
+
   @override
   Widget build(BuildContext context) {
+
     Container getItem(itemIndex) {
       return Container(
         margin: EdgeInsets.only(top: 5.0, bottom: 5.0),
@@ -277,7 +285,7 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
                                 latitude = detail.result.geometry.location.lat;
                                 longitude = detail.result.geometry.location.lng;
 
-                                print(p.description +
+                                debugPrint(p.description +
                                     " position : lat = " +
                                     latitude.toString() +
                                     " long = " +
@@ -298,25 +306,25 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
                           ? Container()
                           : PositionedTapDetector(
                               onTap: (position) {
-                                _loadRestaurantNearBy();
+                                loadRestaurantNearBy();
                               },
                               child: Container(
-                                  margin: EdgeInsets.only(right: 10.0),
+                                  margin: EdgeInsets.only(right: 5.0),
                                   color: Colors.white,
                                   child: Icon(Icons.location_on,
-                                      size: 30.0, color: Colors.lightGreen)),
+                                      size: 25.0, color: Colors.lightGreen)),
                             )
                     ],
                   ),
                 ),
-                flex: 1,
+                flex: 2,
               ),
               Flexible(
                 child: stateIndex == 1
                     ? Container(
                         child: Center(
                           child: Text(
-                            "Aucun restaurant trouvé à proximité de cette position.\n\nEssayez une autre adresse",
+                            getLocaleText(context: context, strinKey: StringKeys.RESTAURANTS_NEARBY_NOT_FOUND),
                             textAlign: TextAlign.center,
                             style: TextStyle(
                                 color: Colors.black,
@@ -337,13 +345,14 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
                                 return getItem(index);
                               }),
                         )),
-                flex: 14,
+                flex: 19,
               )
             ],
           ),
         );
     }
   }
+
 
   @override
   void onConnectionError() {
@@ -352,12 +361,14 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
     });
   }
 
+
   @override
   void onLoadingError() {
     setState(() {
       stateIndex = 1;
     });
   }
+
 
   @override
   void onLoadingSuccess(List<Restaurant> restaurants) {

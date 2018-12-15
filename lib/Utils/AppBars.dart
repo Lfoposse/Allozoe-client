@@ -75,7 +75,7 @@ class HomeAppBarState extends State<HomeAppBar> {
 Widget researchBox(
     String hintText, Color bgdColor, Color textColor, Color borderColor) {
   return Container(
-    padding: EdgeInsets.only(left: 20.0, right: 20.0),
+    padding: EdgeInsets.only(left: 10.0, right: 10.0),
     decoration: new BoxDecoration(
         color: bgdColor,
         border: new Border(
@@ -92,11 +92,11 @@ Widget researchBox(
       Icon(Icons.search, color: textColor),
       Expanded(
           child: Container(
-              padding: EdgeInsets.only(left: 10.0, right: 10.0),
+              padding: EdgeInsets.only(left: 5.0, right: 5.0),
               child: TextFormField(
                   autofocus: false,
                   autocorrect: false,
-                  maxLines: 1,
+                  maxLines: 2,
                   keyboardType: TextInputType.text,
                   decoration: InputDecoration(
                       border: InputBorder.none,

@@ -354,11 +354,65 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
                     setState(() { db.deleteProduit(this.produit); });
                   } else {
 
-                    db.addProduit(this.produit).then((insertedId) {
-                      setState(() {});
+                    db.isRestaurantDifferentFromCartOne(this.produit.restaurant).then((isDifferent){
+
+                      // si le produit a ajouter est different de celui des produits deja present dans le panier
+                      if(isDifferent){
+
+                        showDialog<Null>(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return new AlertDialog(
+                              title: new Text('Attention'),
+                              content: new SingleChildScrollView(
+                                child: new ListBody(
+                                  children: <Widget>[
+                                    new Text("Vous êtes entrain de changer de restaurant. Le panier va être vidé avant cet ajout.\nSinon vous pouvez d'abord"
+                                    + " commander le panier du précédent restaurant avant de continuer."),
+                                  ],
+                                ),
+                              ),
+                              actions: <Widget>[
+                                new FlatButton(
+                                  child:
+                                  new Text('ANNULER', style: TextStyle(color: Colors.lightGreen)),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                                new FlatButton(
+                                  child: new Text('Ajouter au panier', style: TextStyle(color: Colors.lightGreen)),
+                                  onPressed: () {
+
+                                    db.clearPanier(); // on vide le panier avant d'y ajouter le nouveau produit
+                                    db.addProduit(this.produit).then((insertedId) {
+                                      Navigator.of(context).pop();
+                                      setState(() {});
+                                    }).catchError((error) {
+                                      print("Erreur : " + error.toString());
+                                    });
+
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+
+                      }else{ // sinon on ajoute le produit au panier
+
+                        db.addProduit(this.produit).then((insertedId) {
+                          setState(() {});
+                        }).catchError((error) {
+                          print("Erreur : " + error.toString());
+                        });
+
+                      }
                     }).catchError((error) {
                       print("Erreur : " + error.toString());
                     });
+
+
                   }
                 },
                 child: SizedBox(

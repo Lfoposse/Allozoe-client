@@ -45,7 +45,7 @@ Future<Null> _confirmerDeconnexion(BuildContext context) async {
             onPressed: () {
               Navigator.of(context).pop();
               new DatabaseHelper().clearClient();
-              AppSharedPreferences().setAppLoggedIn(
+              new AppSharedPreferences().setAppLoggedIn(
                   false); // on memorise qu'un compte s'est connecter
               Navigator.of(context).pushAndRemoveUntil(
                   new MaterialPageRoute(builder: (context) => SignInScreen()),
@@ -106,7 +106,7 @@ class ProfilState extends State<Profil> {
           // lancer la page de modification des infos bancaires
           new DatabaseHelper().getClientCards().then((List<CreditCard> cards){
             Navigator.of(context).push(
-                new MaterialPageRoute(builder: (context) => CardListScreen(forPaiement: false, cards: cards,)));
+                new MaterialPageRoute(builder: (context) => CardListScreen(forPaiement: false, paymentMode: 1, cards: cards,)));
           });
 
 
@@ -115,7 +115,7 @@ class ProfilState extends State<Profil> {
 
       default:
         {
-          // deconnecter le compte apres confirmation de l'application
+           //deconnecter le compte apres confirmation de l'application
           _confirmerDeconnexion(context);
         }
     }

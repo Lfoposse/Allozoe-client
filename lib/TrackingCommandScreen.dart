@@ -11,6 +11,8 @@ import 'Models/Deliver.dart';
 import 'DAO/Presenters/DeliverPositionPresenter.dart';
 
 
+bool stop;
+
 class TrackingCommandeScreen extends StatefulWidget{
 
   final String deliveryAdress;
@@ -33,7 +35,34 @@ class TrackingCommandeScreenState extends State<TrackingCommandeScreen> implemen
   DeliverPositionPresenter _presenter;
   bool firstCheck; // determine si la recherche initiale a deja ete effectue avec succes ou pas
   int stateIndex;
-  bool stop;
+
+
+  String getFormattedTime(int time){
+
+    if(time < 60){
+      return time.toString() + " min";
+    }else if( (time / 60).truncate() >= 24){
+
+      int hours = (time / 60).truncate();
+
+      return (hours / 24).truncate().toString() + " Jr  " + (hours % 24).toString() + " Hr  " + (time % 60).toString() + " Min";
+
+    }else{
+
+      return (time / 60).truncate().toString() + " Hr  " + (time % 60).toString() + " Min";
+    }
+  }
+
+
+  String getFormattedDistance(int distance){
+
+    if(distance < 1000){
+      return distance.toString() + " m";
+    }else{
+      return (distance / 1000).truncate().toString() + " Km  " + (distance % 1000).toString() + " m";
+    }
+  }
+
 
   @override
   void initState() {
@@ -48,11 +77,14 @@ class TrackingCommandeScreenState extends State<TrackingCommandeScreen> implemen
     _presenter = new DeliverPositionPresenter(this);
     _presenter.getDeliverPosition(widget.deliver.id);
 
-    SystemChannels.lifecycle.setMessageHandler((msg){
-      if(msg == AppLifecycleState.suspending) setState(() {
-        stop = true;
-      });
-    });
+  }
+
+
+  @override
+  void dispose() {
+
+    stop = true;
+    super.dispose();
   }
 
   Widget getInfos(String title, String value) {
@@ -70,7 +102,7 @@ class TrackingCommandeScreenState extends State<TrackingCommandeScreen> implemen
           Text(title,
               textAlign: TextAlign.left,
               style: TextStyle(
-                  fontSize: 20.0,
+                  fontSize: 16.0,
                   color: Colors.blueGrey,
                   fontWeight: FontWeight.bold)),
           Container(
@@ -78,7 +110,7 @@ class TrackingCommandeScreenState extends State<TrackingCommandeScreen> implemen
             child: Text(value,
                 textAlign: TextAlign.left,
                 style: TextStyle(
-                    fontSize: 16.0,
+                    fontSize: 14.0,
                     color: Colors.black,
                     fontWeight: FontWeight.bold)),
           )
@@ -181,7 +213,7 @@ class TrackingCommandeScreenState extends State<TrackingCommandeScreen> implemen
                               "Statistiques sur le traitement et le délai de livraison de votre commande",
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                  fontSize: 22.0,
+                                  fontSize: 18.0,
                                   color: Colors.black,
                                   fontWeight: FontWeight.bold),
                             ),
@@ -199,17 +231,19 @@ class TrackingCommandeScreenState extends State<TrackingCommandeScreen> implemen
                               ),
                             ),
                           ), flex: 3,),
-                          Expanded(child: Container(
+                          Container(
                             child: Center(
-                              child: getInfos("Livraison dans environ : ", stateIndex != 3 ? "Estimation en cours" : temps.toString() + " min"),
+                              child: getInfos("Livraison dans environ : ", stateIndex != 3 ? "Estimation en cours" : getFormattedTime(temps)),
                             ),
-                          ), flex: 1,),
-                          Expanded(child: Container(
+                          ),
+                          Container(
                             child: Center(
-                              child: getInfos("Proximité du livreur : ", stateIndex != 3 ? "Estimation en cours" :( distance == 0 ? "Au lieu de livraison" : "Environ " + distance.toString() + " m")),
+                              child: getInfos("Proximité du livreur : ", stateIndex != 3 ? "Estimation en cours" :( distance == 0 ? "Au lieu de livraison" : "Environ " + getFormattedDistance(distance))),
                             ),
-                          ), flex: 1,),
-                          Expanded(child: Container(), flex: 1,)
+                          ),
+                          Container(
+                            margin: EdgeInsets.symmetric(vertical: 10.0),
+                          )
                         ],
                       ),
                     )
@@ -282,9 +316,9 @@ class TrackingCommandeScreenState extends State<TrackingCommandeScreen> implemen
 
       setState(() {
         distance = distanceInMeters.truncate();
-        temps = (distanceInMeters / 60).truncate();
+        temps = (distanceInMeters / 80).truncate();
 
-        percent =  distanceInMeters > originalDistance ? 0 : 1 - (distanceInMeters / originalDistance);
+        percent =  distanceInMeters > originalDistance ? 0.0 : 1 - (distanceInMeters / originalDistance);
       });
 
       print("dis = " + distanceInMeters.toString());
@@ -298,6 +332,7 @@ class TrackingCommandeScreenState extends State<TrackingCommandeScreen> implemen
       _presenter.getDeliverPosition(widget.deliver.id);
 
     }catch(error){
+      print("Runtime error : " + error.toString());
       if(firstCheck){
         setState(() {
           stateIndex = 1;
@@ -305,9 +340,6 @@ class TrackingCommandeScreenState extends State<TrackingCommandeScreen> implemen
       }else
         _presenter.getDeliverPosition(widget.deliver.id);
     }
-
-
-
   }
 }
 

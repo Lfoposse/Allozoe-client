@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'Utils/MyBehavior.dart';
 import 'DAO/Presenters/EmailRecoveryAccountPresenter.dart';
-import 'Models/Client.dart';
 import 'ConfirmAccountScreen.dart';
+import 'StringKeys.dart';
 
 class EmailRecoveryAccountScreen extends StatefulWidget {
   @override
@@ -14,7 +14,7 @@ class EmailRecoveryAccountScreenState extends State<EmailRecoveryAccountScreen>
 
   bool _isLoading = false;
   bool _showError = false;
-  String _errorMsg = "Veuillez entrer un email";
+  String _errorMsg = "";
   static const double padding_from_screen = 30.0;
 
   final formKey = new GlobalKey<FormState>();
@@ -35,7 +35,7 @@ class EmailRecoveryAccountScreenState extends State<EmailRecoveryAccountScreen>
 
       if(_email.length == 0) {
         setState(() {
-          _errorMsg = "Veuillez entrer un email";
+          _errorMsg = getLocaleText(context: context, strinKey: StringKeys.ERROR_ENTER_EMAIL);
           _showError = true;
         });
       }else {
@@ -44,7 +44,7 @@ class EmailRecoveryAccountScreenState extends State<EmailRecoveryAccountScreen>
         RegExp regex = new RegExp(pattern);
         if (!regex.hasMatch(_email)) {
           setState(() {
-            _errorMsg = "Email invalide";
+            _errorMsg = getLocaleText(context: context, strinKey: StringKeys.ERROR_INVALID_EMAIL);
             _showError = true;
           });
         }else {
@@ -130,7 +130,7 @@ class EmailRecoveryAccountScreenState extends State<EmailRecoveryAccountScreen>
           onPressed: _submit,
           child: SizedBox(
             width: double.infinity,
-            child: Text("SUIVANT",
+            child: Text(getLocaleText(context: context, strinKey: StringKeys.NEXT_BTN),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16.0,
@@ -166,7 +166,7 @@ class EmailRecoveryAccountScreenState extends State<EmailRecoveryAccountScreen>
                           left: padding_from_screen,
                           right: padding_from_screen),
                       child:
-                      new Text('Saisissez l\'adresse email associé au compte à récupérer',
+                      new Text(getLocaleText(context: context, strinKey: StringKeys.RECOVERY_DESCRIPTION_TEXT),
                           style: new TextStyle(
                             color: Colors.black54,
                             fontSize: 18.0,
@@ -178,7 +178,7 @@ class EmailRecoveryAccountScreenState extends State<EmailRecoveryAccountScreen>
                           left: padding_from_screen, right: padding_from_screen),
                       decoration: new BoxDecoration(
                           border: new Border.all(color: Colors.grey)),
-                      child: buildEntrieRow(Icons.email, null, "Entrer un email",
+                      child: buildEntrieRow(Icons.email, null, getLocaleText(context: context, strinKey: StringKeys.SIGNUP_EMAIL_HINT),
                           TextInputType.emailAddress, false),
                     ),
                     showError(),
@@ -199,7 +199,7 @@ class EmailRecoveryAccountScreenState extends State<EmailRecoveryAccountScreen>
             Container(
               height: AppBar().preferredSize.height,
               child: AppBar(
-                title: Text('Récuperation de compte'),
+                title: Text(getLocaleText(context: context, strinKey: StringKeys.RECOVERY_PAGE_TITLE)),
                 centerTitle: true,
                 backgroundColor: Colors.transparent,
                 elevation: 0.0,
@@ -215,7 +215,7 @@ class EmailRecoveryAccountScreenState extends State<EmailRecoveryAccountScreen>
   void onLoadingError() {
     setState(() {
       _isLoading = false;
-      _errorMsg = "Email non reconnu";
+      _errorMsg = getLocaleText(context: context, strinKey: StringKeys.ERROR_UNKOWN_EMAIL);
       _showError = true;
 
     });
@@ -232,7 +232,7 @@ class EmailRecoveryAccountScreenState extends State<EmailRecoveryAccountScreen>
   @override
   void onConnectionError() {
 
-    _showSnackBar("Échec de connexion. Vérifier votre connexion internet");
+    _showSnackBar(getLocaleText(context: context, strinKey: StringKeys.ERROR_CONNECTION_FAILED));
     setState(() => _isLoading = false);
   }
 }

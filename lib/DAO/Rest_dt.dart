@@ -29,6 +29,7 @@ class RestDatasource {
   static final DELIVERS_URL = BASE_URL + "/api/delivers";
 
 
+
   ///retourne les informations d'un compte client a partir de ses identifiants
   Future<Client> login(String username, String password, bool checkAccountExists) {
     return _netUtil.post(LOGIN_URL, body: {
@@ -259,8 +260,10 @@ class RestDatasource {
         "client" : client.id,
         "delivery_address": address,
         "delivery_phone": phone,
+        "delivery_city" : "paris",
+        "delivery_cp" : "code postal",
         "payment_mode" : payment_mode,
-        "restaurant": 1,
+        "restaurant": produits[0].restaurant.id,
         "creditcard" : creditcard,
         "ticket" : ticket,
         "menus": prods
@@ -378,4 +381,20 @@ class RestDatasource {
 
     }).catchError((onError) => new Future.error(new Exception(onError.toString())));
   }
+
+
+  /// Soumettre une note au service de livraison d'une commande
+  Future<bool> noterService(int cmdID, double restauNote, double deliNote, int pourboire) {
+    return _netUtil.post(COMMANDS_URL + "/" + cmdID.toString() + "/note", body: jsonEncode({
+      "restaurant_note": (restauNote * 2).truncate(),
+      "deliver_note": (deliNote * 2).truncate(),
+      "prequisite": pourboire
+    })).then((dynamic res) {
+
+      if(res["code"] == 200) return true;
+      else return false;
+
+    }).catchError((onError) => new Future.error(false));
+  }
+
 }

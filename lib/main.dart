@@ -3,6 +3,9 @@ import 'Utils/AppSharedPreferences.dart';
 import 'SignInScreen.dart';
 import 'HomeScreen.dart';
 
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'translations.dart';
+
 
 class SplashScreen extends StatefulWidget {
   final Duration duration;
@@ -95,6 +98,15 @@ class _SplashScreenState extends State<SplashScreen>
 
 void main() {
   runApp(MaterialApp(
+      localizationsDelegates: [
+        const TranslationsDelegate(),
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale('en', ''),
+        const Locale('fr', ''),
+      ],
     home: SplashScreen(duration: Duration(seconds: 3)),
   ));
 }

@@ -3,6 +3,7 @@ import 'package:client_app/Utils/MyBehavior.dart';
 import 'SignInScreen.dart';
 import 'Utils/AppSharedPreferences.dart';
 import 'DAO/Presenters/ResetPassPresenter.dart';
+import 'StringKeys.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
 
@@ -43,12 +44,12 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen>
 
     if (_pass.length == 0 || _confirm.length == 0) {
       setState(() {
-        _errorMsg = "Renseigner tous les champs";
+        _errorMsg = getLocaleText(context: context, strinKey: StringKeys.ERROR_FILL_ALL_GAPS);
         _showError = true;
       });
     } else if (_pass != _confirm) {
       setState(() {
-        _errorMsg = "Mot de passe et confirmation différents";
+        _errorMsg = getLocaleText(context: context, strinKey: StringKeys.ERROR_PASS_AND_CONFIRM_NOT_MATCH);
         _showError = true;
       });
     } else {
@@ -114,7 +115,7 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen>
           onPressed: _submit,
           child: SizedBox(
             width: double.infinity,
-            child: Text("MODIFIER",
+            child: Text(getLocaleText(context: context, strinKey: StringKeys.UPDATE_BTN),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16.0,
@@ -170,7 +171,7 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen>
                         left: padding_from_screen,
                         right: padding_from_screen),
                     child: new Text(
-                        'Définissez un nouveau mot de passe pour votre compte',
+                        getLocaleText(context: context, strinKey: StringKeys.RESET_PASS_DESCRIPTION_TEXT),
                         style: new TextStyle(
                           color: Colors.black54,
                           fontSize: 18.0,
@@ -184,14 +185,14 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen>
                         right: padding_from_screen,
                         bottom: 10.0),
                     child: buildPassEntry(
-                        passKey, "Saisissez le nouveau mot de passe"),
+                        passKey, getLocaleText(context: context, strinKey: StringKeys.NEW_PASSWORD_HINT)),
                   ),
                   Container(
                     color: Colors.black12,
                     margin: EdgeInsets.only(
                         left: padding_from_screen, right: padding_from_screen),
                     child:
-                        buildPassEntry(confirmKey, "Confirmer le mot de passe"),
+                        buildPassEntry(confirmKey, getLocaleText(context: context, strinKey: StringKeys.CONFIRM_PASSWORD_HINT)),
                   ),
                   showError(),
                   _isLoading
@@ -210,7 +211,7 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen>
             Container(
               height: AppBar().preferredSize.height,
               child: AppBar(
-                title: Text('Récupération'),
+                title: Text(getLocaleText(context: context, strinKey: StringKeys.RECOVERY_PAGE_TITLE)),
                 centerTitle: true,
                 backgroundColor: Colors.transparent,
                 elevation: 0.0,
@@ -224,7 +225,7 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen>
 
   @override
   void onConnectionError() {
-    _showSnackBar("Échec de connexion. Vérifier votre connexion internet");
+    _showSnackBar(getLocaleText(context: context, strinKey: StringKeys.ERROR_CONNECTION_FAILED));
     setState(() => _isLoading = false);
   }
 
@@ -232,7 +233,7 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen>
   void onResetError() {
     setState(() {
       _isLoading = false;
-      _errorMsg = "Erreur survénue. Réessayez SVP!";
+      _errorMsg = getLocaleText(context: context, strinKey: StringKeys.ERROR_OCCURED);
       _showError = true;
     });
   }
@@ -247,12 +248,12 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen>
       builder: (BuildContext context) {
         // return object of type Dialog
         return AlertDialog(
-          title: new Text("Succès"),
+          title: new Text(getLocaleText(context: context, strinKey: StringKeys.RESET_SUCCESS_TITLE)),
           content: new Text(
-              "Le mot de passe de votre compte a ete réinitialiser avec succès.\nConnectez vous avec vos nouveaux identifiants"),
+              getLocaleText(context: context, strinKey: StringKeys.RESET_SUCCESS_MESSAGE)),
           actions: <Widget>[
             new FlatButton(
-              child: new Text("OK"),
+              child: new Text(getLocaleText(context: context, strinKey: StringKeys.OK_BTN)),
               onPressed: () {
                 Navigator.of(context).pop();
                 AppSharedPreferences().setAppLoggedIn(true); // on memorise qu'un compte s'est connecter

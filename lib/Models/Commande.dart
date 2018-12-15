@@ -10,6 +10,7 @@ class Commande {
   String _heure;
   String _deliveryAddress;
   double _prix;
+  bool _dejaNoter;
   Restaurant _restaurant;
   StatusCommande _status;
   Deliver _deliver;
@@ -19,6 +20,7 @@ class Commande {
 
   Commande.empty(){
     this._id = -1;
+    this._dejaNoter = false;
     this._reference = null;
     this._prix = null;
     this._restaurant = null;
@@ -32,6 +34,7 @@ class Commande {
   Commande.map(dynamic obj) {
 
     this._id = obj["id"];
+    this._dejaNoter = obj["noted"] == 1;
     this._reference = obj["reference"];
     this._deliveryAddress = obj["delivery_address"];
     this._date = obj["date"];
@@ -45,6 +48,7 @@ class Commande {
   Map<String, dynamic> toMap() {
     var map = new Map<String, dynamic>();
     map["id"] = _id;
+    map["deja-noter"] = _dejaNoter;
     map["reference"] = _reference;
     map["date"] = _date;
     map["hour"] = _heure;
@@ -111,5 +115,12 @@ class Commande {
   set date(String value) {
     _date = value;
   }
+
+  bool get dejaNoter => _dejaNoter;
+
+  set dejaNoter(bool value) {
+    _dejaNoter = value;
+  }
+
 
 }

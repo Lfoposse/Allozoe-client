@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 import 'ResetPasswordScreen.dart';
 import 'package:client_app/Utils/MyBehavior.dart';
 import 'DAO/Presenters/ConfirmAccountPresenter.dart';
@@ -8,6 +7,7 @@ import 'HomeScreen.dart';
 import 'Utils/AppSharedPreferences.dart';
 import 'Models/Client.dart';
 import 'Database/DatabaseHelper.dart';
+import 'StringKeys.dart';
 
 class ConfirmAccountScreen extends StatefulWidget {
   @override
@@ -53,7 +53,7 @@ class ConfirmAccountState extends State<ConfirmAccountScreen> implements Confirm
 
     if (_un.length == 0 || _deux.length == 0 || _trois.length == 0 || _quatre.length == 0) {
       setState(() {
-        _errorMsg = "Compléter le code";
+        _errorMsg = getLocaleText(context: context, strinKey: StringKeys.ERROR_INCOMPLETE_CODE);
         _showError = true;
       });
     } else {
@@ -163,7 +163,7 @@ class ConfirmAccountState extends State<ConfirmAccountScreen> implements Confirm
             onPressed: _submit,
             child: SizedBox(
 
-              child: Text("VALIDER",
+              child: Text(getLocaleText(context: context, strinKey: StringKeys.VALIDATE_BTN),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 16.0,
@@ -204,7 +204,7 @@ class ConfirmAccountState extends State<ConfirmAccountScreen> implements Confirm
                           children: [
                             new TextSpan(
                                 text:
-                                'Saississez le code envoyé à l\'adresse ',
+                                getLocaleText(context: context, strinKey: StringKeys.CONFIRMATION_DESCRIPTION_TEXT),
                                 style: new TextStyle(
                                   color: Colors.black54,
                                   fontSize: 18.0,
@@ -240,7 +240,7 @@ class ConfirmAccountState extends State<ConfirmAccountScreen> implements Confirm
             Container(
               height: AppBar().preferredSize.height,
               child: AppBar(
-                title: Text('Code de confirmation'),
+                title: Text(getLocaleText(context: context, strinKey: StringKeys.CONFIRMATION_PAGE_TITLE)),
                 centerTitle: true,
                 backgroundColor: Colors.transparent,
                 elevation: 0.0,
@@ -258,7 +258,7 @@ class ConfirmAccountState extends State<ConfirmAccountScreen> implements Confirm
   void onConfirmError() {
     setState(() {
       _isLoading = false;
-      _errorMsg = "Code incorrect";
+      _errorMsg = getLocaleText(context: context, strinKey: StringKeys.ERROR_WRONG_CODE);
       _showError = true;
     });
   }
@@ -283,7 +283,7 @@ class ConfirmAccountState extends State<ConfirmAccountScreen> implements Confirm
 
   @override
   void onConnectionError() {
-    _showSnackBar("Échec de connexion. Vérifier votre connexion internet");
+    _showSnackBar(getLocaleText(context: context, strinKey: StringKeys.ERROR_CONNECTION_FAILED));
     setState(() => _isLoading = false);
   }
 

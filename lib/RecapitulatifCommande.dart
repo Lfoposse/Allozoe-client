@@ -14,13 +14,15 @@ import 'package:flutter_google_places_autocomplete/flutter_google_places_autocom
 import 'Utils/PriceFormatter.dart';
 
 const kGoogleApiKey = "AIzaSyBNm8cnYw5inbqzgw8LjXyt3rMhFhEVTjY";
-GoogleMapsPlaces _places =
-    new GoogleMapsPlaces(kGoogleApiKey); // to get places detail (lat/lng)
+GoogleMapsPlaces _places = new GoogleMapsPlaces(apiKey : kGoogleApiKey); // to get places detail (lat/lng)
+
+int TICKET_RESTAURANT = 2, CARTE_BANCAIRE = 1;
 
 class RecapitulatifCommande extends StatefulWidget {
   final List<Produit> produits;
   final double fraisLivraison;
   final Client client;
+
   RecapitulatifCommande(
       {@required this.produits,
       @required this.fraisLivraison,
@@ -30,21 +32,14 @@ class RecapitulatifCommande extends StatefulWidget {
   State<StatefulWidget> createState() => new RecapitulatifCommandeState();
 }
 
-class RecapitulatifCommandeState extends State<RecapitulatifCommande>
-    implements SendCommandeContract {
+class RecapitulatifCommandeState extends State<RecapitulatifCommande>{
   double PADDING_HORIZONTAL = 15.0;
   final phoneKey = new GlobalKey<FormState>();
-  final scaffoldKey = new GlobalKey<ScaffoldState>();
-  SendCommandePresenter _presenter;
-
-  bool isLoading;
   String _address, _phone;
 
   @override
   void initState() {
-    isLoading = false;
     _address = "";
-    _presenter = new SendCommandePresenter(this);
     super.initState();
   }
 
@@ -71,43 +66,27 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
     );
   }
 
-  void _submit({@required bool payer}) {
+  void _submit({@required int paymentMode}) {
     phoneKey.currentState.save();
+
 
     if (_address.length == 0 || _phone.length == 0) {
       _showDialog();
     } else {
-      if(!payer){ // payer lors de la commande
 
-        setState(() {
-          isLoading = true;
-        });
-
-        // TODO : formatter l'envoi des commandes selon les restaurants si necessaires ici
-        _presenter.commander(widget.produits, _address, _phone,
-            {
-              "id": -1
-            },
-          {
-            "id": -1
-          },
-          1
-        );
-
-      }else{ // commander sans payer
-
-        new DatabaseHelper().getClientCards().then((List<CreditCard> cards){
-          Navigator.of(context).push(
-              new MaterialPageRoute(builder: (context) => CardListScreen(
+      new DatabaseHelper().getClientCards().then((List<CreditCard> cards) {
+        Navigator.of(context).push(
+            new MaterialPageRoute(builder: (context) =>
+                CardListScreen(
                   forPaiement: true,
+                  paymentMode: paymentMode,
                   montantPaiement: getTotal(false) + widget.fraisLivraison,
                   cards: cards,
-                produits: widget.produits,
-                address: _address,
-                phone: _phone,
-              )));
-        });
-      }
+                  produits: widget.produits,
+                  address: _address,
+                  phone: _phone,
+                )));
+      });
     }
   }
 
@@ -136,7 +115,7 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
                 " - ",
                 textAlign: TextAlign.left,
                 style: TextStyle(
-                    fontSize: 16.0,
+                    fontSize: 13.0,
                     color: Colors.black,
                     fontWeight: FontWeight.bold),
               ),
@@ -145,7 +124,7 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
                 complement.name,
                 textAlign: TextAlign.left,
                 style: TextStyle(
-                    fontSize: 16.0,
+                    fontSize: 13.0,
                     color: Colors.grey,
                     fontWeight: FontWeight.bold),
               ))
@@ -159,7 +138,7 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
             style: TextStyle(
-                fontSize: 16.0,
+                fontSize: 13.0,
                 color: Colors.blueGrey,
                 fontWeight: FontWeight.bold),
           )
@@ -196,7 +175,6 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         Container(
-          margin: EdgeInsets.only(top: 10.0),
           padding: EdgeInsets.symmetric(horizontal: PADDING_HORIZONTAL),
           child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -205,7 +183,7 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
                   "Sous-total",
                   style: TextStyle(
                       color: Colors.black,
-                      fontSize: 16.0,
+                      fontSize: 14.0,
                       fontWeight: FontWeight.bold),
                   textAlign: TextAlign.left,
                 ),
@@ -213,7 +191,7 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
                   PriceFormatter.formatPrice(price: getTotal(true)),
                   style: TextStyle(
                       color: Colors.blueGrey,
-                      fontSize: 18.0,
+                      fontSize: 15.0,
                       fontWeight: FontWeight.bold),
                   textAlign: TextAlign.left,
                 )
@@ -221,7 +199,7 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
         ),
         Container(
           padding: EdgeInsets.symmetric(horizontal: PADDING_HORIZONTAL),
-          margin: EdgeInsets.symmetric(vertical: 10.0),
+          margin: EdgeInsets.symmetric(vertical: 5.0),
           child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -229,7 +207,7 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
                   "Frais livraison",
                   style: TextStyle(
                       color: Colors.black38,
-                      fontSize: 16.0,
+                      fontSize: 14.0,
                       fontWeight: FontWeight.bold),
                   textAlign: TextAlign.left,
                 ),
@@ -237,7 +215,7 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
                   PriceFormatter.formatPrice(price: widget.fraisLivraison),
                   style: TextStyle(
                       color: Colors.black38,
-                      fontSize: 16.0,
+                      fontSize: 15.0,
                       fontWeight: FontWeight.bold),
                   textAlign: TextAlign.left,
                 )
@@ -246,7 +224,7 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
         getDivider(2.0, horizontal: true),
         Container(
           padding: EdgeInsets.symmetric(horizontal: PADDING_HORIZONTAL),
-          margin: EdgeInsets.symmetric(vertical: 10.0),
+          margin: EdgeInsets.only(top: 10.0),
           child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -254,7 +232,7 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
                   "Total",
                   style: TextStyle(
                       color: Colors.black,
-                      fontSize: 16.0,
+                      fontSize: 15.0,
                       fontWeight: FontWeight.bold),
                   textAlign: TextAlign.left,
                 ),
@@ -262,7 +240,7 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
                   PriceFormatter.formatPrice(price: getTotal(false) + widget.fraisLivraison),
                   style: TextStyle(
                       color: Colors.lightGreen,
-                      fontSize: 18.0,
+                      fontSize: 16.0,
                       fontWeight: FontWeight.bold),
                   textAlign: TextAlign.left,
                 )
@@ -279,8 +257,8 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
       padding: EdgeInsets.only(
           left: PADDING_HORIZONTAL + 10.0,
           right: PADDING_HORIZONTAL + 10.0,
-          top: 10.0,
-          bottom: 10.0),
+          top: 8.0,
+          bottom: 8.0),
       child: Row(
         children: <Widget>[
           Text(title,
@@ -371,7 +349,7 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
                         widget.produits[index].name,
                         textAlign: TextAlign.left,
                         style: TextStyle(
-                            fontSize: 18.0,
+                            fontSize: 15.0,
                             color: Colors.black,
                             fontWeight: FontWeight.bold),
                       ))),
@@ -379,7 +357,7 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
                 PriceFormatter.formatPrice(price: widget.produits[index].prix),
                 textAlign: TextAlign.left,
                 style: TextStyle(
-                    fontSize: 18.0,
+                    fontSize: 15.0,
                     color: Colors.blueGrey,
                     fontWeight: FontWeight.bold),
               )
@@ -418,7 +396,7 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                     style: TextStyle(
-                        fontSize: 18.0,
+                        fontSize: 14.0,
                         color: Colors.black,
                         fontWeight: FontWeight.bold),
                   ),
@@ -428,7 +406,7 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                     style: TextStyle(
-                        fontSize: 18.0,
+                        fontSize: 14.0,
                         color: Colors.lightGreen,
                         fontWeight: FontWeight.bold),
                   )
@@ -440,7 +418,7 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
                 style: TextStyle(
-                    fontSize: 18.0,
+                    fontSize: 14.0,
                     color: Colors.lightGreen,
                     fontWeight: FontWeight.bold),
               )
@@ -476,7 +454,7 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
                           "Coordonnées de livraison",
                           textAlign: TextAlign.left,
                           style: TextStyle(
-                              fontSize: 26.0,
+                              fontSize: 20.0,
                               color: Colors.grey,
                               fontWeight: FontWeight.bold),
                         )),
@@ -484,7 +462,7 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
                         null,
                         "Adresse:\t\t",
                         _address,
-                        "Entrer l'adresse de livraison",
+                        "adresse de livraison",
                         TextInputType.text, onTap: (position) async {
                       Prediction p = await showGooglePlacesAutocomplete(
                           context: context,
@@ -512,7 +490,7 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
                             widget.client.phone.toString() == "null"
                             ? ""
                             : widget.client.phone,
-                        "Contact à appeller (Format international)",
+                        "contact (format international)",
                         TextInputType.phone,
                         onTap: null),
                     Container(
@@ -523,64 +501,62 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
                           "Articles commandés",
                           textAlign: TextAlign.left,
                           style: TextStyle(
-                              fontSize: 26.0,
+                              fontSize: 20.0,
                               color: Colors.grey,
                               fontWeight: FontWeight.bold),
                         )),
                     Expanded(child: getRecapCommandeSection()),
                     getPricesSection(),
                     Container(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: PADDING_HORIZONTAL),
-                      margin: EdgeInsets.only(bottom: 15.0, top: 10.0),
+                      margin: EdgeInsets.only(bottom: 10.0, top: 15.0),
                       child: Center(
                         child: Row(
                           children: <Widget>[
                             Expanded(child: PositionedTapDetector(
                                 onTap: (position) {
-                                  _submit(payer: false);
+                                  _submit(paymentMode: TICKET_RESTAURANT);
                                 },
                                 child: Container(
                                   width: double.infinity,
                                   margin: EdgeInsets.symmetric(horizontal: 10.0),
-                                  padding: EdgeInsets.symmetric(vertical: 15.0),
+                                  padding: EdgeInsets.symmetric(vertical: 5.0),
                                   decoration: BoxDecoration(
                                       border: Border.all(
                                           color: Colors.lightGreen,
                                           style: BorderStyle.solid,
                                           width: 1.0),
                                       color: Colors.lightGreen),
-                                  child: Text("COMMANDER",
+                                  child: Text("TICKET RESTAURANT",
                                       textAlign: TextAlign.center,
                                       overflow: TextOverflow.ellipsis,
                                       style: new TextStyle(
                                         color: Colors.white,
                                         decoration: TextDecoration.none,
-                                        fontSize: 16.0,
+                                        fontSize: 13.0,
                                         fontWeight: FontWeight.bold,
                                       )),
                                 ))),
                             Expanded(child: PositionedTapDetector(
                                 onTap: (position) {
-                                  _submit(payer: true);
+                                  _submit(paymentMode: CARTE_BANCAIRE);
                                 },
                                 child: Container(
                                   width: double.infinity,
                                   margin: EdgeInsets.symmetric(horizontal: 10.0),
-                                  padding: EdgeInsets.symmetric(vertical: 15.0),
+                                  padding: EdgeInsets.symmetric(vertical: 5.0),
                                   decoration: BoxDecoration(
                                       border: Border.all(
                                           color: Colors.lightGreen,
                                           style: BorderStyle.solid,
                                           width: 1.0),
                                       color: Colors.lightGreen),
-                                  child: Text("PAYER",
+                                  child: Text("CARTE BANCAIRE",
                                       textAlign: TextAlign.center,
                                       overflow: TextOverflow.ellipsis,
                                       style: new TextStyle(
                                         color: Colors.white,
                                         decoration: TextDecoration.none,
-                                        fontSize: 16.0,
+                                        fontSize: 13.0,
                                         fontWeight: FontWeight.bold,
                                       )),
                                 )))
@@ -602,112 +578,9 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande>
               backgroundColor: Colors.transparent,
               elevation: 0.0,
             ),
-          ),
-          isLoading
-              ? Container(
-            color: Colors.black26,
-            width: double.infinity,
-            height: double.infinity,
-            child: Center(
-              child: new CircularProgressIndicator(),
-            ),
           )
-              : IgnorePointer(ignoring: true)
         ],
       ),
-    );
-  }
-
-  @override
-  void onCommandError() {
-    setState(() {
-      isLoading = false;
-    });
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        // return object of type Dialog
-        return AlertDialog(
-          title: new Text("Echec"),
-          content: new Text(
-              "La commande n'a pas etre effectuee. Une erreur est survenue. \n\n Reessayez SVP."),
-          actions: <Widget>[
-            // usually buttons at the bottom of the dialog
-            new FlatButton(
-              child: new Text("Reessayer"),
-              onPressed: () {
-                Navigator.of(context).pop();
-                _submit(payer: false);
-              },
-            ),
-
-            new FlatButton(
-              child: new Text("Annuler"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            )
-          ],
-        );
-      },
-    );
-  }
-
-  @override
-  void onCommandSuccess(int cardID) {
-
-    new DatabaseHelper().clearPanier(); // vide le panier
-
-    setState(() {
-      isLoading = false;
-    });
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        // return object of type Dialog
-        return AlertDialog(
-          title: new Text("Succes"),
-          content: new Text(
-              "Votre commande a ete enregistree avec succes.\n\nVous pouvez suivre son traitrement depuis l'espace commande"),
-          actions: <Widget>[
-            new FlatButton(
-              child: new Text("Compris"),
-              onPressed: () {
-                Navigator.of(context).pop();// ferme le dialogue
-                Navigator.of(context).pop(); // rentre au panier
-              },
-            )
-          ],
-        );
-      },
-    );
-  }
-
-  @override
-  void onConnectionError() {
-    setState(() {
-      isLoading = false;
-    });
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        // return object of type Dialog
-        return AlertDialog(
-          title: new Text("Echec de connexion"),
-          content: new Text(
-              "Aucune connexion a internet. Verifier votre connexion a internet et reessayez."),
-          actions: <Widget>[
-            new FlatButton(
-              child: new Text("OK"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
     );
   }
 }

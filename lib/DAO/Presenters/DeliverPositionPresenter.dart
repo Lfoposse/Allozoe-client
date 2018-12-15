@@ -14,10 +14,12 @@ class DeliverPositionPresenter {
 
   getDeliverPosition(int deliverID) {
     api.loadDeliverPosition(deliverID).then((Deliver deliver) {
+
       if (deliver != null)
         _view.onLoadingSuccess(deliver);
       else
         _view.onLoadingError();
+
     }).catchError((onError){
       _view.onConnectionError();
     });

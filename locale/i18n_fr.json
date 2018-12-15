@@ -1,0 +1,79 @@
+{
+  "LOGIN_PAGE_TITLE": "Connexion au compte",
+  "WELCOME_TEXT": "Heureux de vous revoir ! Connectez-vous pour continuer",
+  "PASSWORD_HINT": "Entrer le mot de passe",
+  "EMAIL_HINT": "Entrer un email",
+  "LOGIN_BTN_TITLE": "ME CONNECTER",
+  "NOT_HAVE_ACCOUNT": "Pas de compte?",
+  "SIGN_UP": "S'inscrire",
+  "FORGOT_PASSWORD": "Mot de passe oublié ?",
+  "CANCEL_BTN": "Annuler",
+  "ACTIVATE_BTN": "Activer",
+
+  "ERROR_ENTER_ALL_CREDENTIALS": "Renseigner vos identifiants",
+  "ERROR_INVALID_EMAIL": "Email invalide",
+  "ERROR_WRONG_CREDENTIALS": "Email ou mot de passe erroné",
+  "ERROR_CONNECTION_FAILED": "Échec de connexion. Vérifier votre connexion internet",
+  "ERROR_ACCOUNT_NOT_ACTIVATED_TITLE": "Compte non activé",
+  "ERROR_ACCOUNT_NOT_ACTIVATED_MSG": "Vous n'avez pas encore activé votre compte.\nActivez le afin de vous connecter",
+
+
+
+  "SIGNUP_PAGE_TITLE": "Inscription",
+  "NAME_HINT": "Nom",
+  "SURNAME_HINT": "Prénom",
+  "SIGNUP_EMAIL_HINT": "Entrer un email",
+  "SIGNUP_PASSWORD_HINT": "Mot de passe",
+  "PHONE_HINT": "356987412",
+  "CONFIDENTIALITE_BEGIN": "En cliquant sur « S'INSCRIRE », je confirme avoir lu et accepté les ",
+  "CONDITIONS_GENERALES": "Conditions générales",
+  "AND": " et ",
+  "CONFIDENTIALITE": "Politique de confidentialité",
+
+  "ERROR_FILL_ALL_GAPS": "Renseigner tous les champs",
+  "ERROR_ACCOUNT_ALREADY_EXISTS": "Un compte existe déjà avec cet email. Connectez vous",
+
+
+
+  "RECOVERY_PAGE_TITLE": "Récuperation de compte",
+  "RECOVERY_DESCRIPTION_TEXT": "Saisissez l'adresse email associé au compte à récupérer",
+  "NEXT_BTN": "SUIVANT",
+  "ERROR_UNKOWN_EMAIL": "Email non reconnu",
+  "ERROR_ENTER_EMAIL": "Veuillez entrer un email",
+
+
+
+  "CONFIRMATION_PAGE_TITLE": "Code de confirmation",
+  "CONFIRMATION_DESCRIPTION_TEXT":"Saississez le code envoyé à l'adresse ",
+  "VALIDATE_BTN": "VALIDER",
+  "ERROR_WRONG_CODE": "Code incorrect",
+  "ERROR_INCOMPLETE_CODE": "Compléter le code",
+
+
+
+  "RESET_PASS_DESCRIPTION_TEXT": "Définissez un nouveau mot de passe pour votre compte",
+  "NEW_PASSWORD_HINT": "Saisissez le nouveau mot de passe",
+  "CONFIRM_PASSWORD_HINT": "Confirmer le mot de passe",
+  "UPDATE_BTN": "MODIFIER",
+  "RESET_SUCCESS_TITLE": "Succès",
+  "RESET_SUCCESS_MESSAGE": "Le mot de passe de votre compte a ete réinitialiser avec succès.\nConnectez vous avec vos nouveaux identifiants",
+  "OK_BTN": "OK",
+
+  "ERROR_PASS_AND_CONFIRM_NOT_MATCH": "Mot de passe et confirmation différents",
+  "ERROR_OCCURED": "Erreur survénue. Réessayez SVP!",
+
+
+
+  "ACCUEIL_TITLE": "Accueil",
+  "SEARCH_TITLE": "Recherche",
+  "CART_TITLE": "Panier",
+  "COMMANDES_TITLE": "Commandes",
+  "PROFIL_TITLE": "Profil",
+
+
+
+  "RESTAURANTS_NEARBY_TITLE" : "Restaurants près de vous ou entrez une adresse",
+  "RESTAURANTS_NEARBY_NOT_FOUND" : "Aucun restaurant trouvé à proximité de cette position.\n\nEssayez une autre adresse"
+
+
+}

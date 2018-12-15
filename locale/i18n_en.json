@@ -1,0 +1,78 @@
+{
+  "LOGIN_PAGE_TITLE": "Login page",
+  "WELCOME_TEXT": "Happy to see you again ! Login to continue",
+  "PASSWORD_HINT": "Enter your password",
+  "EMAIL_HINT": "Enter your email",
+  "LOGIN_BTN_TITLE": "LOGIN",
+  "NOT_HAVE_ACCOUNT": "Haven't an account?",
+  "SIGN_UP": "SIGN UP",
+  "FORGOT_PASSWORD": "Forgot password ?",
+  "CANCEL_BTN": "Cancel",
+  "ACTIVATE_BTN": "Activate",
+
+  "ERROR_ENTER_ALL_CREDENTIALS": "Enter your credentials",
+  "ERROR_INVALID_EMAIL": "Invalid email",
+  "ERROR_WRONG_CREDENTIALS": "Wrong email or password",
+  "ERROR_CONNECTION_FAILED": "Connection failed. Check your internet connection",
+  "ERROR_ACCOUNT_NOT_ACTIVATED_TITLE": "Account not activated",
+  "ERROR_ACCOUNT_NOT_ACTIVATED_MSG": "Your account haven't yet been activated.\nDo it before log in ",
+
+
+
+  "SIGNUP_PAGE_TITLE": "Sign up page",
+  "NAME_HINT": "Name",
+  "SURNAME_HINT": "Surname",
+  "SIGNUP_EMAIL_HINT": "Enter an email",
+  "SIGNUP_PASSWORD_HINT": "Password",
+  "PHONE_HINT": "356987412",
+  "CONFIDENTIALITE_BEGIN": "By clicking on « SIGN UP », you agree with the ",
+  "CONDITIONS_GENERALES": "Usage terms",
+  "AND": " and ",
+  "CONFIDENTIALITE": "Confidentiality rules",
+
+  "ERROR_FILL_ALL_GAPS": "Fill all gaps",
+  "ERROR_ACCOUNT_ALREADY_EXISTS": "An account already exists with this email. LOG IN",
+
+
+
+  "RECOVERY_PAGE_TITLE": "Recovery account",
+  "RECOVERY_DESCRIPTION_TEXT": "Enter your email account",
+  "NEXT_BTN": "NEXT",
+  "ERROR_UNKOWN_EMAIL": "Unknown email",
+  "ERROR_ENTER_EMAIL": "Enter an email",
+
+
+
+  "CONFIRMATION_PAGE_TITLE": "Code confirmation",
+  "CONFIRMATION_DESCRIPTION_TEXT":"Enter the code sended to the adress ",
+  "VALIDATE_BTN": "VALIDATE",
+  "ERROR_WRONG_CODE": "Incorrect code",
+  "ERROR_INCOMPLETE_CODE": "Complete the code",
+
+
+
+  "RESET_PASS_DESCRIPTION_TEXT": "Define a new password for your account",
+  "NEW_PASSWORD_HINT": "Enter a new password",
+  "CONFIRM_PASSWORD_HINT": "Confirm the password",
+  "UPDATE_BTN": "UPDATE",
+  "RESET_SUCCESS_TITLE": "Success",
+  "RESET_SUCCESS_MESSAGE": "Your password has been succesfully reseted.\nConnect to your account with the new password",
+  "OK_BTN": "OK",
+
+  "ERROR_PASS_AND_CONFIRM_NOT_MATCH": "Password and confirmation mismatch",
+  "ERROR_OCCURED": "Error occured! Please retry.",
+
+
+
+  "ACCUEIL_TITLE": "Home",
+  "SEARCH_TITLE": "Search",
+  "CART_TITLE": "Cart",
+  "COMMANDES_TITLE": "Commands",
+  "PROFIL_TITLE": "Profil",
+
+
+
+  "RESTAURANTS_NEARBY_TITLE" : "Restaurants near by or enter adress",
+  "RESTAURANTS_NEARBY_NOT_FOUND" : "No restaurant found near this position.\n\nTry another adress"
+
+}

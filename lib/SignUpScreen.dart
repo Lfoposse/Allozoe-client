@@ -4,6 +4,7 @@ import 'package:client_app/Utils/SelectCountryWidget.dart';
 import 'package:client_app/Utils/MyBehavior.dart';
 import 'ConfirmAccountScreen.dart';
 import 'Models/Client.dart';
+import 'StringKeys.dart';
 
 class SignUpScreen extends StatefulWidget {
 
@@ -49,7 +50,7 @@ class SignUpScreenState extends State<SignUpScreen> implements SignUpContract{
 
     if (_name.length == 0 || _surname.length == 0 || _email.length == 0 || _phone.length == 0 || _password.length == 0) {
       setState(() {
-        _errorMsg = "Renseigner tous les champs";
+        _errorMsg = getLocaleText(context: context, strinKey: StringKeys.ERROR_FILL_ALL_GAPS);
         _showError = true;
       });
     } else {
@@ -58,7 +59,7 @@ class SignUpScreenState extends State<SignUpScreen> implements SignUpContract{
       RegExp regex = new RegExp(pattern);
       if (!regex.hasMatch(_email)) {
         setState(() {
-          _errorMsg = "Email invalide";
+          _errorMsg = getLocaleText(context: context, strinKey: StringKeys.ERROR_INVALID_EMAIL);
           _showError = true;
         });
       } else {
@@ -154,16 +155,16 @@ class SignUpScreenState extends State<SignUpScreen> implements SignUpContract{
         children: [
           Row(children: <Widget>[
             new Flexible(
-              child: buildEntrieRow(nameKey,Icons.person, null, "Nom", TextInputType.text, false),
+              child: buildEntrieRow(nameKey,Icons.person, null, getLocaleText(context: context, strinKey: StringKeys.NAME_HINT), TextInputType.text, false),
               flex: 1,
             ),
             SizedBox(width: 8.0),
             new Flexible(
-              child: buildEntrieRow(surnameKey, Icons.person, null, "Prénom", TextInputType.text, false),
+              child: buildEntrieRow(surnameKey, Icons.person, null, getLocaleText(context: context, strinKey: StringKeys.SURNAME_HINT), TextInputType.text, false),
               flex: 1,
             ),
           ]),
-          buildEntrieRow(emailKey, Icons.email, null, "Entrer un email", TextInputType.emailAddress, false),
+          buildEntrieRow(emailKey, Icons.email, null, getLocaleText(context: context, strinKey: StringKeys.SIGNUP_EMAIL_HINT), TextInputType.emailAddress, false),
           Row(children: <Widget>[
             new Flexible(
               child: _selectContry,
@@ -171,11 +172,11 @@ class SignUpScreenState extends State<SignUpScreen> implements SignUpContract{
             ),
             SizedBox(width: 8.0),
             new Flexible(
-              child: buildEntrieRow(phoneKey, Icons.phone, null, "356987412", TextInputType.number, false),
+              child: buildEntrieRow(phoneKey, Icons.phone, null, getLocaleText(context: context, strinKey: StringKeys.PHONE_HINT), TextInputType.number, false),
               flex: 6,
             ),
           ]),
-          buildEntrieRow(passKey, Icons.lock, null, "Mot de passe", TextInputType.text, true),
+          buildEntrieRow(passKey, Icons.lock, null, getLocaleText(context: context, strinKey: StringKeys.SIGNUP_PASSWORD_HINT), TextInputType.text, true),
         ],
       ),
     );
@@ -187,7 +188,7 @@ class SignUpScreenState extends State<SignUpScreen> implements SignUpContract{
           onPressed: _submit,
           child: SizedBox(
             width: double.infinity,
-            child: Text("S'INSCRIRE",
+            child: Text(getLocaleText(context: context, strinKey: StringKeys.SIGN_UP),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16.0,
@@ -209,14 +210,14 @@ class SignUpScreenState extends State<SignUpScreen> implements SignUpContract{
           children: [
             new TextSpan(
                 text:
-                'En cliquant sur « S\"INSCRIRE », je confirme avoir lu et accepté les ',
+                getLocaleText(context: context, strinKey: StringKeys.CONFIDENTIALITE_BEGIN),
                 style: new TextStyle(
                   color: Colors.black54,
                   fontSize: 16.0,
                   fontWeight: FontWeight.bold,
                 )),
             new TextSpan(
-                text: 'Conditions générales',
+                text: getLocaleText(context: context, strinKey: StringKeys.CONDITIONS_GENERALES),
                 style: new TextStyle(
                   color: Colors.lightGreen,
                   decoration: TextDecoration.underline,
@@ -224,14 +225,14 @@ class SignUpScreenState extends State<SignUpScreen> implements SignUpContract{
                   fontWeight: FontWeight.bold,
                 )),
             new TextSpan(
-                text: ' et ',
+                text: getLocaleText(context: context, strinKey: StringKeys.AND),
                 style: new TextStyle(
                   color: Colors.black54,
                   fontSize: 16.0,
                   fontWeight: FontWeight.bold,
                 )),
             new TextSpan(
-              text: 'Politique de confidentialité',
+              text: getLocaleText(context: context, strinKey: StringKeys.CONFIDENTIALITE),
               style: new TextStyle(
                 color: Colors.lightGreen,
                 decoration: TextDecoration.underline,
@@ -281,7 +282,7 @@ class SignUpScreenState extends State<SignUpScreen> implements SignUpContract{
             Container(
               height: AppBar().preferredSize.height,
               child: AppBar(
-                title: Text('Inscription'),
+                title: Text(getLocaleText(context: context, strinKey: StringKeys.SIGNUP_PAGE_TITLE)),
                 centerTitle: true,
                 backgroundColor: Colors.transparent,
                 elevation: 0.0,
@@ -295,7 +296,7 @@ class SignUpScreenState extends State<SignUpScreen> implements SignUpContract{
 
   @override
   void onConnectionError() {
-    _showSnackBar("Échec de connexion. Vérifier votre connexion internet");
+    _showSnackBar(getLocaleText(context: context, strinKey: StringKeys.ERROR_CONNECTION_FAILED));
     setState(() => _isLoading = false);
   }
 
@@ -304,7 +305,7 @@ class SignUpScreenState extends State<SignUpScreen> implements SignUpContract{
 
     setState(() {
       _isLoading = false;
-      _errorMsg = "Un compte existe déjà avec cet email. Connectez vous";
+      _errorMsg = getLocaleText(context: context, strinKey: StringKeys.ERROR_ACCOUNT_ALREADY_EXISTS);
       _showError = true;
     });
   }

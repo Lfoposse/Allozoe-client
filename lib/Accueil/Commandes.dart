@@ -10,6 +10,7 @@ import '../Models/Client.dart';
 import '../Database/DatabaseHelper.dart';
 import '../Utils/CommandStatusHelper.dart';
 import '../Utils/PriceFormatter.dart';
+import '../Notation.dart';
 
 class Commandes extends StatefulWidget {
   @override
@@ -22,8 +23,7 @@ class CommandesState extends State<Commandes>
   List<Commande> commandes;
   int stateIndex;
   Client client;
-  List<Commande>
-      searchResultCommandes; // les commandes du resultat de la recherche
+  List<Commande> searchResultCommandes; // les commandes du resultat de la recherche
   bool isSearching; // determine si une recherche est en cours ou pas
   final controller = new TextEditingController();
 
@@ -59,6 +59,7 @@ class CommandesState extends State<Commandes>
 
     DatabaseHelper().loadClient().then((Client client) {
       this.client = client;
+      debugPrint("Client = " + client.toString());
       _presenter.loadCommandHistory(client.id);
     });
     super.initState();
@@ -261,25 +262,53 @@ class CommandesState extends State<Commandes>
             Container(
               width: double.infinity,
               margin: EdgeInsets.symmetric(vertical: 10.0),
-              child: RichText(
-                text: new TextSpan(
-                  children: [
-                    new TextSpan(
-                        text: "Référence: ",
-                        style: new TextStyle(
-                          color: Colors.blue[900],
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.bold,
-                        )),
-                    new TextSpan(
-                        text: isSearching ? searchResultCommandes[index].reference : this.commandes[index].reference,
-                        style: new TextStyle(
-                          color: Colors.black54,
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.bold,
-                        ))
-                  ],
-                ),
+              child: Row(
+                children: <Widget>[
+                  Expanded(child: RichText(
+                    text: new TextSpan(
+                      children: [
+                        new TextSpan(
+                            text: "Référence: ",
+                            style: new TextStyle(
+                              color: Colors.blue[900],
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.bold,
+                            )),
+                        new TextSpan(
+                            text: isSearching ? searchResultCommandes[index].reference : this.commandes[index].reference,
+                            style: new TextStyle(
+                              color: Colors.black54,
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.bold,
+                            ))
+                      ],
+                    ),
+                  )),
+                  isDelivredAndNotRated(isSearching ? searchResultCommandes[index] : this.commandes[index]) ? PositionedTapDetector(
+                    onTap: (position){
+                      // Afficher la vue de notation du service de livraison recue
+                      showRatingDialog(context, isSearching ? searchResultCommandes[index] : this.commandes[index]).then((Null){
+                        setState(() {
+                          print("commandes set State");
+                        });
+                      });
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(right: 5.0),
+                      padding: EdgeInsets.all(5.0),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                        color: Colors.lightGreen,
+                      ),
+                      child: Text("Noter",
+                        style: TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black
+                        ),),
+                    ),
+                  ) : Container()
+                ],
               ),
             ),
             Row(
@@ -291,7 +320,7 @@ class CommandesState extends State<Commandes>
                       color: getStatusCommandValueColor(
                           isSearching ? searchResultCommandes[index].status : this.commandes[index].status),
                       decoration: TextDecoration.none,
-                      fontSize: 16.0,
+                      fontSize: 14.0,
                       fontWeight: FontWeight.bold,
                     )),
                 Text(
@@ -302,7 +331,7 @@ class CommandesState extends State<Commandes>
                     style: new TextStyle(
                       color: Colors.blue[900],
                       decoration: TextDecoration.none,
-                      fontSize: 18.0,
+                      fontSize: 16.0,
                       fontWeight: FontWeight.bold,
                     )),
               ],
@@ -317,7 +346,7 @@ class CommandesState extends State<Commandes>
                       style: new TextStyle(
                         color: Colors.black54,
                         decoration: TextDecoration.none,
-                        fontSize: 16.0,
+                        fontSize: 14.0,
                         fontWeight: FontWeight.normal,
                       )),
                   Text(isSearching ? searchResultCommandes[index].heure : this.commandes[index].heure,
@@ -325,7 +354,7 @@ class CommandesState extends State<Commandes>
                       style: new TextStyle(
                         color: Colors.black54,
                         decoration: TextDecoration.none,
-                        fontSize: 16.0,
+                        fontSize: 14.0,
                         fontWeight: FontWeight.bold,
                       )),
                 ],
@@ -359,14 +388,14 @@ class CommandesState extends State<Commandes>
               child: commandes != null && commandes.length > 0
                   ? Column(
                       children: <Widget>[
-                        Expanded(
-                          child: Container(
-                            padding: EdgeInsets.only(top: 5.0),
-                            margin: EdgeInsets.symmetric(horizontal: 5.0),
-                            child: getDatedBox(),
-                          ),
-                          flex: 1,
-                        ),
+//                        Expanded(
+//                          child: Container(
+//                            padding: EdgeInsets.only(top: 5.0),
+//                            margin: EdgeInsets.symmetric(horizontal: 5.0),
+//                            child: getDatedBox(),
+//                          ),
+//                          flex: 1,
+//                        ),
                         Container(
                           padding: EdgeInsets.symmetric(vertical: 15.0),
                           child: researchBox(

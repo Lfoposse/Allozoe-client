@@ -7,6 +7,7 @@ import 'Accueil/Profil.dart';
 import 'Accueil/Categories.dart';
 import 'Accueil/Panier.dart';
 import 'package:flutter/services.dart';
+import 'StringKeys.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -101,11 +102,11 @@ class HomeStateScreen extends State<HomeScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          buildButtonColumn(Icons.home, 'Accueil', isSelectedButton(0), 0),
-          buildButtonColumn(Icons.search, 'Recherche', isSelectedButton(1), 1),
-          buildButtonColumn(Icons.shopping_cart, 'Panier', isSelectedButton(4), 4),
-          buildButtonColumn(Icons.list, 'Commandes', isSelectedButton(2), 2),
-          buildButtonColumn(Icons.person, 'Profil', isSelectedButton(3), 3),
+          buildButtonColumn(Icons.home, getLocaleText(context: context, strinKey: StringKeys.ACCUEIL_TITLE), isSelectedButton(0), 0),
+          buildButtonColumn(Icons.search, getLocaleText(context: context, strinKey: StringKeys.SEARCH_TITLE), isSelectedButton(1), 1),
+          buildButtonColumn(Icons.shopping_cart, getLocaleText(context: context, strinKey: StringKeys.CART_TITLE), isSelectedButton(4), 4),
+          buildButtonColumn(Icons.list, getLocaleText(context: context, strinKey: StringKeys.COMMANDES_TITLE), isSelectedButton(2), 2),
+          buildButtonColumn(Icons.person, getLocaleText(context: context, strinKey: StringKeys.PROFIL_TITLE), isSelectedButton(3), 3),
         ],
       ),
     );

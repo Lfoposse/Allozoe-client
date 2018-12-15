@@ -14,56 +14,56 @@ import '../DAO/Presenters/TicketListPresenter.dart';
 import '../Models/Client.dart';
 import '../Utils/PriceFormatter.dart';
 
-
-class CardListScreen extends StatefulWidget{
-
+class CardListScreen extends StatefulWidget {
   final bool forPaiement;
   final double montantPaiement;
   final List<CreditCard> cards;
   final List<Produit> produits;
   final String address, phone;
+  final int paymentMode;
 
-  CardListScreen({@required this.forPaiement, this.montantPaiement, this.cards, this.produits, this.address, this.phone});
+  CardListScreen(
+      {@required this.forPaiement,
+      this.montantPaiement,
+      this.cards,
+      this.produits,
+      this.address,
+      this.phone,
+      this.paymentMode});
 
-  createState() =>  new CardListScreenState();
+  createState() => new CardListScreenState();
 }
 
+class CardListScreenState extends State<CardListScreen> implements SendCommandeContract{
 
-class CardListScreenState extends State<CardListScreen> implements SendCommandeContract, TicketListContract {
-
-  int indexSelected, selectedTicket;
-  bool isLoading, ticketLoading;
+  int indexSelected;
+  bool isLoading;
   int paiementModeIndex; // 1 = carte bancaire et 2 = ticket restaurant
   String paiementModeName;
   SendCommandePresenter _presenter;
-  TicketListPresenter _ticketPresenter;
   List<DropdownMenuItem<String>> _dropDownMenuItems;
 
-  List<Ticket> tickets;
+  final montantKey = new GlobalKey<FormState>();
+  String _montant;
+
 
   @override
   void initState() {
     super.initState();
-    tickets = null;
-    paiementModeIndex = 1;
+    paiementModeIndex = widget.paymentMode;
     _dropDownMenuItems = getDropDownMenuItems();
-    paiementModeName = _dropDownMenuItems[0].value;
-    indexSelected = selectedTicket = 0;
+    paiementModeName = _dropDownMenuItems[paiementModeIndex == 1 ? 0 : 1].value;
+    indexSelected =  0;
     isLoading = false;
-    ticketLoading = false;
     _presenter = new SendCommandePresenter(this);
-    _ticketPresenter = new TicketListPresenter(this);
   }
-
 
   List<DropdownMenuItem<String>> getDropDownMenuItems() {
     List<DropdownMenuItem<String>> items = new List();
     List _paymentModes = ["Carte Bancaire", "Ticket Restaurant"];
     for (String paymentMode in _paymentModes) {
       items.add(new DropdownMenuItem(
-          value: paymentMode,
-          child: new Text(paymentMode)
-      ));
+          value: paymentMode, child: new Text(paymentMode)));
     }
     return items;
   }
@@ -72,136 +72,187 @@ class CardListScreenState extends State<CardListScreen> implements SendCommandeC
     setState(() {
       paiementModeIndex = paymentMode == "Carte Bancaire" ? 1 : 2;
       paiementModeName = paymentMode;
-      if(paymentMode != "Carte Bancaire") {
-        indexSelected = 0;
-        ticketLoading = true;
-        new DatabaseHelper().loadClient().then((Client client) {
-          _ticketPresenter.loadClientTickets(client.id);
-        });
-      }else{
-        selectedTicket = 0;
-      }
+      if (paymentMode != "Carte Bancaire") indexSelected = 0;
     });
   }
 
+  void _showDialog(String title) {
+    // flutter defined function
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Avertissement"),
+          content: new Text(
+              title),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("Compris"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   void _submit() {
 
-    if(paiementModeIndex == 2 && (tickets == null || tickets.length == 0)) return;
+    double prix = 0.0;
+    if(paiementModeIndex == 2){
+      montantKey.currentState.save();
+
+      if(_montant.length == 0){
+        _showDialog("Vous devez fournir le montant du ticket");
+        return;
+      }
+
+      try{
+        prix = double.parse(_montant);
+      }catch(error){
+        _showDialog("montant invalide");
+        return;
+      }
+
+      if(prix < widget.montantPaiement){
+        _showDialog("Votre ticket restaurant est insuffisant pour payer votre commande");
+        return;
+      }
+    }
+
+
+
 
     setState(() {
       isLoading = true;
     });
 
     // TODO : formatter l'envoi des commandes selon les restaurants si necessaires ici
-    _presenter.commander(widget.produits, widget.address, widget.phone,
+    _presenter.commander(
+        widget.produits,
+        widget.address,
+        widget.phone,
+        {"id": paiementModeIndex == 1 ? widget.cards[indexSelected].id : -1},
         {
-          "id": paiementModeIndex == 1 ? widget.cards[indexSelected].id : -1
+          "id": -1,
+          "code": "0000",
+          "value": paiementModeIndex == 2 ? double.parse(_montant) : 0.0
         },
-      {
-        "id" : paiementModeIndex == 1 ? -1 : tickets[selectedTicket].id
-      },
-      paiementModeIndex
-    );
+        paiementModeIndex);
   }
 
-  Widget getCardItem(int index){
-
+  Widget getCardItem(int index) {
     return Container(
       height: 60.0,
       margin: EdgeInsets.symmetric(vertical: 10.0),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey, width: 1.0),
       ),
-      padding: EdgeInsets.only(left: 20.0, right: 10.0, top: 10.0, bottom: 10.0),
+      padding:
+          EdgeInsets.only(left: 20.0, right: 10.0, top: 10.0, bottom: 10.0),
       child: Row(
         children: <Widget>[
-          Icon(Icons.credit_card, size: 30.0,),
-          Expanded(child: Container(
+          Icon(
+            Icons.credit_card,
+            size: 30.0,
+          ),
+          Expanded(
+              child: Container(
             margin: EdgeInsets.symmetric(horizontal: 15.0),
-            child: Text("Numero de la carte \n" + widget.cards[index].card_number,
-              style: TextStyle(
-                fontSize: 16.0
-              ),
+            child: Text(
+              "Numero de la carte \n" + widget.cards[index].card_number,
+              style: TextStyle(fontSize: 16.0),
             ),
           )),
-          widget.forPaiement ? PositionedTapDetector(
-            onTap: (position){
-              setState(() {
-                indexSelected = index;
-              });
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: indexSelected == index ? Colors.lightGreen : Colors.transparent,
-                  border: Border.all(color: Colors.grey, width: 1.0)
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: indexSelected == index
-                    ? Icon(
-                  Icons.check,
-                  size: 10.0,
-                  color: Colors.white,
+          widget.forPaiement
+              ? PositionedTapDetector(
+                  onTap: (position) {
+                    setState(() {
+                      indexSelected = index;
+                    });
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: indexSelected == index
+                            ? Colors.lightGreen
+                            : Colors.transparent,
+                        border: Border.all(color: Colors.grey, width: 1.0)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(5.0),
+                      child: indexSelected == index
+                          ? Icon(
+                              Icons.check,
+                              size: 10.0,
+                              color: Colors.white,
+                            )
+                          : Icon(
+                              Icons.check_box_outline_blank,
+                              size: 10.0,
+                              color: Colors.transparent,
+                            ),
+                    ),
+                  ),
                 )
-                    : Icon(
-                  Icons.check_box_outline_blank,
-                  size: 10.0,
-                  color: Colors.transparent,
-                ),
-              ),
-            ),
-          ) : Container()
+              : Container()
         ],
       ),
     );
   }
 
-
-  Widget getCardPaiementContent(){
-
+  Widget getCardPaiementContent() {
     return Column(
       children: <Widget>[
         Container(
           width: double.infinity,
-          margin: EdgeInsets.symmetric(vertical: 20.0),
-          child: Text(widget.cards == null || widget.cards.length == 0 ? "Aucune carte de paiement enregistrée" : (widget.forPaiement ? "Sélectionnez la carte" : "Vos cartes de paiement"),
+          margin: EdgeInsets.only(top: 10.0, bottom: 5.0),
+          child: Text(
+              widget.cards == null || widget.cards.length == 0
+                  ? "Aucune carte de paiement enregistrée"
+                  : (widget.forPaiement
+                      ? "Sélectionnez la carte"
+                      : "Vos cartes de paiement"),
               textAlign: TextAlign.left,
               style: TextStyle(
                   fontSize: 17.0,
                   color: Colors.black,
                   fontWeight: FontWeight.bold)),
         ),
-        widget.cards != null && widget.cards.length > 0 ? Flexible(
-          child: SingleChildScrollView(
-            child: ListView.builder(
-                padding: EdgeInsets.all(0.0),
-                itemCount: widget.cards.length,
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                scrollDirection: Axis.vertical,
-                itemBuilder: (BuildContext context, int index){
-                  return getCardItem(index);
-                }
-            ),
-          ),
-        ) : Container(),
+        widget.cards != null && widget.cards.length > 0
+            ? Flexible(
+                child: SingleChildScrollView(
+                  child: ListView.builder(
+                      padding: EdgeInsets.all(0.0),
+                      itemCount: widget.cards.length,
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      scrollDirection: Axis.vertical,
+                      itemBuilder: (BuildContext context, int index) {
+                        return getCardItem(index);
+                      }),
+                ),
+              )
+            : Container(),
         Container(
           width: double.infinity,
-          padding: EdgeInsets.only(top: 15.0, bottom: 20.0),
+          padding: EdgeInsets.only(top: 5.0),
+          margin: EdgeInsets.only(bottom: 20.0),
           child: PositionedTapDetector(
-            onTap: (position){
-              Navigator.of(context).push(
-                  new MaterialPageRoute(builder: (context) => AddCardScreen(
-                    forPaiement: widget.forPaiement,
-                    montantPaiement: widget.montantPaiement,
-                    produits: widget.produits,
-                    address: widget.address,
-                    phone: widget.phone,
-                  ))
-              ).then((dynamic res){
-                if(res != null) widget.cards.insert(0, res as CreditCard);
+            onTap: (position) {
+              Navigator.of(context)
+                  .push(new MaterialPageRoute(
+                      builder: (context) => AddCardScreen(
+                            forPaiement: widget.forPaiement,
+                            montantPaiement: widget.montantPaiement,
+                            produits: widget.produits,
+                            address: widget.address,
+                            phone: widget.phone,
+                          )))
+                  .then((dynamic res) {
+                if (res != null) widget.cards.insert(0, res as CreditCard);
                 setState(() {});
               });
             },
@@ -210,149 +261,21 @@ class CardListScreenState extends State<CardListScreen> implements SendCommandeC
                 style: TextStyle(
                     fontSize: 17.0,
                     color: Colors.lightGreen,
-                    fontWeight: FontWeight.bold)) ,
+                    fontWeight: FontWeight.bold)),
           ),
         ),
-
       ],
     );
   }
 
-
-  Widget getTicketItem(int index){
-
-    return Container(
-      height: 60.0,
-      margin: EdgeInsets.symmetric(vertical: 10.0),
-      decoration: BoxDecoration(
-        border: Border(
-          top: BorderSide(color: Colors.grey, width: 1.0)
-        ),
-      ),
-      padding: EdgeInsets.only(left: 20.0, right: 10.0, top: 10.0),
-      child: Row(
-        children: <Widget>[
-          Icon(Icons.restaurant, size: 30.0,),
-          Expanded(child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 15.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Container(
-                  width: double.infinity,
-                  margin: EdgeInsets.only(bottom: 5.0),
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Text(tickets[index].restaurant.name,
-                            textAlign: TextAlign.left,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                                fontSize: 18.0,
-                                color: Colors.blueGrey,
-                                fontWeight: FontWeight.bold
-                            )
-                        ),
-                      ),
-                      Text(PriceFormatter.formatPrice(price: tickets[index].amount),
-                          textAlign: TextAlign.left,
-                          style: TextStyle(
-                              fontSize: 14.0,
-                              color: Colors.lightGreen,
-                              fontWeight: FontWeight.bold
-                          )
-                      )
-                    ],
-                  ),
-                ),
-                Container(
-                  width: double.infinity,
-                  child: Text(tickets[index].code,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                          fontSize: 16.0
-                      )),
-                )
-              ],
-            ),
-          )),
-          widget.forPaiement ? PositionedTapDetector(
-            onTap: (position){
-              setState(() {
-                selectedTicket = index;
-              });
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: selectedTicket == index ? Colors.lightGreen : Colors.transparent,
-                  border: Border.all(color: Colors.grey, width: 1.0)
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: selectedTicket == index
-                    ? Icon(
-                  Icons.check,
-                  size: 10.0,
-                  color: Colors.white,
-                )
-                    : Icon(
-                  Icons.check_box_outline_blank,
-                  size: 10.0,
-                  color: Colors.transparent,
-                ),
-              ),
-            ),
-          ) : Container()
-        ],
-      ),
-    );
-  }
-
-
-  Widget getTicketPaiementContent(){
-
-    return
-      ticketLoading ? Container(
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              CircularProgressIndicator(),
-              Container(
-                margin: EdgeInsets.only(top: 20.0),
-                child: Text("chargement de vos tickets restaurant",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-
-                  ),
-                ),
-              )
-            ],
-          ),
-        ),
-      ) :
-    (tickets == null || tickets.length == 0 ? Container(
-      child: Center(
-        child: Text(
-        "Vous ne disposez d'aucun ticket restaurant\n" +
-            (widget.forPaiement ? "Selectionner un autre moyen de paiement pour finaliser votre commande" : ""),
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontWeight: FontWeight.bold
-        ))
-      ),
-    ) :
-    Column(
+  Widget getTicketPaiementContent() {
+    return ListView(
       children: <Widget>[
         Container(
           width: double.infinity,
           margin: EdgeInsets.symmetric(vertical: 20.0),
-          child: Text(widget.forPaiement ? "Sélectionnez le ticket a utiliser" : "Liste de vos tickets restaurants",
+          child: Text(
+              "Entrer le montant de votre ticket",
               textAlign: TextAlign.left,
               style: TextStyle(
                   fontSize: 17.0,
@@ -360,31 +283,37 @@ class CardListScreenState extends State<CardListScreen> implements SendCommandeC
                   fontWeight: FontWeight.bold)),
         ),
         Container(
-          padding: EdgeInsets.only(top: 15.0, bottom: 20.0),
-          child: SingleChildScrollView(
-            child: ListView.builder(
-                padding: EdgeInsets.all(0.0),
-                itemCount: tickets.length,
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                scrollDirection: Axis.vertical,
-                itemBuilder: (BuildContext context, int index){
-                  return getTicketItem(index);
-                }
-            ),
-          )
-        ),
-
+            padding: EdgeInsets.only(top: 15.0, bottom: 20.0),
+            child: Form(
+                key: montantKey,
+                child: TextFormField(
+                    onSaved: (val) {
+                      _montant = val;
+                    },
+                    textAlign: TextAlign.left,
+                    autofocus: false,
+                    autocorrect: false,
+                    maxLines: 1,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                        contentPadding: new EdgeInsets.all(0.0),
+                        //border: InputBorder.none,
+                        hintText: "Montant du ticket",
+                        hintStyle: TextStyle(
+                            fontSize: 13.0,
+                            color: Colors.grey,
+                            fontWeight: FontWeight.bold)),
+                    style: TextStyle(
+                        fontSize: 13.0,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold))))
       ],
-    )
     );
   }
 
 
-
   @override
   Widget build(BuildContext context) {
-
     return Material(
       child: Scaffold(
         body: Stack(
@@ -392,62 +321,73 @@ class CardListScreenState extends State<CardListScreen> implements SendCommandeC
             Column(
               children: <Widget>[
                 HomeAppBar(),
-                widget.forPaiement ? Container(
-                  color: Colors.white,
-                  padding: EdgeInsets.symmetric(vertical: 25.0),
-                  width: double.infinity,
-                  child: Text("Montant à payer : " + PriceFormatter.formatPrice(price: widget.montantPaiement),
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 17.0,
-                          color: Colors.lightGreen,
-                          fontWeight: FontWeight.bold)),
-                ) : Container(),
-                Container(
-                  width: double.infinity,
-                  color: Colors.white,
-                  child: Center(
-                    child: DropdownButton(
-                      value: paiementModeName,
-                      items: _dropDownMenuItems,
-                      onChanged: changedDropDownItem,
-                    ),
-                  ),
-                ),
+                widget.forPaiement
+                    ? Container(
+                        color: Colors.white,
+                        padding: EdgeInsets.only(top: 20.0),
+                        width: double.infinity,
+                        child: Text(
+                            "Montant à payer : " +
+                                PriceFormatter.formatPrice(
+                                    price: widget.montantPaiement),
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontSize: 17.0,
+                                color: Colors.lightGreen,
+                                fontWeight: FontWeight.bold)),
+                      )
+                    : Container(),
+                widget.forPaiement
+                    ? Container(
+                        width: double.infinity,
+                        color: Colors.white,
+                        child: Center(
+                          child: DropdownButton(
+                            value: paiementModeName,
+                            items: _dropDownMenuItems,
+                            onChanged: changedDropDownItem,
+                          ),
+                        ),
+                      )
+                    : Container(),
                 Expanded(
                     child: Container(
-                      color: Colors.white,
-                      padding: EdgeInsets.symmetric(horizontal: 25.0),
-                      child: paiementModeIndex == 1 ? getCardPaiementContent() : getTicketPaiementContent(),
-                    )
-                ),
-                widget.forPaiement ? Container(
-                  padding: EdgeInsets.only(left : 20.0, right: 20.0, bottom: 10.0, top: 20.0),
                   color: Colors.white,
-                  child: PositionedTapDetector(
-                      onTap: (position) {
-                        _submit();
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.symmetric(vertical: 15.0),
-                        decoration: BoxDecoration(
-                            border: Border.all(
-                                color: Colors.lightGreen,
-                                style: BorderStyle.solid,
-                                width: 1.0),
-                            color: paiementModeIndex == 2 && (tickets == null || tickets.length == 0) ? Colors.grey : Colors.lightGreen),
-                        child: Text("PAYER",
-                            textAlign: TextAlign.center,
-                            overflow: TextOverflow.ellipsis,
-                            style: new TextStyle(
-                              color: paiementModeIndex == 2 && (tickets == null || tickets.length == 0) ? Colors.blueGrey : Colors.white,
-                              decoration: TextDecoration.none,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.bold,
+                  padding: EdgeInsets.symmetric(horizontal: 25.0),
+                  child: paiementModeIndex == 1
+                      ? getCardPaiementContent()
+                      : getTicketPaiementContent(),
+                )),
+                widget.forPaiement
+                    ? Container(
+                        padding: EdgeInsets.only(
+                            left: 20.0, right: 20.0, bottom: 10.0),
+                        color: Colors.white,
+                        child: PositionedTapDetector(
+                            onTap: (position) {
+                              _submit();
+                            },
+                            child: Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(vertical: 10.0),
+                              decoration: BoxDecoration(
+                                  border: Border.all(
+                                      color: Colors.lightGreen,
+                                      style: BorderStyle.solid,
+                                      width: 1.0),
+                                  color: Colors.lightGreen),
+                              child: Text("PAYER",
+                                  textAlign: TextAlign.center,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: new TextStyle(
+                                    color: Colors.white,
+                                    decoration: TextDecoration.none,
+                                    fontSize: 16.0,
+                                    fontWeight: FontWeight.bold,
+                                  )),
                             )),
-                      )),
-                ): Container()
+                      )
+                    : Container()
               ],
             ),
             Container(
@@ -460,16 +400,15 @@ class CardListScreenState extends State<CardListScreen> implements SendCommandeC
                 elevation: 0.0,
               ),
             ),
-
             isLoading
                 ? Container(
-              color: Colors.black26,
-              width: double.infinity,
-              height: double.infinity,
-              child: Center(
-                child: new CircularProgressIndicator(),
-              ),
-            )
+                    color: Colors.black26,
+                    width: double.infinity,
+                    height: double.infinity,
+                    child: Center(
+                      child: new CircularProgressIndicator(),
+                    ),
+                  )
                 : IgnorePointer(ignoring: true)
           ],
         ),
@@ -515,7 +454,6 @@ class CardListScreenState extends State<CardListScreen> implements SendCommandeC
 
   @override
   void onCommandSuccess(int cardID) {
-
     new DatabaseHelper().clearPanier(); // vide la panier
 
     setState(() {
@@ -546,9 +484,6 @@ class CardListScreenState extends State<CardListScreen> implements SendCommandeC
 
   @override
   void onConnectionError() {
-    setState(() {
-      isLoading = ticketLoading = false;
-    });
 
     showDialog(
       context: context,
@@ -570,14 +505,4 @@ class CardListScreenState extends State<CardListScreen> implements SendCommandeC
       },
     );
   }
-
-  @override
-  void onLoadingSuccess(List<Ticket> tickets) {
-
-    this.tickets = tickets;
-    setState(() {
-      ticketLoading = false;
-    });
-  }
-
 }

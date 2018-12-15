@@ -29,7 +29,7 @@ class DatabaseHelper {
 
   initDb() async {
     io.Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String path = join(documentsDirectory.path, "allozoe19db.db");
+    String path = join(documentsDirectory.path, "allozoe21db.db");
     var theDb = await openDatabase(path, version: 1, onCreate: _onCreate);
     await theDb.execute("PRAGMA foreign_keys = ON;");
     return theDb;
@@ -166,7 +166,7 @@ class DatabaseHelper {
   Future<Client> loadClient() async {
     var dbClient = await db;
     List<Map> list = await dbClient.rawQuery('SELECT * FROM Client ');
-    print(list.toString());
+    debugPrint(list.toString());
     if(list.length == 1)
       return new Client(list[0]["client_id"], list[0]["username"], null, list[0]["lastname"], list[0]["email"], list[0]["phone"].toString(), true,
           list[0]["firstname"]);
@@ -176,8 +176,14 @@ class DatabaseHelper {
 
   Future<int> clearClient() async {
     var dbProduit = await db;
-    int res = await dbProduit.rawDelete('DELETE FROM Client');
-    return res;
+    await dbProduit.rawDelete("DELETE FROM Cards");
+    await dbProduit.rawDelete("DELETE FROM Client");
+    await dbProduit.rawDelete("DELETE FROM Complement");
+    await dbProduit.rawDelete("DELETE FROM Option");
+    await dbProduit.rawDelete("DELETE FROM Produit");
+    await dbProduit.rawDelete("DELETE FROM Restaurant");
+
+    return 0;
   }
 
 
@@ -197,6 +203,16 @@ class DatabaseHelper {
   }
 
 
+
+  /// verifie si le restaurant different de celui des produits actuelement dans le panier ou non
+  Future<bool> isRestaurantDifferentFromCartOne(Restaurant restaurant) async{
+
+    var dbInsert = await db;
+
+    List<Map> list = await dbInsert.rawQuery('SELECT * FROM Restaurant WHERE restaurant_id = ? ', [restaurant.id]);
+    List<Map> all = await dbInsert.rawQuery('SELECT * FROM Restaurant');
+    return !(all.length == 0 || list.length > 0);
+  }
 
 
 

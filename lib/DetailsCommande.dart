@@ -13,6 +13,7 @@ import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 import 'TrackingCommandScreen.dart';
 import 'Utils/CommandStatusHelper.dart';
 import 'Utils/PriceFormatter.dart';
+import 'TrackingWithMap.dart';
 
 
 _openMap(double lat, double lng, String title) async {
@@ -74,50 +75,6 @@ class DetailsCommandeState extends State<DetailsCommande> implements OrderDetail
       width: horizontal ? double.infinity : height,
       height: horizontal ? height : double.infinity,
       color: Color.fromARGB(15, 0, 0, 0),
-    );
-  }
-
-
-  Widget researchBox(String hintText, Color bgdColor, Color textColor, Color borderColor) {
-    return Container(
-      margin: EdgeInsets.only(left: 20.0, right: 20.0),
-      padding: EdgeInsets.only(left: 10.0, right: 10.0),
-      decoration: new BoxDecoration(
-          color: bgdColor,
-          border: new Border(
-            top: BorderSide(
-                color: borderColor, style: BorderStyle.solid, width: 1.0),
-            bottom: BorderSide(
-                color: borderColor, style: BorderStyle.solid, width: 1.0),
-            left: BorderSide(
-                color: borderColor, style: BorderStyle.solid, width: 1.0),
-            right: BorderSide(
-                color: borderColor, style: BorderStyle.solid, width: 1.0),
-          )),
-      child: Row(children: [
-        Icon(
-          Icons.search,
-          color: textColor,
-          size: 25.0,
-        ),
-        Expanded(
-            child: Container(
-                padding: EdgeInsets.only(left: 10.0, right: 10.0),
-                child: TextFormField(
-                    autofocus: false,
-                    autocorrect: false,
-                    maxLines: 1,
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: hintText,
-                        hintStyle: TextStyle(color: textColor)),
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      color: Colors.black54,
-                      fontWeight: FontWeight.bold,
-                    ))))
-      ]),
     );
   }
 
@@ -400,7 +357,8 @@ class DetailsCommandeState extends State<DetailsCommande> implements OrderDetail
                 child: PositionedTapDetector(
                     onTap: (position) {
 
-                      if(widget.commande.deliver != null/*canCommandBeTracked(widget.commande.status)*/)
+                      if(widget.commande.deliver != null)
+                        //Navigator.of(context).push(new MaterialPageRoute(builder: (context) => TrackingWithMap()));
                         Navigator.of(context).push(
                             new MaterialPageRoute(builder: (context) => TrackingCommandeScreen(deliveryAdress: widget.commande.deliveryAddress, deliver: widget.commande.deliver, restaurant: widget.commande.restaurant,)));
                     },

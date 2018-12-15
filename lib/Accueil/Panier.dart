@@ -202,7 +202,7 @@ class PanierState extends State<Panier> implements PanierContract{
       child: Column(
         children: <Widget>[
           Expanded(child: Container(
-            padding: EdgeInsets.only(left: 5.0, right: 5.0, top: 15.0, bottom: 15.0),
+            padding: EdgeInsets.only(left: 5.0, right: 5.0, top: 5.0, bottom: 5.0),
             child: Row(
               children: <Widget>[
                 Expanded(child: Image.network(
@@ -280,18 +280,21 @@ class PanierState extends State<Panier> implements PanierContract{
             padding: EdgeInsets.only(left: 5.0, right: 5.0, top: 10.0, bottom: 10.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 Container(
+                  //color: Colors.grey,
                     child : Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
                         Container(
                           margin: EdgeInsets.only(right: 10.0),
-                          child: Icon(Icons.favorite_border, color: produits[index].isFavoris ? Color.fromARGB(255, 255, 215, 0): Colors.lightGreen, size: 25.0,),
+                          child: Icon(Icons.favorite_border, color: produits[index].isFavoris ? Color.fromARGB(255, 255, 215, 0): Colors.lightGreen, size: 20.0,),
                         ),
-                        getDivider(1.0, horizontal: false),
+                        getDivider(2.0, horizontal: false),
                         Container(
                           margin: EdgeInsets.symmetric(horizontal: 10.0),
-                          child: Icon(Icons.delete, color: Colors.lightGreen, size: 25.0,),
+                          child: Icon(Icons.delete, color: Colors.lightGreen, size: 20.0,),
                         ),
                         PositionedTapDetector(
                           onTap: (position){
@@ -334,7 +337,7 @@ class PanierState extends State<Panier> implements PanierContract{
                             color: Colors.lightGreen,
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(Icons.remove, color: Colors.white, size: 20.0,),
+                          child: Icon(Icons.remove, color: Colors.white, size: 15.0,),
                         ),
                       ),
                       Container(
@@ -346,7 +349,7 @@ class PanierState extends State<Panier> implements PanierContract{
                             style: new TextStyle(
                               color: Colors.black,
                               decoration: TextDecoration.none,
-                              fontSize: 15.0,
+                              fontSize: 13.0,
                               fontWeight: FontWeight.bold,
                             )),
                       ),
@@ -361,7 +364,7 @@ class PanierState extends State<Panier> implements PanierContract{
                             color: Colors.lightGreen,
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(Icons.add, color: Colors.white, size: 20.0,),
+                          child: Icon(Icons.add, color: Colors.white, size: 15.0,),
                         ),
                       )
                     ],
@@ -413,6 +416,7 @@ class PanierState extends State<Panier> implements PanierContract{
       children: <Widget>[
         Container(
           padding: EdgeInsets.symmetric(horizontal: 10.0),
+          margin: EdgeInsets.only(bottom: 5.0),
           child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -440,6 +444,7 @@ class PanierState extends State<Panier> implements PanierContract{
 
         Container(
           padding: EdgeInsets.symmetric(horizontal: 10.0),
+          margin: EdgeInsets.only(top: 5.0),
           child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -522,31 +527,27 @@ class PanierState extends State<Panier> implements PanierContract{
             Expanded(
               child: Container(
                 margin: EdgeInsets.only(top: 4.0, bottom: 5.0),
+                padding: EdgeInsets.only(top: 5.0),
                 color: Colors.white,
                 child: Column(
                   children: <Widget>[
-
-                    Expanded(
-                      child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 20.0),
-                        color: Color.fromARGB(15, 0, 0, 0),
-                        child: Center(
-                          child: Container(
-                            width: double.infinity,
-                            child: Text("MON PANIER (" + produits.length.toString() + " ARTICLES)",
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 14.0,
-                                  fontWeight: FontWeight.normal
-                              ),
-                              textAlign: TextAlign.left,
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 20.0),
+                      color: Colors.white,
+                      child: Center(
+                        child: Container(
+                          width: double.infinity,
+                          child: Text("MON PANIER (" + produits.length.toString() + " ARTICLES)",
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.normal
                             ),
+                            textAlign: TextAlign.left,
                           ),
                         ),
                       ),
-                      flex: 1,
                     ),
-
                     Expanded(
                       child: Container(
                         child: ScrollConfiguration(behavior: MyBehavior(), child: PageView.builder(
@@ -556,20 +557,16 @@ class PanierState extends State<Panier> implements PanierContract{
                             itemBuilder: (BuildContext ctxt, int index) {
                               return getItem(index);
                             })),
-                      ),
-                      flex: 12,
+                      )
                     ),
 
-                    Expanded(
-                      child: Container(
-                        padding: EdgeInsets.only(left: 10.0, right: 10.0, top: 10.0, bottom: 10.0),
-                        color: Colors.white,
-                        child: getPricesSection(),
-                      ),
-                      flex: 2,
+                    Container(
+                      padding: EdgeInsets.only(left: 10.0, right: 10.0, top: 10.0, bottom: 10.0),
+                      color: Colors.white,
+                      child: getPricesSection(),
                     ),
 
-                    Expanded(child: Container(
+                    Container(
                       padding: EdgeInsets.symmetric(horizontal: 10.0),
                       child: Center(
                         child: PositionedTapDetector(
@@ -584,7 +581,7 @@ class PanierState extends State<Panier> implements PanierContract{
                             },
                             child: Container(
                               width: double.infinity,
-                              padding: EdgeInsets.symmetric(vertical: 10.0),
+                              padding: EdgeInsets.symmetric(vertical: 8.0),
                               decoration: BoxDecoration(
                                   border: Border.all(
                                       color: Colors.lightGreen,
@@ -605,7 +602,7 @@ class PanierState extends State<Panier> implements PanierContract{
                             )),
                       ),
 
-                    ), flex: 2,)
+                    )
 
                   ],
                 )
