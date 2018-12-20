@@ -16,8 +16,8 @@ class RestaurantCategorizedMenusPresenter {
   loadCategorieList(int restaurantID) {
     api.loadCategorieList().then((List<Categorie> categorieList) {
       if (categorieList != null) {
-        int count = 0;
         List<Categorie> finalList = new List();
+        int count = 0;
 
         for (int i = 0; i < categorieList.length; i++) {
           api
@@ -36,6 +36,8 @@ class RestaurantCategorizedMenusPresenter {
             _view.onConnectionError();
           });
         }
+
+
 
       } else
         _view.onLoadingError();

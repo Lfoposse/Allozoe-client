@@ -17,7 +17,7 @@ import '../Models/Ticket.dart';
 class RestDatasource {
 
   NetworkUtil _netUtil = new NetworkUtil();
-  static final BASE_URL = "http://brservtest.com";
+  static final BASE_URL = "http://serv10.com"; // http://brservtest.com
   static final LOGIN_URL = BASE_URL + "/auth/login";
   static final EMAIL_RECOVERY_ACCOUNT_URL = BASE_URL + "/api/security/pass-forget";
   static final RECOVERY_ACCOUNT_CONFIRM_URL = BASE_URL + "/api/security/verification";
@@ -251,7 +251,7 @@ class RestDatasource {
 
 
   /// Effectue la commande des produits selectionnes par un client
-  Future<int> commander(List<Produit> produits, String address, String phone, dynamic creditcard, dynamic ticket, int payment_mode) {
+  Future<bool> commander(List<Produit> produits, String address, String phone, dynamic creditcard, dynamic ticket, int payment_mode, bool newCard) {
     return DatabaseHelper().loadClient().then((Client client){
 
       List prods = new List();
@@ -273,13 +273,20 @@ class RestDatasource {
 
       })).then((dynamic res) {
 
-        if(res["code"] == 201) return res["data"]["card_id"] != null ?  res["data"]["card_id"] as int : 0;
-        else return -1;
+        if(res["code"] == 201) {
+
+          //sauvegarder les infos de la carte utilisee pour payer si elle etait nouvelle
+          if(newCard){
+            new DatabaseHelper().addCard(new CreditCard(res["data"]["card"]["id"] as int, res["data"]["card"]["cardnumber"] as String));
+          }
+          return true;
+        }
+        else return false;
 
       }).catchError((onError){
         print(onError.toString());
 
-        return -1;
+        new Future.error(false);
       });
 
     });
@@ -325,6 +332,7 @@ class RestDatasource {
 
         if(res["data"]["deliver"] != null) commande.deliver = Deliver.map(res["data"]["deliver"]);
         commande.status = StatusCommande.map(res["data"]["status"]);
+        commande.deliveryAddress = res["data"]["delivery_address"];
         commande.restaurant = Restaurant.map(res["data"]["restaurant"]);
         return (res["data"]['menus'] as List).map((item) => new Produit.map(item)).toList();
       }
@@ -350,23 +358,23 @@ class RestDatasource {
 
 
   /// Ajoute une nouvelle carte de paiement et retourne son identifiant serveur
-  Future<int> addCreditCard({@required int clientID, @required String ownerName, @required String cardNumber, @required String month, @required String year, @required String security} ) {
+  Future<bool> addCreditCard({@required int clientID, @required String token_stripe} ) {
     Map<String, String> lHeaders = {"Content-type": "application/json", "Accept": "application/json"};
     return _netUtil.post(SIGNUP_URL + "/" + clientID.toString() + "/bank-card", body: jsonEncode(
         {
-          "id" : clientID,
-          "name" : ownerName,
-          "card_number" : cardNumber,
-          "month" : month,
-          "year" :year,
-          "security" : security
+          "token_stripe" : token_stripe
         }
     ), headers: lHeaders).then((dynamic res) {
 
-      if(res["code"] == 201) return res["bank_card_id"] as int;
-      else return -1;
+      if(res["code"] == 201){
 
-    }).catchError((onError) => new Future.error(-1));
+        //Enregistrer les informations de la carte en local
+        new DatabaseHelper().addCard(new CreditCard(res["card_id"] as int, res["card_number"].toString()));
+        return true;
+      }
+      else return false;
+
+    }).catchError((onError) => new Future.error(false));
   }
 
 

@@ -90,7 +90,6 @@
       <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/geolocator/example/lib/packages" />
       <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/geolocator/example/lib/pages/packages" />
       <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/geolocator/example/packages" />
-      <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/geolocator/example/test/packages" />
       <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/geolocator/packages" />
       <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/google_api_availability/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/google_api_availability/build" />

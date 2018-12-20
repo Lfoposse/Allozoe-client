@@ -255,11 +255,13 @@ class SignUpScreenState extends State<SignUpScreen> implements SignUpContract{
                 behavior: MyBehavior(),
                 child: ListView(
                   children: [
-                    Image.asset(
-                      'images/header.jpg',
-                      width: double.infinity,
-                      height: 210.0,
-                      fit: BoxFit.fill,
+                    Container(
+                      margin: EdgeInsets.only(top: 5.0),
+                      child: Image.asset(
+                        'images/icone_launcher.png',
+                        height: 210.0,
+                        fit: BoxFit.contain,
+                      ),
                     ),
                     entriesSection,
                     showError(),
@@ -282,7 +284,13 @@ class SignUpScreenState extends State<SignUpScreen> implements SignUpContract{
             Container(
               height: AppBar().preferredSize.height,
               child: AppBar(
-                title: Text(getLocaleText(context: context, strinKey: StringKeys.SIGNUP_PAGE_TITLE)),
+                iconTheme: IconThemeData(
+                  color: Colors.black, //change your color here
+                ),
+                title: Text(getLocaleText(context: context, strinKey: StringKeys.SIGNUP_PAGE_TITLE),
+                    style: TextStyle(
+                        color: Colors.black
+                    )),
                 centerTitle: true,
                 backgroundColor: Colors.transparent,
                 elevation: 0.0,

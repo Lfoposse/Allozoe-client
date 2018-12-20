@@ -43,5 +43,7 @@
 	<false/>
 	<key>NSLocationWhenInUseUsageDescription</key>
     <string>This app access your location to show you localized content.</string>
+    <key>io.flutter.embedded_views_preview</key>
+    <string>YES</string>
 </dict>
 </plist>

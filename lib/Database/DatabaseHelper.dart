@@ -29,7 +29,7 @@ class DatabaseHelper {
 
   initDb() async {
     io.Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String path = join(documentsDirectory.path, "allozoe21db.db");
+    String path = join(documentsDirectory.path, "allozoe25db.db");
     var theDb = await openDatabase(path, version: 1, onCreate: _onCreate);
     await theDb.execute("PRAGMA foreign_keys = ON;");
     return theDb;
@@ -54,7 +54,7 @@ class DatabaseHelper {
         "CREATE TABLE Cards("
             "id INTEGER PRIMARY KEY, "
             "card_id INTEGER NOT NULL UNIQUE, "
-            "card_number TEXT NOT NULL UNIQUE "
+            "card_number TEXT NOT NULL "
             ")"
     );
 

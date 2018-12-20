@@ -1,4 +1,4 @@
-import '../Models/Ticket.dart';
+import 'package:client_app/Models/Client.dart';
 
 import '../DAO/Presenters/SendCommandePresenter.dart';
 import '../Database/DatabaseHelper.dart';
@@ -7,17 +7,15 @@ import '../Models/Produit.dart';
 import '../Models/CreditCard.dart';
 import 'package:client_app/Utils/AppBars.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
-import '../Paiements/AddCardScreen.dart';
 import 'package:flutter/material.dart';
 import '../Utils/PriceFormatter.dart';
-import '../DAO/Presenters/TicketListPresenter.dart';
-import '../Models/Client.dart';
-import '../Utils/PriceFormatter.dart';
+import 'package:stripe_payment/stripe_payment.dart';
+import '../DAO/Presenters/AddCardPresenter.dart';
 
 class CardListScreen extends StatefulWidget {
   final bool forPaiement;
   final double montantPaiement;
-  final List<CreditCard> cards;
+  List<CreditCard> cards;
   final List<Produit> produits;
   final String address, phone;
   final int paymentMode;
@@ -34,8 +32,8 @@ class CardListScreen extends StatefulWidget {
   createState() => new CardListScreenState();
 }
 
-class CardListScreenState extends State<CardListScreen> implements SendCommandeContract{
-
+class CardListScreenState extends State<CardListScreen>
+    implements SendCommandeContract, AddCardContract {
   int indexSelected;
   bool isLoading;
   int paiementModeIndex; // 1 = carte bancaire et 2 = ticket restaurant
@@ -46,14 +44,13 @@ class CardListScreenState extends State<CardListScreen> implements SendCommandeC
   final montantKey = new GlobalKey<FormState>();
   String _montant;
 
-
   @override
   void initState() {
     super.initState();
     paiementModeIndex = widget.paymentMode;
     _dropDownMenuItems = getDropDownMenuItems();
     paiementModeName = _dropDownMenuItems[paiementModeIndex == 1 ? 0 : 1].value;
-    indexSelected =  0;
+    indexSelected = 0;
     isLoading = false;
     _presenter = new SendCommandePresenter(this);
   }
@@ -84,8 +81,7 @@ class CardListScreenState extends State<CardListScreen> implements SendCommandeC
         // return object of type Dialog
         return AlertDialog(
           title: new Text("Avertissement"),
-          content: new Text(
-              title),
+          content: new Text(title),
           actions: <Widget>[
             new FlatButton(
               child: new Text("Compris"),
@@ -100,29 +96,35 @@ class CardListScreenState extends State<CardListScreen> implements SendCommandeC
   }
 
   void _submit() {
-
     double prix = 0.0;
-    if(paiementModeIndex == 2){
+
+    if (paiementModeIndex == 2) {
       montantKey.currentState.save();
 
-      if(_montant.length == 0){
+      if (_montant.length == 0) {
         _showDialog("Vous devez fournir le montant du ticket");
         return;
       }
 
-      try{
+      try {
         prix = double.parse(_montant);
-      }catch(error){
+      } catch (error) {
         _showDialog("montant invalide");
         return;
       }
 
-      if(prix < widget.montantPaiement){
-        _showDialog("Votre ticket restaurant est insuffisant pour payer votre commande");
+      if (prix < widget.montantPaiement) {
+        _showDialog(
+            "Votre ticket restaurant est insuffisant pour payer votre commande");
+        return;
+      }
+
+    }else if(paiementModeIndex == 1){
+
+      if(widget.cards == null || widget.cards.length == 0){
         return;
       }
     }
-
 
 
 
@@ -138,10 +140,11 @@ class CardListScreenState extends State<CardListScreen> implements SendCommandeC
         {"id": paiementModeIndex == 1 ? widget.cards[indexSelected].id : -1},
         {
           "id": -1,
-          "code": "0000",
           "value": paiementModeIndex == 2 ? double.parse(_montant) : 0.0
         },
-        paiementModeIndex);
+        paiementModeIndex,
+      false
+    );
   }
 
   Widget getCardItem(int index) {
@@ -163,7 +166,7 @@ class CardListScreenState extends State<CardListScreen> implements SendCommandeC
               child: Container(
             margin: EdgeInsets.symmetric(horizontal: 15.0),
             child: Text(
-              "Numero de la carte \n" + widget.cards[index].card_number,
+              "Numero de la carte \n" + "**** **** **** " + widget.cards[index].card_number,
               style: TextStyle(fontSize: 16.0),
             ),
           )),
@@ -242,21 +245,48 @@ class CardListScreenState extends State<CardListScreen> implements SendCommandeC
           margin: EdgeInsets.only(bottom: 20.0),
           child: PositionedTapDetector(
             onTap: (position) {
-              Navigator.of(context)
-                  .push(new MaterialPageRoute(
-                      builder: (context) => AddCardScreen(
-                            forPaiement: widget.forPaiement,
-                            montantPaiement: widget.montantPaiement,
-                            produits: widget.produits,
-                            address: widget.address,
-                            phone: widget.phone,
-                          )))
-                  .then((dynamic res) {
-                if (res != null) widget.cards.insert(0, res as CreditCard);
-                setState(() {});
+
+              StripeSource.setPublishableKey(
+                  apiKey: "pk_test_hUvysW5ZouHgLBqNi8zADyfX");
+              StripeSource.addSource().then((String token) {
+                print(token); //your stripe card source token
+
+                setState(() {
+                  isLoading = true;
+                });
+
+                if(widget.forPaiement){
+
+                  new DatabaseHelper().loadClient().then((Client client) {
+                    _presenter.commander(
+                        widget.produits,
+                        widget.address,
+                        widget.phone,
+                        {
+                          "id": 0,
+                          "token_stripe" : token
+                        },
+                        {
+                          "id": -1,
+                        },
+                        1,
+                      true
+                    );
+                  });
+
+                }else{
+
+                  new DatabaseHelper().loadClient().then((Client client) {
+                    new AddCardPresenter(this).addCreditCard(
+                        clientID: client.id,
+                        token_stripe: token
+                    );
+                  });
+                }
+
               });
             },
-            child: Text("+ Ajouter une nouvelle carte",
+            child: Text(widget.forPaiement? "+ Utiliser une nouvelle carte" : "+ Ajouter une nouvelle carte",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     fontSize: 17.0,
@@ -274,8 +304,7 @@ class CardListScreenState extends State<CardListScreen> implements SendCommandeC
         Container(
           width: double.infinity,
           margin: EdgeInsets.symmetric(vertical: 20.0),
-          child: Text(
-              "Entrer le montant de votre ticket",
+          child: Text("Entrer le montant de votre ticket",
               textAlign: TextAlign.left,
               style: TextStyle(
                   fontSize: 17.0,
@@ -310,7 +339,6 @@ class CardListScreenState extends State<CardListScreen> implements SendCommandeC
       ],
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -375,12 +403,12 @@ class CardListScreenState extends State<CardListScreen> implements SendCommandeC
                                       color: Colors.lightGreen,
                                       style: BorderStyle.solid,
                                       width: 1.0),
-                                  color: Colors.lightGreen),
+                                  color: paiementModeIndex == 1 && (widget.cards == null || widget.cards.length == 0) ? Colors.black38 : Colors.lightGreen),
                               child: Text("PAYER",
                                   textAlign: TextAlign.center,
                                   overflow: TextOverflow.ellipsis,
                                   style: new TextStyle(
-                                    color: Colors.white,
+                                    color: paiementModeIndex == 1 && (widget.cards == null || widget.cards.length == 0) ? Colors.black54 : Colors.white,
                                     decoration: TextDecoration.none,
                                     fontSize: 16.0,
                                     fontWeight: FontWeight.bold,
@@ -453,37 +481,47 @@ class CardListScreenState extends State<CardListScreen> implements SendCommandeC
   }
 
   @override
-  void onCommandSuccess(int cardID) {
+  void onCommandSuccess() {
     new DatabaseHelper().clearPanier(); // vide la panier
 
-    setState(() {
-      isLoading = false;
+    new DatabaseHelper().getClientCards().then((List<CreditCard> cards){
+
+      widget.cards = cards;
+      setState(() {
+        isLoading = false;
+      });
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          // return object of type Dialog
+          return AlertDialog(
+            title: new Text("Succes"),
+            content: new Text(
+                "Votre commande a ete enregistree avec succes.\n\nVous pouvez suivre son traitrement depuis l'espace commande"),
+            actions: <Widget>[
+              new FlatButton(
+                child: new Text("Compris"),
+                onPressed: () {
+                  Navigator.of(context).pop(); // ferme le dialogue
+                  Navigator.of(context).pop(); // rentre au recapitulatif
+                  Navigator.of(context).pop(); // rentre au panier
+                },
+              )
+            ],
+          );
+        },
+      );
     });
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        // return object of type Dialog
-        return AlertDialog(
-          title: new Text("Succes"),
-          content: new Text(
-              "Votre commande a ete enregistree avec succes.\n\nVous pouvez suivre son traitrement depuis l'espace commande"),
-          actions: <Widget>[
-            new FlatButton(
-              child: new Text("Compris"),
-              onPressed: () {
-                Navigator.of(context).pop(); // ferme le dialogue
-                Navigator.of(context).pop(); // rentre au recapitulatif
-                Navigator.of(context).pop(); // rentre au panier
-              },
-            )
-          ],
-        );
-      },
-    );
+
   }
 
   @override
   void onConnectionError() {
+
+    setState(() {
+      isLoading = false;
+    });
 
     showDialog(
       context: context,
@@ -504,5 +542,46 @@ class CardListScreenState extends State<CardListScreen> implements SendCommandeC
         );
       },
     );
+  }
+
+  @override
+  void onRequestError() {
+    setState(() {
+      isLoading = false;
+    });
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Echec"),
+          content: new Text(
+              "Erreur survenue. \n\n Reessayez SVP."),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Compris"),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _submit();
+              },
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  void onRequestSuccess() {
+
+    new DatabaseHelper().getClientCards().then((List<CreditCard> cards){
+      widget.cards = cards;
+      setState(() {
+        isLoading = false;
+      });
+
+    });
   }
 }

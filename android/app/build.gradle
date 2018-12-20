@@ -34,6 +34,7 @@ android {
 
     lintOptions {
         disable 'InvalidPackage'
+        checkReleaseBuilds false
     }
 
     defaultConfig {
@@ -41,8 +42,8 @@ android {
         applicationId "net.rainbowcl.clientapp"
         minSdkVersion 16
         targetSdkVersion 27
-        versionCode 22
-        versionName "1.2.0"
+        versionCode 24
+        versionName "1.2.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 

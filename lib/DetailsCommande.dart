@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'Models/Deliver.dart';
 import 'Models/Complement.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'DAO/Presenters/OrderDetailPresenter.dart';
@@ -11,9 +10,7 @@ import 'package:client_app/Utils/MyBehavior.dart';
 import 'package:flutter/material.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 import 'TrackingCommandScreen.dart';
-import 'Utils/CommandStatusHelper.dart';
 import 'Utils/PriceFormatter.dart';
-import 'TrackingWithMap.dart';
 
 
 _openMap(double lat, double lng, String title) async {
@@ -349,8 +346,8 @@ class DetailsCommandeState extends State<DetailsCommande> implements OrderDetail
                 )),
             Expanded(child: getRecapCommandeSection()),
             getPricesSection(),
-            getInfos("Restaurant : ", widget.commande.restaurant.name + "\n" + widget.commande.restaurant.city + ", " + widget.commande.restaurant.address),
-            getInfos("Contact du livreur : ",  widget.commande.deliver == null || widget.commande.deliver.phone == null? "+337484849900" : widget.commande.deliver.phone),
+            getInfos("Restaurant (Nom et adresse) : ", widget.commande.restaurant.name + "\n" + widget.commande.restaurant.city + ", " + widget.commande.restaurant.address),
+            getInfos("Adresse de livraison : ", widget.commande.deliveryAddress),
             Container(
               margin: EdgeInsets.only(bottom: 15.0, top: 30.0),
               child: Center(
@@ -358,7 +355,6 @@ class DetailsCommandeState extends State<DetailsCommande> implements OrderDetail
                     onTap: (position) {
 
                       if(widget.commande.deliver != null)
-                        //Navigator.of(context).push(new MaterialPageRoute(builder: (context) => TrackingWithMap()));
                         Navigator.of(context).push(
                             new MaterialPageRoute(builder: (context) => TrackingCommandeScreen(deliveryAdress: widget.commande.deliveryAddress, deliver: widget.commande.deliver, restaurant: widget.commande.restaurant,)));
                     },
@@ -371,11 +367,11 @@ class DetailsCommandeState extends State<DetailsCommande> implements OrderDetail
                               color: Colors.lightGreen,
                               style: BorderStyle.solid,
                               width: 1.0),
-                          color: /*canCommandBeTracked(widget.commande.status)*/ widget.commande.deliver != null ? Colors.lightGreen : Colors.black38),
+                          color: widget.commande.deliver != null ? Colors.lightGreen : Colors.black38),
                       child: Text("TRACKING",
                           textAlign: TextAlign.center,
                           style: new TextStyle(
-                            color: /*canCommandBeTracked(widget.commande.status)*/ widget.commande.deliver != null ? Colors.white : Colors.black54,
+                            color: widget.commande.deliver != null ? Colors.white : Colors.black54,
                             decoration: TextDecoration.none,
                             fontSize: 16.0,
                             fontWeight: FontWeight.bold,
@@ -435,14 +431,6 @@ class DetailsCommandeState extends State<DetailsCommande> implements OrderDetail
 
   @override
   void onLoadingSuccess(List<Produit> produits) {
-
-
-//    Deliver deliver = Deliver.empty();
-//    deliver.id = 9;
-//    deliver.lat = 4.0043917;
-//    deliver.lng = 9.7693786;
-//    widget.commande.deliver = deliver;
-    widget.commande.deliveryAddress = "Rue Principale, 37510 Villandry, France";
 
     setState(() {
       stateIndex = 3;
