@@ -75,7 +75,7 @@ class RestaurantCategorizedMenusState extends State<RestaurantCategorizedMenus> 
                     categories[sectionIndex].produits[itemIndex].photo,
                     width: double.infinity,
                     height: double.infinity,
-                    fit: BoxFit.cover,
+                    fit: BoxFit.contain,
                   ),
                 ),
               ),
@@ -156,7 +156,7 @@ class RestaurantCategorizedMenusState extends State<RestaurantCategorizedMenus> 
                         decoration: new BoxDecoration(border: new Border.all(color: Colors.lightGreen, style: BorderStyle.solid, width: 0.5)),
                         child: Row(
                           children: <Widget>[
-                            new Text("4.5",
+                            new Text(widget.restaurant.note != null ? (widget.restaurant.note.rating == 0.0 ? "2.5" : widget.restaurant.note.rating.toString()) : "2.5",
                                 textAlign: TextAlign.left,
                                 style: new TextStyle(
                                   color: Colors.black,
@@ -165,7 +165,7 @@ class RestaurantCategorizedMenusState extends State<RestaurantCategorizedMenus> 
                                   fontWeight: FontWeight.normal,
                                 )),
                             Icon(Icons.star, color: Color.fromARGB(255, 255, 215, 0),size: 10.0, ),
-                            new Text("(243)",
+                            new Text("(" + (widget.restaurant.note != null ? (widget.restaurant.note.count == 0 ? "10" : widget.restaurant.note.count.toString()) : "10") + ")",
                                 textAlign: TextAlign.left,
                                 style: new TextStyle(
                                   color: Colors.black,

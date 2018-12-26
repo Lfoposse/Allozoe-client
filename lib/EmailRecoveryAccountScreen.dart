@@ -21,6 +21,7 @@ class EmailRecoveryAccountScreenState extends State<EmailRecoveryAccountScreen>
   final scaffoldKey = new GlobalKey<ScaffoldState>();
   String _email;
 
+
   EmailRecoveryAccountPresenter _presenter;
 
   EmailRecoveryAccountScreenState() {

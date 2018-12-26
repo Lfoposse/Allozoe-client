@@ -115,7 +115,7 @@ class CategorieRestaurantsScreenState extends State<CategorieRestaurantssScreen>
                         decoration: new BoxDecoration(border: new Border.all(color: Colors.lightGreen, style: BorderStyle.solid, width: 0.5)),
                         child: Row(
                           children: <Widget>[
-                            new Text("4.5",
+                            new Text(restaurants[itemIndex].note != null ? (restaurants[itemIndex].note.rating == 0.0 ? "2.5" : restaurants[itemIndex].note.rating.toString()) : "2.5",
                                 textAlign: TextAlign.left,
                                 style: new TextStyle(
                                   color: Colors.black,
@@ -124,7 +124,7 @@ class CategorieRestaurantsScreenState extends State<CategorieRestaurantssScreen>
                                   fontWeight: FontWeight.normal,
                                 )),
                             Icon(Icons.star, color: Color.fromARGB(255, 255, 215, 0),size: 15.0, ),
-                            new Text("(243)",
+                            new Text("(" + (restaurants[itemIndex].note != null ? (restaurants[itemIndex].note.count == 0 ? "10" : restaurants[itemIndex].note.count.toString()) : "10") + ")",
                                 textAlign: TextAlign.left,
                                 style: new TextStyle(
                                   color: Colors.black,

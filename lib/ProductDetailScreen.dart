@@ -216,7 +216,7 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
                         this.produit.photo,
                         width: double.infinity,
                         height: double.infinity,
-                        fit: BoxFit.fill,
+                        fit: BoxFit.contain,
                       ),
                     ),
                     flex: 1,

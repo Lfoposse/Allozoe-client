@@ -273,6 +273,6 @@ class RateDeliveryState extends State<RateDelivery> implements NoteContract{
       isSearching = false;
     });
     Navigator.of(context).pop();
-    _showDialog("Vos notes et votre pourboire ont bien été soumises");
+    _showDialog("Votre note et pourboire ont bien été soumis");
   }
 }

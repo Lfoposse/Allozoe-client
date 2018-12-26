@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:client_app/Utils/MyBehavior.dart';
+
 import '../Models/CreditCard.dart';
 
 import '../DAO/Presenters/ResetPassPresenter.dart';
@@ -373,39 +375,40 @@ class ChangePasswordContentState extends State<ChangePasswordContent> implements
           ));
     }
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
+    return ScrollConfiguration(behavior: MyBehavior(), child:
+    ListView(
+      shrinkWrap: true,
       children: <Widget>[
         //getChangePassElement("Mot de passe courant", 0),
         getChangePassElement(passKey, "Nouveau mot de passe", 1),
         getChangePassElement(confirmKey, "Confirmer le mot de passe", 2),
 
         Container(
-          margin: EdgeInsets.only(bottom: 20.0, top: 20.0),
-          child:Center(
-            child: Text(
-              _showError ? _errorMsg : "",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  color: Colors.red,
-                  fontSize: 12.0,
-                  fontWeight: FontWeight.bold),
-            ),
-          )
+            margin: EdgeInsets.only(bottom: 20.0, top: 20.0),
+            child:Center(
+              child: Text(
+                _showError ? _errorMsg : "",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 12.0,
+                    fontWeight: FontWeight.bold),
+              ),
+            )
         ),
         _isLoading
             ? Container(
           margin: EdgeInsets.symmetric(vertical: 15.0),
-                child: Center(
-                  child: new CircularProgressIndicator(),
-                ),
-              )
+          child: Center(
+            child: new CircularProgressIndicator(),
+          ),
+        )
             : getButton("MODIFIER", 0, Colors.lightGreen),
         _isLoading
             ? IgnorePointer(ignoring: true)
             : getButton("ANNULER", 1, Colors.red)
       ],
-    );
+    ));
   }
 
   @override

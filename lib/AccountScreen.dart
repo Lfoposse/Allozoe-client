@@ -275,7 +275,7 @@ class AccountStateScreen extends State<AccountScreen> implements UpdateAccountIn
                   buildUserItem(
                       nameKey, "username", client.username, true, true),
                   buildUserItem(
-                      firstnameKey, "Nom", client.firstname, true, true),
+                      firstnameKey, "Nom", client.firstname == null ||  client.firstname.length == 0 ? client.username.split(" ")[0] : client.firstname, true, true),
                   buildUserItem(
                       lastnameKey, "Prénom", client.lastname, true, true),
                   buildUserItem(phoneKey, "Numéro", client.phone, true, true),

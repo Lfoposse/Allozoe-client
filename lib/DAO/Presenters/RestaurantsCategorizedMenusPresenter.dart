@@ -16,6 +16,7 @@ class RestaurantCategorizedMenusPresenter {
   loadCategorieList(int restaurantID) {
     api.loadCategorieList().then((List<Categorie> categorieList) {
       if (categorieList != null) {
+        categorieList.add(new Categorie(-1, "Favoris", null, null, null));
         List<Categorie> finalList = new List();
         int count = 0;
 

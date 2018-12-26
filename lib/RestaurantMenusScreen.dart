@@ -24,15 +24,43 @@ class RestaurantMenusScreen extends StatefulWidget {
 class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
     implements RestaurantMenusContract {
   int stateIndex;
-  List<Produit> produits;
+  List<Produit> produits, searchResultProduits;
   RestaurantMenusPresenter _presenter;
   DatabaseHelper db;
+
+  bool isSearching; // determine si une recherche est en cours ou pas
+  final controller = new TextEditingController();
 
   @override
   void initState() {
     stateIndex = 0;
     db = new DatabaseHelper();
     _presenter = new RestaurantMenusPresenter(this);
+    isSearching = false;
+
+    controller.addListener(() {
+      String currentText = controller.text;
+      if(currentText.length > 0){
+
+        setState(() {
+          searchResultProduits = new List<Produit>();
+          for(Produit produit in produits){ // pour chaque commande
+            if(produit.name.toLowerCase().contains(currentText.toLowerCase())){ // si ca commence par le texte taper
+              searchResultProduits.add(produit); // l'ajouter au resultat de recherche
+            }
+          }
+          isSearching = true;
+        });
+
+      }else{
+
+        setState(() {
+          isSearching = false;
+        });
+      }
+    });
+
+
     _presenter.loadRestaurantCategorieMenusList(widget.restaurant.id, widget.categorie.id);
     super.initState();
   }
@@ -79,6 +107,7 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
             child: Container(
                 padding: EdgeInsets.only(left: 10.0, right: 10.0),
                 child: TextFormField(
+                    controller: controller,
                     autofocus: false,
                     autocorrect: false,
                     maxLines: 1,
@@ -187,7 +216,7 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
                                   width: 0.5)),
                           child: Row(
                             children: <Widget>[
-                              new Text("4.5",
+                              new Text(widget.restaurant.note != null ? (widget.restaurant.note.rating == 0.0 ? "2.5" : widget.restaurant.note.rating.toString()) : "2.5",
                                   textAlign: TextAlign.left,
                                   style: new TextStyle(
                                     color: Colors.black,
@@ -200,7 +229,7 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
                                 color: Color.fromARGB(255, 255, 215, 0),
                                 size: 10.0,
                               ),
-                              new Text("(243)",
+                              new Text("(" + (widget.restaurant.note != null ? (widget.restaurant.note.count == 0 ? "10" : widget.restaurant.note.count.toString()) : "10") + ")",
                                   textAlign: TextAlign.left,
                                   style: new TextStyle(
                                     color: Colors.black,
@@ -242,7 +271,7 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
 
   Widget getItem(itemIndex) {
     return FutureBuilder(
-      future: db.getProduit(produits[itemIndex].id),
+      future: db.getProduit(isSearching ? searchResultProduits[itemIndex].id : produits[itemIndex].id),
         builder: (BuildContext context, AsyncSnapshot snapshot){
           if(snapshot.hasData){
 
@@ -253,7 +282,11 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
               isProductInCart = false;
             }else {
               isProductInCart = true;
-              produits[itemIndex].qteCmder = prod.nbCmds;
+
+              if(isSearching)
+                searchResultProduits[itemIndex].qteCmder = prod.nbCmds;
+              else
+                produits[itemIndex].qteCmder = prod.nbCmds;
             }
 
             return Column(
@@ -267,7 +300,7 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
                     onTap: (position){
                       // afficher la description du produit selectionner
                       Navigator.of(context).push(
-                          new MaterialPageRoute(builder: (context) => ProductDetailScreen(produits[itemIndex])));
+                          new MaterialPageRoute(builder: (context) => ProductDetailScreen(isSearching ? searchResultProduits[itemIndex] : produits[itemIndex])));
 
                     },
                     child: Row(
@@ -281,7 +314,7 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
-                                Text(produits[itemIndex].name,
+                                Text(isSearching ? searchResultProduits[itemIndex].name : produits[itemIndex].name,
                                     overflow: TextOverflow.ellipsis,
                                     textAlign: TextAlign.left,
                                     maxLines: 2,
@@ -292,8 +325,11 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
                                     )),
                                 Container(
                                   margin: EdgeInsets.symmetric(vertical: 3.0),
-                                  child: Text(produits[itemIndex].description == null || produits[itemIndex].description.length == 0 ?
-                                  "Aucune description donnée sur ce produit": produits[itemIndex].description,
+                                  child: Text(
+                                      ((isSearching ? (searchResultProduits[itemIndex].description == null || searchResultProduits[itemIndex].description.length == 0)
+                                          : (produits[itemIndex].description == null || produits[itemIndex].description.length == 0)) ?
+                                  "Aucune description donnée sur ce produit" : (isSearching ? searchResultProduits[itemIndex].description : produits[itemIndex].description)
+                                      ),
                                       maxLines: 3,
                                       textAlign: TextAlign.left,
                                       overflow: TextOverflow.ellipsis,
@@ -307,7 +343,7 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
                                   mainAxisSize: MainAxisSize.max,
                                   children: <Widget>[
                                     Expanded(
-                                        child: Text(PriceFormatter.formatPrice(price: produits[itemIndex].prix),
+                                        child: Text(PriceFormatter.formatPrice(price: isSearching ? searchResultProduits[itemIndex].prix : produits[itemIndex].prix),
                                             textAlign: TextAlign.left,
                                             style: new TextStyle(
                                               color: Colors.lightGreen,
@@ -326,10 +362,10 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
                           child: Container(
                             padding: EdgeInsets.only(right: 3.0),
                             child: Image.network(
-                              produits[itemIndex].photo,
+                              isSearching ? searchResultProduits[itemIndex].photo : produits[itemIndex].photo,
                               width: double.infinity,
                               height: double.infinity,
-                              fit: BoxFit.cover,
+                              fit: BoxFit.contain,
                             ),
                           ), flex: 2,)
                       ],
@@ -378,7 +414,7 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
                     child: new ListView.builder(
                         padding: EdgeInsets.all(0.0),
                         scrollDirection: Axis.vertical,
-                        itemCount: produits == null ? 0 : produits.length,
+                        itemCount: (isSearching ? searchResultProduits == null : produits == null) ? 0 : (isSearching ? searchResultProduits.length : produits.length),
                         itemBuilder: (BuildContext ctxt, int index) {
                           return getItem(index);
                         }),

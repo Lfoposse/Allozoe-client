@@ -17,7 +17,7 @@ import '../Models/Ticket.dart';
 class RestDatasource {
 
   NetworkUtil _netUtil = new NetworkUtil();
-  static final BASE_URL = "http://serv10.com"; // http://brservtest.com
+  static final BASE_URL = "https://www.allozoe2.fr"; // http://brservtest.com
   static final LOGIN_URL = BASE_URL + "/auth/login";
   static final EMAIL_RECOVERY_ACCOUNT_URL = BASE_URL + "/api/security/pass-forget";
   static final RECOVERY_ACCOUNT_CONFIRM_URL = BASE_URL + "/api/security/verification";
@@ -216,9 +216,11 @@ class RestDatasource {
   }
 
 
+
+
   ///Retourne la liste des produits d'un restaurant precis appartenant a une categorie precise
   Future<List<Produit>> loadRestaurantCategorieMenus(int restaurantID, categorieID) {
-    return _netUtil.get(LOAD_RESTAURANT_LIST_URL + "/" + restaurantID.toString() + "/menus?category=" + categorieID.toString()).then((dynamic res) {
+    return _netUtil.get(LOAD_RESTAURANT_LIST_URL + "/" + restaurantID.toString() + "/menus?category=" + (categorieID == -1 ? "" : categorieID.toString())).then((dynamic res) {
 
       if(res["code"] == 200)
         return (res['items'] as List).map((item) => new Produit.map(item)).toList();

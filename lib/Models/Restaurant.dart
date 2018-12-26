@@ -1,3 +1,5 @@
+import 'Note.dart';
+
 class Restaurant {
   int _id;
   String _name;
@@ -6,6 +8,8 @@ class Restaurant {
   String _address;
   double _latitude;
   double _longitude;
+  Note _note;
+
 
   Restaurant.empty() {
     this._id = -1;
@@ -15,6 +19,7 @@ class Restaurant {
     this._address = null;
     this._latitude = 0.0;
     this._longitude = 0.0;
+    this._note = null;
   }
 
 
@@ -31,6 +36,7 @@ class Restaurant {
     restaurant.address = _address;
     restaurant.latitude = _latitude;
     restaurant.longitude = _longitude;
+    restaurant._note = _note;
 
     return restaurant;
   }
@@ -46,6 +52,7 @@ class Restaurant {
     this._address = obj["address"];
     this._latitude = obj["position"] != null ? double.parse(obj["position"]["latitude"]) : 0.0;
     this._longitude = obj["position"] != null ? double.parse(obj["position"]["longitude"]) : 0.0;
+    this._note = obj["note"] == null ? null : Note.map(obj["note"]);
   }
 
   Map<String, dynamic> toMap() {
@@ -69,7 +76,13 @@ class Restaurant {
 
   String get city => _city;
 
+  Note get note => _note;
 
+
+
+  set note(Note value) {
+    _note = value;
+  }
 
   set longitude(double value) {
     _longitude = value;

@@ -247,7 +247,7 @@ class CardListScreenState extends State<CardListScreen>
             onTap: (position) {
 
               StripeSource.setPublishableKey(
-                  apiKey: "pk_test_hUvysW5ZouHgLBqNi8zADyfX");
+                  apiKey: "pk_live_eo4MYvhD0gazKbeMzchjmrSU");
               StripeSource.addSource().then((String token) {
                 print(token); //your stripe card source token
 

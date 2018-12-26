@@ -209,7 +209,7 @@ class PanierState extends State<Panier> implements PanierContract{
                   produits[index].photo,
                   width: double.infinity,
                   height: double.infinity,
-                  fit: BoxFit.cover,
+                  fit: BoxFit.contain,
                 ), flex: 1,),
                 Expanded(child:Container(
                   margin: EdgeInsets.only(left: 15.0),

@@ -32,9 +32,9 @@ class CommandesState extends State<Commandes>
   void initState() {
     stateIndex = 0;
     commandes = null;
-    isSearching = false;
     _presenter = new CommandeHistoryPresenter(this);
 
+    isSearching = false;
     controller.addListener(() {
       String currentText = controller.text;
       if(currentText.length > 0){
@@ -388,14 +388,6 @@ class CommandesState extends State<Commandes>
               child: commandes != null && commandes.length > 0
                   ? Column(
                       children: <Widget>[
-//                        Expanded(
-//                          child: Container(
-//                            padding: EdgeInsets.only(top: 5.0),
-//                            margin: EdgeInsets.symmetric(horizontal: 5.0),
-//                            child: getDatedBox(),
-//                          ),
-//                          flex: 1,
-//                        ),
                         Container(
                           padding: EdgeInsets.symmetric(vertical: 15.0),
                           child: researchBox(
