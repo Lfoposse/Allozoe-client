@@ -152,9 +152,9 @@ class DatabaseHelper {
   }
 
 
-  Future<int> deleteCard(CreditCard card) async {
+  Future<int> deleteCard(int card_id) async {
     var dbProduit = await db;
-    await dbProduit.rawDelete('DELETE FROM Cards WHERE card_id = ?', [card.id]);
+    await dbProduit.rawDelete('DELETE FROM Cards WHERE card_id = ?', [card_id]);
 
     return 0;
   }

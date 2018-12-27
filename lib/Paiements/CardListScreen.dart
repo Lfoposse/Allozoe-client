@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import '../Utils/PriceFormatter.dart';
 import 'package:stripe_payment/stripe_payment.dart';
 import '../DAO/Presenters/AddCardPresenter.dart';
+import '../DAO/Presenters/DeleteCardPresenter.dart';
 
 class CardListScreen extends StatefulWidget {
   final bool forPaiement;
@@ -33,12 +34,13 @@ class CardListScreen extends StatefulWidget {
 }
 
 class CardListScreenState extends State<CardListScreen>
-    implements SendCommandeContract, AddCardContract {
+    implements SendCommandeContract, AddCardContract, DeleteCardContract {
   int indexSelected;
   bool isLoading;
   int paiementModeIndex; // 1 = carte bancaire et 2 = ticket restaurant
   String paiementModeName;
   SendCommandePresenter _presenter;
+  DeleteCardPresenter _deleteCardPresenter;
   List<DropdownMenuItem<String>> _dropDownMenuItems;
 
   final montantKey = new GlobalKey<FormState>();
@@ -53,6 +55,7 @@ class CardListScreenState extends State<CardListScreen>
     indexSelected = 0;
     isLoading = false;
     _presenter = new SendCommandePresenter(this);
+    _deleteCardPresenter = new DeleteCardPresenter(this);
   }
 
   List<DropdownMenuItem<String>> getDropDownMenuItems() {
@@ -119,6 +122,13 @@ class CardListScreenState extends State<CardListScreen>
         return;
       }
 
+
+      if (prix < 15.0) {
+        _showDialog(
+            "Le ticket restaurant doit être d'un minimum de 15€");
+        return;
+      }
+
     }else if(paiementModeIndex == 1){
 
       if(widget.cards == null || widget.cards.length == 0){
@@ -148,60 +158,112 @@ class CardListScreenState extends State<CardListScreen>
   }
 
   Widget getCardItem(int index) {
-    return Container(
-      height: 60.0,
-      margin: EdgeInsets.symmetric(vertical: 10.0),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey, width: 1.0),
-      ),
-      padding:
-          EdgeInsets.only(left: 20.0, right: 10.0, top: 10.0, bottom: 10.0),
-      child: Row(
-        children: <Widget>[
-          Icon(
-            Icons.credit_card,
-            size: 30.0,
-          ),
-          Expanded(
-              child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 15.0),
-            child: Text(
-              "Numero de la carte \n" + "**** **** **** " + widget.cards[index].card_number,
-              style: TextStyle(fontSize: 16.0),
-            ),
-          )),
-          widget.forPaiement
-              ? PositionedTapDetector(
-                  onTap: (position) {
-                    setState(() {
-                      indexSelected = index;
-                    });
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: indexSelected == index
-                            ? Colors.lightGreen
-                            : Colors.transparent,
-                        border: Border.all(color: Colors.grey, width: 1.0)),
-                    child: Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: indexSelected == index
-                          ? Icon(
-                              Icons.check,
-                              size: 10.0,
-                              color: Colors.white,
-                            )
-                          : Icon(
-                              Icons.check_box_outline_blank,
-                              size: 10.0,
-                              color: Colors.transparent,
-                            ),
-                    ),
+    return GestureDetector(
+
+      onLongPress: (){
+
+        if(!widget.forPaiement){
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              // return object of type Dialog
+              return AlertDialog(
+                title: new Text("AVERTISSEMENT"),
+                content: new Text(
+                    "\nSouhaitez vous réellement supprimer cette carte de la liste de vos cartes enregistrées ? \n"),
+                actions: <Widget>[
+                  // usually buttons at the bottom of the dialog
+                  new FlatButton(
+                    child: new Text("Supprimer"),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+
+                      setState(() {
+                        isLoading = true;
+                      });
+
+                      DatabaseHelper().loadClient().then((Client client)
+                      {
+                        _deleteCardPresenter.deleteCreditCard(clientID: client.id, card_id: widget.cards[index].id);
+
+                      }).catchError((error){
+
+                        setState(() {
+                          isLoading = false;
+                        });
+                        _showDialog("Impossible d'authentifier le compte");
+
+                      });
+                    },
                   ),
-                )
-              : Container()
-        ],
+
+                  new FlatButton(
+                    child: new Text("Annuler"),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  )
+                ],
+              );
+            },
+          );
+        }
+      },
+      child: Container(
+        height: 60.0,
+        margin: EdgeInsets.symmetric(vertical: 10.0),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey, width: 1.0),
+        ),
+        padding:
+        EdgeInsets.only(left: 20.0, right: 10.0, top: 10.0, bottom: 10.0),
+        child: Row(
+          children: <Widget>[
+            Icon(
+              Icons.credit_card,
+              size: 30.0,
+            ),
+            Expanded(
+                child: Container(
+                  margin: EdgeInsets.symmetric(horizontal: 15.0),
+                  child: Text(
+                    "Numero de la carte \n" + "**** **** **** " + widget.cards[index].card_number,
+                    style: TextStyle(fontSize: 16.0),
+                  ),
+                )),
+            widget.forPaiement
+                ? PositionedTapDetector(
+              onTap: (position) {
+                setState(() {
+                  indexSelected = index;
+                });
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: indexSelected == index
+                        ? Colors.lightGreen
+                        : Colors.transparent,
+                    border: Border.all(color: Colors.grey, width: 1.0)),
+                child: Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: indexSelected == index
+                      ? Icon(
+                    Icons.check,
+                    size: 10.0,
+                    color: Colors.white,
+                  )
+                      : Icon(
+                    Icons.check_box_outline_blank,
+                    size: 10.0,
+                    color: Colors.transparent,
+                  ),
+                ),
+              ),
+            )
+                : Container()
+          ],
+        ),
       ),
     );
   }
@@ -528,9 +590,9 @@ class CardListScreenState extends State<CardListScreen>
       builder: (BuildContext context) {
         // return object of type Dialog
         return AlertDialog(
-          title: new Text("Echec de connexion"),
+          title: new Text("Échec de connexion au serveur"),
           content: new Text(
-              "Aucune connexion a internet. Verifier votre connexion a internet et reessayez."),
+              "Rassurez vous que votre connexion à internet est active et réessayez.\nSi le problème persiste, réessayez ultérieurement"),
           actions: <Widget>[
             new FlatButton(
               child: new Text("OK"),
@@ -561,7 +623,7 @@ class CardListScreenState extends State<CardListScreen>
           actions: <Widget>[
             // usually buttons at the bottom of the dialog
             new FlatButton(
-              child: new Text("Compris"),
+              child: new Text("Réessayer"),
               onPressed: () {
                 Navigator.of(context).pop();
                 _submit();
@@ -582,6 +644,50 @@ class CardListScreenState extends State<CardListScreen>
         isLoading = false;
       });
 
+    });
+  }
+
+  @override
+  void onDeleteError() {
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Echec"),
+          content: new Text(
+              "Erreur survenue lors de la suppression. \n\n Reessayez SVP."),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Réessayer"),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _submit();
+              },
+            )
+          ],
+        );
+      },
+    );
+
+  }
+
+  @override
+  void onDeleteSuccess() {
+
+    new DatabaseHelper().getClientCards().then((List<CreditCard> cards){
+      widget.cards = cards;
+      setState(() {
+        isLoading = false;
+        _showDialog("Carte supprimée");
+      });
+    }).catchError((error){
+
+      setState(() {
+        isLoading = false;
+      });
     });
   }
 }

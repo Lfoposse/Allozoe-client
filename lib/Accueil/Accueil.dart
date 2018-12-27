@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../Utils/MyBehavior.dart';
 import '../DAO/Presenters/RestaurantsPresenter.dart';
 import '../Utils/Loading.dart';
-import '../Utils/AppBars.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 import '../RestaurantCategorizedMenus.dart';
 import '../Database/DatabaseHelper.dart';
@@ -65,6 +64,42 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
     loadRestaurantNearBy();
   }
 
+  Widget researchBox(
+      String hintText, Color bgdColor, Color textColor, Color borderColor) {
+    return Container(
+      padding: EdgeInsets.only(left: 10.0, right: 10.0),
+      decoration: new BoxDecoration(
+          color: bgdColor,
+          border: new Border(
+            top: BorderSide(
+                color: borderColor, style: BorderStyle.solid, width: 1.0),
+            bottom: BorderSide(
+                color: borderColor, style: BorderStyle.solid, width: 1.0),
+            left: BorderSide(
+                color: borderColor, style: BorderStyle.solid, width: 1.5),
+            right: BorderSide(
+                color: borderColor, style: BorderStyle.solid, width: 1.5),
+          )),
+      child: Row(children: [
+        Icon(Icons.search, color: textColor, size: 30.0),
+        Expanded(
+            child: Container(
+                child: TextFormField(
+                    autofocus: false,
+                    autocorrect: false,
+                    keyboardType: TextInputType.text,
+                    decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: hintText,
+                        hintStyle: TextStyle(color: textColor)),
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      color: textColor,
+                      fontWeight: FontWeight.bold,
+                    ))))
+      ]),
+    );
+  }
 
   loadRestaurantNearBy() async {
 

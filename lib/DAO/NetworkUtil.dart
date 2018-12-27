@@ -59,4 +59,22 @@ class NetworkUtil {
 
     }).catchError((onError) => new Future.error(new Exception(onError.toString())));
   }
+
+
+  Future<dynamic> delete(String url, {Map headers, body, encoding}) {
+    print(body.toString());
+    return http
+        .delete(url, headers: headers,)
+        .then((http.Response response) {
+      final String res = response.body;
+      final int statusCode = response.statusCode;
+
+      if (/*statusCode < 200 || statusCode > 400 ||*/ json == null) {
+        return new Future.error(new Exception("Erreur de connexion"));
+      }
+      print(res.toString());
+      return _decoder.convert(res);
+
+    }).catchError((onError) => new Future.error(new Exception(onError.toString())));
+  }
 }

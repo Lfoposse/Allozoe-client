@@ -1,3 +1,5 @@
+import 'package:client_app/Utils/MyBehavior.dart';
+
 import 'Database/DatabaseHelper.dart';
 import 'Models/Client.dart';
 import 'package:flutter/material.dart';
@@ -231,21 +233,24 @@ class AccountStateScreen extends State<AccountScreen> implements UpdateAccountIn
         Column(
           children: <Widget>[
             Container(
-              height: 250.0,
+              height: 150.0,
               child: Stack(
                 children: <Widget>[
-                  Image.asset(
-                    'images/plat.png',
-                    width: double.infinity,
-                    height: double.infinity,
-                    fit: BoxFit.cover,
+                  Container(
+                    padding: EdgeInsets.only(top: 40.0),
+                    child: Image.asset(
+                      'images/logo-header.png',
+                      width: double.infinity,
+                      height: double.infinity,
+                      fit: BoxFit.contain,
+                    ),
                   ),
                   Container(
-                    color: Color.fromARGB(30, 0, 255, 0),
+                    color: Color.fromARGB(0, 0, 255, 0),
                     width: double.infinity,
                     height: double.infinity,
                   ),
-                  isOnEditingMode
+                  isOnEditingMode && false
                       ? Align(
                           alignment: Alignment.bottomRight,
                           child: Container(
@@ -258,6 +263,7 @@ class AccountStateScreen extends State<AccountScreen> implements UpdateAccountIn
                             child: PositionedTapDetector(
                               onTap: (position) {
                                 // TODO: select picture in Gallery or launch camera
+
                               },
                               child: Icon(Icons.camera_enhance),
                             ),
@@ -268,26 +274,45 @@ class AccountStateScreen extends State<AccountScreen> implements UpdateAccountIn
               ),
             ),
             Expanded(
-                child: SingleChildScrollView(
-              child: Column(
-                children: <Widget>[
-                  buildUserItem(null, "Email", client.email, true, false),
-                  buildUserItem(
-                      nameKey, "username", client.username, true, true),
-                  buildUserItem(
-                      firstnameKey, "Nom", client.firstname == null ||  client.firstname.length == 0 ? client.username.split(" ")[0] : client.firstname, true, true),
-                  buildUserItem(
-                      lastnameKey, "Prénom", client.lastname, true, true),
-                  buildUserItem(phoneKey, "Numéro", client.phone, true, true),
-                  getActionButton()
-                ],
-              ),
-            ))
+                child: ScrollConfiguration(behavior: MyBehavior(), child: SingleChildScrollView(
+                  child: Column(
+                    children: <Widget>[
+                      Container(
+                        width: double.infinity,
+                        color: Colors.white,
+                        padding: EdgeInsets.symmetric(vertical: 10.0),
+                        child: Text("Informations de compte",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                          decoration: TextDecoration.underline,
+                          color: Colors.black
+                        ),),
+                      ),
+                      buildUserItem(
+                          null, "Email", client.email, true, false),
+                      buildUserItem(
+                          nameKey, "username", client.username, true, true),
+                      buildUserItem(
+                          firstnameKey, "Nom", client.firstname == null ||  client.firstname.length == 0 ? client.username.split(" ")[0] : client.firstname, true, true),
+                      buildUserItem(
+                          lastnameKey, "Prénom", client.lastname, true, true),
+                      buildUserItem(
+                          phoneKey, "Numéro", client.phone, true, true),
+
+                      getActionButton()
+                    ],
+                  ),
+                )))
           ],
         ),
         Container(
           height: AppBar().preferredSize.height,
           child: AppBar(
+            iconTheme: IconThemeData(
+              color: Colors.black,
+            ),
             backgroundColor: Colors.transparent,
             elevation: 0.0,
           ),

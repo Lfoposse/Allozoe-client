@@ -380,6 +380,23 @@ class RestDatasource {
   }
 
 
+  /// Ajoute une nouvelle carte de paiement et retourne son identifiant serveur
+  Future<bool> deleteCreditCard({@required int clientID, @required int card_id} ) {
+    Map<String, String> lHeaders = {"Content-type": "application/json", "Accept": "application/json"};
+    return _netUtil.delete(SIGNUP_URL + "/" + clientID.toString() + "/bank-card/" + card_id.toString(),  headers: lHeaders).then((dynamic res) {
+
+      if(res["code"] == 200){
+
+        //Enregistrer les informations de la carte en local
+        new DatabaseHelper().deleteCard(card_id);
+        return true;
+      }
+      else return false;
+
+    }).catchError((onError) => new Future.error(false));
+  }
+
+
   ///Retourne la liste des tickets d'un client
   Future<List<Ticket>> loadClientTicket(int clientID) {
     return _netUtil.get(SIGNUP_URL + "/" + clientID.toString() + "/tickets").then((dynamic res) {

@@ -96,7 +96,6 @@ Widget researchBox(
               child: TextFormField(
                   autofocus: false,
                   autocorrect: false,
-                  maxLines: 2,
                   keyboardType: TextInputType.text,
                   decoration: InputDecoration(
                       border: InputBorder.none,

@@ -3,7 +3,6 @@ import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 import '../Utils/Loading.dart';
 import '../Models/Categorie.dart';
 import '../DAO/Presenters/CategoriesPresenter.dart';
-import '../Utils/AppBars.dart';
 import '../CategorieRestaurantsScreen.dart';
 
 
@@ -19,21 +18,48 @@ class CategoriesState extends State<Categories> implements CategoriesContract{
   List<Categorie> categories;
   CategoriesPresenter _presenter;
 
+  bool isSearching; // determine si une recherche est en cours ou pas
+  List<Categorie> searchResult;
+  final controller = new TextEditingController();
+
 
   @override
   void initState() {
     stateIndex = 0;
     _presenter = new CategoriesPresenter(this);
     _presenter.loadCategorieList();
+
+    isSearching = false;
+    controller.addListener(() {
+      String currentText = controller.text;
+      if(currentText.length > 0){
+
+        setState(() {
+          searchResult = new List<Categorie>();
+          for(Categorie categorie in categories){ // pour chaque commande
+            if(categorie.name.toLowerCase().contains(currentText.toLowerCase())){ // si ca commence par le texte taper
+              searchResult.add(categorie); // l'ajouter au resultat de recherche
+            }
+          }
+          isSearching = true;
+        });
+
+      }else{
+
+        setState(() {
+          isSearching = false;
+        });
+      }
+    });
     super.initState();
   }
 
-  PositionedTapDetector getItem(int index) {
+  Widget getItem(int index) {
     return PositionedTapDetector(
       onTap: (position){
         // afficher la liste des menus de cette categorie
         Navigator.of(context).push(
-            new MaterialPageRoute(builder: (context) => CategorieRestaurantssScreen(categories[index])));
+            new MaterialPageRoute(builder: (context) => CategorieRestaurantssScreen(isSearching ? searchResult[index] : categories[index])));
       },
       child: Container(
         padding: EdgeInsets.only(right: 8.0, bottom: 8.0),
@@ -55,7 +81,7 @@ class CategoriesState extends State<Categories> implements CategoriesContract{
                           color: Colors.white,
                           image: new DecorationImage(
                             fit: BoxFit.cover,
-                            image: NetworkImage(categories[index].photo),
+                            image: NetworkImage(isSearching ? searchResult[index].photo : categories[index].photo),
                           )
                       ),
                     child: Container(
@@ -69,7 +95,7 @@ class CategoriesState extends State<Categories> implements CategoriesContract{
                     alignment: Alignment.center,
                     child: Container(
                       margin: EdgeInsets.only(bottom: 5.0, right: 5.0),
-                      child: Text(categories[index].name,
+                      child: Text(isSearching ? searchResult[index].name : categories[index].name,
                           style: TextStyle(
                             color: Colors.white,
                             decoration: TextDecoration.none,
@@ -113,7 +139,7 @@ class CategoriesState extends State<Categories> implements CategoriesContract{
           Expanded(
             child: GridView.builder(
                 padding: EdgeInsets.all(0.0),
-                itemCount: categories.length,
+                itemCount: isSearching ? searchResult.length : categories.length,
                 gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2),
                 itemBuilder: (BuildContext context, int index) {
@@ -130,6 +156,46 @@ class CategoriesState extends State<Categories> implements CategoriesContract{
       stateIndex = 0;
       _presenter.loadCategorieList();
     });
+  }
+
+  Widget researchBox(
+      String hintText, Color bgdColor, Color textColor, Color borderColor) {
+    return Container(
+      padding: EdgeInsets.only(left: 10.0, right: 10.0),
+      decoration: new BoxDecoration(
+          color: bgdColor,
+          border: new Border(
+            top: BorderSide(
+                color: borderColor, style: BorderStyle.solid, width: 1.0),
+            bottom: BorderSide(
+                color: borderColor, style: BorderStyle.solid, width: 1.0),
+            left: BorderSide(
+                color: borderColor, style: BorderStyle.solid, width: 1.5),
+            right: BorderSide(
+                color: borderColor, style: BorderStyle.solid, width: 1.5),
+          )),
+      child: Row(
+          children: [
+        Icon(Icons.search, color: textColor, size: 30.0,),
+        Expanded(
+            child: Container(
+                child: TextFormField(
+                    autofocus: false,
+                    autocorrect: false,
+                    maxLines: 1,
+                    controller: controller,
+                    keyboardType: TextInputType.text,
+                    decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: hintText,
+                        hintStyle: TextStyle(color: textColor)),
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      color: textColor,
+                      fontWeight: FontWeight.bold,
+                    ))))
+      ]),
+    );
   }
 
   @override

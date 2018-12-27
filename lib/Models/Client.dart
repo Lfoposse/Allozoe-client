@@ -11,8 +11,7 @@ class Client {
   String _lastname;
   String _phone;
   bool _active;
-
- // List<String> _roles;
+  String _photo;
 
 
   Client.empty(){
@@ -26,7 +25,9 @@ class Client {
     this._active = false;
   }
 
+
   Client(this._id, this._username, this._password, this._lastname, this._email, this._phone, this._active, this._firstname);
+
 
   Client.map(dynamic obj) {
 
@@ -38,8 +39,10 @@ class Client {
     this._email = obj["email"];
     this._phone = obj["phone"];
     this._active = obj["active"];
-    //this._roles = obj["role"];
+
   }
+
+
 
   int get id => _id;
   String get username => _username;
@@ -60,7 +63,6 @@ class Client {
     map["firstname"] = _firstname;
     map["email"] = _email;
     map["phone"] = _phone;
-    //map["roles"] = _roles;
 
     return map;
   }
@@ -98,4 +100,5 @@ class Client {
   set password(String value) {
     _password = value;
   }
+
 }

@@ -32,12 +32,48 @@ class ConfirmAccountState extends State<ConfirmAccountScreen> implements Confirm
   final quatreKey = new GlobalKey<FormState>();
   final scaffoldKey = new GlobalKey<ScaffoldState>();
 
+  var unController;
+  var deuxController;
+  var troisController;
+
+  final unFocusNode = FocusNode();
+  final deuxFocusNode = FocusNode();
+  final troisFocusNode = FocusNode();
+  final quatreFocusNode = FocusNode();
+
   String _un, _deux, _trois, _quatre;
   ConfirmAccountPresenter _presenter;
 
   ConfirmAccountState() {
     _presenter = new ConfirmAccountPresenter(this);
   }
+
+
+  @override
+  void initState(){
+    super.initState();
+
+    unController = TextEditingController();
+    unController.addListener((){
+      String currentText = unController.text;
+      if(currentText.length == 1)
+        FocusScope.of(context).requestFocus(deuxFocusNode);
+    });
+
+    deuxController = TextEditingController();
+    deuxController.addListener((){
+      if(deuxController.text.length == 1)
+        FocusScope.of(context).requestFocus(troisFocusNode);
+    });
+
+    troisController = TextEditingController();
+    troisController.addListener((){
+      if(troisController.text.length == 1)
+        FocusScope.of(context).requestFocus(quatreFocusNode);
+    });
+
+  }
+
 
   void _showSnackBar(String text) {
     scaffoldKey.currentState
@@ -92,7 +128,7 @@ class ConfirmAccountState extends State<ConfirmAccountScreen> implements Confirm
 
     const double padding_from_screen = 30.0;
 
-    Container buildCase(key) {
+    Container buildCase(key, FocusNode focusNode, TextEditingController controller) {
       Color color = Colors.grey;
 
       return Container(
@@ -115,7 +151,9 @@ class ConfirmAccountState extends State<ConfirmAccountScreen> implements Confirm
                     _quatre = val;
                   }
                 },
-                  autofocus: false,
+                  focusNode: focusNode,
+                  controller: controller,
+                  autofocus: true,
                   autocorrect: false,
                   textAlign: TextAlign.center,
                   inputFormatters:[
@@ -140,16 +178,16 @@ class ConfirmAccountState extends State<ConfirmAccountScreen> implements Confirm
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             Expanded(
-              child: buildCase(unKey),
+              child: buildCase(unKey, unFocusNode, unController),
             ),
             Expanded(
-              child: buildCase(deuxKey),
+              child: buildCase(deuxKey, deuxFocusNode, deuxController),
             ),
             Expanded(
-              child: buildCase(troisKey),
+              child: buildCase(troisKey, troisFocusNode, troisController),
             ),
             Expanded(
-              child: buildCase(quatreKey),
+              child: buildCase(quatreKey, quatreFocusNode, null),
             )
           ]),
     );
@@ -191,10 +229,9 @@ class ConfirmAccountState extends State<ConfirmAccountScreen> implements Confirm
                   physics: new ClampingScrollPhysics(),
                   children: [
                     Container(
-                      margin: EdgeInsets.only(top: 5.0),
                       child: Image.asset(
-                        'images/icone_launcher.png',
-                        height: 210.0,
+                        'images/logo-header.png',
+                        height: 200.0,
                         fit: BoxFit.contain,
                       ),
                     ),

@@ -25,6 +25,7 @@ class PanierState extends State<Panier> implements PanierContract{
   double fraisLivraison ;
   int stateIndex;
   DatabaseHelper db;
+  final scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -36,51 +37,16 @@ class PanierState extends State<Panier> implements PanierContract{
   }
 
 
+  void _showSnackBar(String text) {
+    scaffoldKey.currentState
+        .showSnackBar(new SnackBar(content: new Text(text)));
+  }
+
   _updateView(){
     setState(() {
       stateIndex = 0;
       new PanierPresenter(this).loadPanier();
     });
-  }
-
-
-  Widget researchBox(String hintText, Color bgdColor, Color textColor, Color borderColor) {
-    return Container(
-      margin: EdgeInsets.only(left: 20.0, right: 20.0),
-      padding: EdgeInsets.only(left: 10.0, right: 10.0),
-      decoration: new BoxDecoration(
-          color: bgdColor,
-          border: new Border(
-            top: BorderSide(
-                color: borderColor, style: BorderStyle.solid, width: 1.0),
-            bottom: BorderSide(
-                color: borderColor, style: BorderStyle.solid, width: 1.0),
-            left: BorderSide(
-                color: borderColor, style: BorderStyle.solid, width: 1.0),
-            right: BorderSide(
-                color: borderColor, style: BorderStyle.solid, width: 1.0),
-          )),
-      child: Row(children: [
-        Icon(Icons.search, color: textColor, size: 25.0,),
-        Expanded(
-            child: Container(
-                padding: EdgeInsets.only(left: 10.0, right: 10.0),
-                child: TextFormField(
-                    autofocus: false,
-                    autocorrect: false,
-                    maxLines: 1,
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: hintText,
-                        hintStyle: TextStyle(color: textColor)),
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      color: Colors.black45,
-                      fontWeight: FontWeight.bold,
-                    ))))
-      ]),
-    );
   }
 
 
@@ -514,16 +480,6 @@ class PanierState extends State<Panier> implements PanierContract{
       default:
         return Column(
           children: <Widget>[
-//            Expanded(
-//              child: Container(
-//                margin: EdgeInsets.only(top: 5.0),
-//                color: Colors.white,
-//                child: Center(
-//                  child: researchBox("Chercher ici", Color.fromARGB(15, 0, 0, 0), Colors.grey, Colors.transparent) ,
-//                ),
-//              ),
-//              flex: 1,
-//            ),
             Expanded(
               child: Container(
                 margin: EdgeInsets.only(top: 4.0, bottom: 5.0),
@@ -572,6 +528,11 @@ class PanierState extends State<Panier> implements PanierContract{
                         child: PositionedTapDetector(
                             onTap: (position) {
                               db.loadClient().then((Client client){
+
+                                if((getTotal() - fraisLivraison) < 15.0){
+                                  _showSnackBar("Complétez votre panier à 15€ minimum afin de commander");
+                                  return;
+                                }
                                 Navigator.of(context).push(
                                     new MaterialPageRoute(builder: (context) => RecapitulatifCommande(produits: produits, fraisLivraison: fraisLivraison, client: client)))
                                     .then((value){
@@ -618,9 +579,12 @@ class PanierState extends State<Panier> implements PanierContract{
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        color: Color.fromARGB(25, 0, 0, 0),
-        child: getSceneView()
+    return Scaffold(
+      key: scaffoldKey,
+      body: Container(
+          color: Color.fromARGB(25, 0, 0, 0),
+          child: getSceneView()
+      ),
     );
   }
 

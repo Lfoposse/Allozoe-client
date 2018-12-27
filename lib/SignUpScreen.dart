@@ -256,10 +256,9 @@ class SignUpScreenState extends State<SignUpScreen> implements SignUpContract{
                 child: ListView(
                   children: [
                     Container(
-                      margin: EdgeInsets.only(top: 5.0),
                       child: Image.asset(
-                        'images/icone_launcher.png',
-                        height: 210.0,
+                        'images/logo-header.png',
+                        height: 200.0,
                         fit: BoxFit.contain,
                       ),
                     ),
