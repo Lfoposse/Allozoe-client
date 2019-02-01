@@ -1,6 +1,6 @@
+import '../../Models/Categorie.dart';
 import '../../Models/Produit.dart';
 import '../Rest_dt.dart';
-import '../../Models/Categorie.dart';
 
 abstract class RestaurantCategorizedMenusContract {
   void onLoadingSuccess(List<Categorie> categories);
@@ -16,7 +16,7 @@ class RestaurantCategorizedMenusPresenter {
   loadCategorieList(int restaurantID) {
     api.loadCategorieList().then((List<Categorie> categorieList) {
       if (categorieList != null) {
-        categorieList.add(new Categorie(-1, "Favoris", null, null, null));
+        //categorieList.add(new Categorie(-1, "Favoris", null, null, null));
         List<Categorie> finalList = new List();
         int count = 0;
 
@@ -24,22 +24,18 @@ class RestaurantCategorizedMenusPresenter {
           api
               .loadRestaurantCategorieMenus(restaurantID, categorieList[i].id)
               .then((List<Produit> produits) {
-
-            if(produits != null && produits.length > 0) {
+            if (produits != null && produits.length > 0) {
               categorieList[i].produits = produits;
               finalList.add(categorieList[i]);
             }
             count++;
 
-            if(count == categorieList.length) _view.onLoadingSuccess(finalList);
-
+            if (count == categorieList.length)
+              _view.onLoadingSuccess(finalList);
           }).catchError((onError) {
             _view.onConnectionError();
           });
         }
-
-
-
       } else
         _view.onLoadingError();
     }).catchError((onError) {

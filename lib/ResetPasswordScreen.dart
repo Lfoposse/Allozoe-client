@@ -210,7 +210,7 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen>
                       : buttonSection
                 ])),
             Container(
-              height: AppBar().preferredSize.height,
+              height: AppBar().preferredSize.height+50,
               child: AppBar(
                 iconTheme: IconThemeData(
                   color: Colors.black, //change your color here

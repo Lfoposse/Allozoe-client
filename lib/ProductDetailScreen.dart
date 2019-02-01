@@ -1,13 +1,18 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:client_app/PanierScreen.dart';
+import 'package:client_app/StringKeys.dart';
+import 'package:client_app/Utils/IPhoneXPadding.dart';
 import 'package:client_app/Utils/Loading.dart';
 import 'package:client_app/Utils/MyBehavior.dart';
 import 'package:flutter/material.dart';
-import 'Utils/AppBars.dart';
-import 'Models/Produit.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
-import 'Database/DatabaseHelper.dart';
+
 import 'DAO/Presenters/ProductDetailPresenter.dart';
+import 'Database/DatabaseHelper.dart';
+import 'Models/Produit.dart';
+import 'Utils/AppBars.dart';
 import 'Utils/PriceFormatter.dart';
 
 class ProductDetailScreen extends StatefulWidget {
@@ -25,7 +30,8 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
   int stateIndex;
   ProductDetailPresenter _presenter;
   Produit produit;
-
+  int _radioValue1 = -1;
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   @override
   void initState() {
     stateIndex = 0;
@@ -51,7 +57,6 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
     );
   }
 
-
   Widget getOptionsSection() {
     return Container(
         child: ScrollConfiguration(
@@ -65,69 +70,169 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
                 })));
   }
 
+  Widget getComplementItem(int optIndex, int cplIndex) {
+    void _handleRadioValueChange1(int value) {
+      setState(() {
+        _radioValue1 = value;
 
-  Widget getComplementItem(int optIndex, int cplIndex){
+        print(this.produit.options[optIndex].complements[value].id);
+        for (var i = 0;
+            i < this.produit.options[optIndex].complements.length;
+            i++) {
+          this.produit.options[optIndex].complements[i].selected = false;
+        }
+        this.produit.options[optIndex].complements[value].selected = true;
+      });
+      if (isProductInCart) {
+        db.deleteProduit(this.produit);
+        db.addProduit(this.produit).then((insertedId) {
+          setState(() {});
+        }).catchError((error) {
+          print("Erreur : " + error.toString());
+        });
+      }
+    }
 
+    /*Widget getOptionType(Option opt){
+      if(opt.type == "REQUIRED"){
+      return  this.produit.options[optIndex].item_required == 1
+            ? Radio(
+            activeColor: Colors.blueGrey,
+            groupValue: _radioValue1,
+            value: cplIndex,
+            onChanged: (active) {
+              _handleRadioValueChange1(cplIndex);
+            })
+            : Checkbox(
+            activeColor: Colors.blueGrey,
+            value: this
+                .produit
+                .options[optIndex]
+                .complements[cplIndex]
+                .selected,
+            onChanged: (active) {
+              this
+                  .produit
+                  .options[optIndex]
+                  .complements[cplIndex]
+                  .selected =
+              !this
+                  .produit
+                  .options[optIndex]
+                  .complements[cplIndex]
+                  .selected;
+              if (isProductInCart) {
+                db.deleteProduit(this.produit);
+                db.addProduit(this.produit).then((insertedId) {
+                  setState(() {});
+                }).catchError((error) {
+                  print("Erreur : " + error.toString());
+                });
+              } else
+                setState(() {});
+            });
+      }else{
+        ret
+      }
+
+    }*/
     return Container(
       height: 80.0,
       margin: EdgeInsets.symmetric(vertical: 5.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Checkbox(
-              activeColor: Colors.blueGrey,
-              value: this.produit.options[optIndex].complements[cplIndex].selected,
-              onChanged: (active){
-                this.produit.options[optIndex].complements[cplIndex].selected = !this.produit.options[optIndex].complements[cplIndex].selected;
-                if(isProductInCart) {
-                  db.deleteProduit(this.produit);
-                  db.addProduit(this.produit).then((insertedId) {
-                    setState(() {});
-                  }).catchError((error) {
-                    print("Erreur : " + error.toString());
-                  });
-                }else setState(() {});
-          }),
+          this.produit.options[optIndex].item_required == 1
+              ? Radio(
+                  activeColor: Colors.blueGrey,
+                  groupValue: _radioValue1,
+                  value: cplIndex,
+                  onChanged: (active) {
+                    _handleRadioValueChange1(cplIndex);
+                  })
+              : Checkbox(
+                  activeColor: Colors.blueGrey,
+                  value: this
+                      .produit
+                      .options[optIndex]
+                      .complements[cplIndex]
+                      .selected,
+                  onChanged: (active) {
+                    this
+                            .produit
+                            .options[optIndex]
+                            .complements[cplIndex]
+                            .selected =
+                        !this
+                            .produit
+                            .options[optIndex]
+                            .complements[cplIndex]
+                            .selected;
+                    if (isProductInCart) {
+                      db.deleteProduit(this.produit);
+                      db.addProduit(this.produit).then((insertedId) {
+                        setState(() {});
+                      }).catchError((error) {
+                        print("Erreur : " + error.toString());
+                      });
+                    } else
+                      setState(() {});
+                  }),
           Expanded(
             child: Image.network(
               this.produit.options[optIndex].complements[cplIndex].image,
               width: double.infinity,
               height: double.infinity,
               fit: BoxFit.cover,
-            ), flex: 2,
-          ),
-          Expanded(child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 10.0),
-            height: double.infinity,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              mainAxisSize: MainAxisSize.max,
-              children: <Widget>[
-                Text(this.produit.options[optIndex].complements[cplIndex].name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                      color: Colors.grey,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18.0
-                  )
-                ),
-                Text(this.produit.options[optIndex].complements[cplIndex].price == 0 ? "Offert" : PriceFormatter.formatPrice(price: this.produit.options[optIndex].complements[cplIndex].price),
-                    style: TextStyle(
-                        color: Colors.lightGreen,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18.0
-                    )
-                )
-              ],
             ),
-          ),flex: 3,)
+            flex: 2,
+          ),
+          Expanded(
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 10.0),
+              height: double.infinity,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisSize: MainAxisSize.max,
+                children: <Widget>[
+                  Text(
+                      this.produit.options[optIndex].complements[cplIndex].name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                          color: Colors.grey,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18.0)),
+                  Text(
+                      this
+                                  .produit
+                                  .options[optIndex]
+                                  .complements[cplIndex]
+                                  .price ==
+                              0
+                          ? getLocaleText(
+                              context: context,
+                              strinKey: StringKeys.PANIER_OFFERT)
+                          : PriceFormatter.formatPrice(
+                              price: this
+                                  .produit
+                                  .options[optIndex]
+                                  .complements[cplIndex]
+                                  .price),
+                      style: TextStyle(
+                          color: Colors.lightGreen,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18.0))
+                ],
+              ),
+            ),
+            flex: 3,
+          )
         ],
       ),
     );
   }
-
 
   Widget getOptionItem(int optIndex) {
     return Container(
@@ -137,53 +242,72 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
-              this.produit.options[optIndex].name,
+            this.produit.options[optIndex].name,
             style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-              fontSize: 20.0
-            ),
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 20.0),
+          ),
+          Text(
+            "(choose " +
+                this.produit.options[optIndex].item_required.toString() +
+                ")",
+            style: TextStyle(
+                color: Colors.black38,
+                fontWeight: FontWeight.bold,
+                fontSize: 16.0),
           ),
           Container(
-            child: ScrollConfiguration(behavior: MyBehavior(), child: ListView.builder(
-                padding: EdgeInsets.all(0.0),
-                scrollDirection: Axis.vertical,
-                physics : NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemCount: this.produit.options[optIndex].complements.length,
-                itemBuilder: (BuildContext ctxt, int index) {
-                  return getComplementItem(optIndex, index);
-                })
-            )
-          )
+              child: ScrollConfiguration(
+                  behavior: MyBehavior(),
+                  child: ListView.builder(
+                      padding: EdgeInsets.all(0.0),
+                      scrollDirection: Axis.vertical,
+                      physics: NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount:
+                          this.produit.options[optIndex].complements.length,
+                      itemBuilder: (BuildContext ctxt, int index) {
+                        return getComplementItem(optIndex, index);
+                      })))
         ],
       ),
     );
   }
 
-  double getTotal(){
-
+  double getTotal() {
     double total = this.produit.prix;
-    if(this.produit.options == null || this.produit.options.length == 0) return total * this.produit.nbCmds;
-    for(int i = 0; i < this.produit.options.length; i++){
-      if(this.produit.options[i].complements == null || this.produit.options[i].complements.length == 0) continue;
-      for(int j = 0; j < this.produit.options[i].complements.length; j++){
-        if(this.produit.options[i].complements[j].selected)
+    if (this.produit.options == null || this.produit.options.length == 0)
+      return total * this.produit.nbCmds;
+    for (int i = 0; i < this.produit.options.length; i++) {
+      if (this.produit.options[i].complements == null ||
+          this.produit.options[i].complements.length == 0) continue;
+      for (int j = 0; j < this.produit.options[i].complements.length; j++) {
+        if (this.produit.options[i].complements[j].selected)
           total += this.produit.options[i].complements[j].price;
       }
     }
     return total * this.produit.nbCmds;
   }
-
+  bool _isIPhoneX(MediaQueryData mediaQuery) {
+    if (Platform.isIOS) {
+      var size = mediaQuery.size;
+      if (size.height >= 812.0 || size.width <= 375.0) {
+        return true;
+      }
+    }
+    return false;
+  }
   Widget getContent() {
     return Container(
+      padding: !_isIPhoneX(MediaQuery.of(context))?EdgeInsets.only(bottom: 5.0):EdgeInsets.only(bottom: 15.0),
       child: Column(
         children: <Widget>[
           Expanded(
             child: Container(
               color: Colors.white,
               padding: EdgeInsets.only(
-                  left: 20.0, right: 20.0, top: 5.0, bottom: 10.0),
+                  left: 20.0, right: 20.0, top: 5.0, bottom: 20.0),
               child: Column(
                 children: <Widget>[
                   Row(
@@ -238,14 +362,17 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text(
-                              "Prix",
+                              getLocaleText(
+                                  context: context, strinKey: StringKeys.PRICE),
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 20.0,
                               ),
                             ),
                             Text(
-                              "Quantité",
+                              getLocaleText(
+                                  context: context,
+                                  strinKey: StringKeys.QUANTITE),
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 20.0,
@@ -346,107 +473,160 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
           ),
           getDivider(6.0, horizontal: true),
           Container(
-              color: Colors.white,
-              padding: EdgeInsets.only(left: 20.0, right: 20.0, bottom: 5.0),
-              child: RaisedButton(
-                onPressed: () {
-                  if (isProductInCart) {
-                    setState(() { db.deleteProduit(this.produit); });
-                  } else {
-
-                    db.isRestaurantDifferentFromCartOne(this.produit.restaurant).then((isDifferent){
-
-                      // si le produit a ajouter est different de celui des produits deja present dans le panier
-                      if(isDifferent){
-
-                        showDialog<Null>(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return new AlertDialog(
-                              title: new Text('Attention'),
-                              content: new SingleChildScrollView(
-                                child: new ListBody(
-                                  children: <Widget>[
-                                    new Text("Vous êtes entrain de changer de restaurant. Le panier va être vidé avant cet ajout.\nSinon vous pouvez d'abord"
-                                    + " commander le panier du précédent restaurant avant de continuer."),
+            color: Colors.white,
+            padding: EdgeInsets.only(left: 20.0, right: 20.0, bottom: 5.0),
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: RaisedButton(
+                    onPressed: () {
+                      if (isProductInCart) {
+                        setState(() {
+                          db.deleteProduit(this.produit);
+                        });
+                      } else {
+                        db
+                            .isRestaurantDifferentFromCartOne(
+                                this.produit.restaurant)
+                            .then((isDifferent) {
+                          // si le produit a ajouter est different de celui des produits deja present dans le panier
+                          if (isDifferent) {
+                            showDialog<Null>(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return new AlertDialog(
+                                  title: new Text(getLocaleText(
+                                      context: context,
+                                      strinKey: StringKeys.AVERTISSEMENT)),
+                                  content: new SingleChildScrollView(
+                                    child: new ListBody(
+                                      children: <Widget>[
+                                        new Text(getLocaleText(
+                                            context: context,
+                                            strinKey: StringKeys
+                                                .AVERTISEMENT_CHANGE_RESTAURANT)),
+                                      ],
+                                    ),
+                                  ),
+                                  actions: <Widget>[
+                                    new FlatButton(
+                                      child: new Text(
+                                          getLocaleText(
+                                              context: context,
+                                              strinKey: StringKeys.CANCEL_BTN),
+                                          style: TextStyle(
+                                              color: Colors.lightGreen)),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                    new FlatButton(
+                                      child: new Text(
+                                          getLocaleText(
+                                              context: context,
+                                              strinKey:
+                                                  StringKeys.AJOUTER_PANIER),
+                                          style: TextStyle(
+                                              color: Colors.lightGreen)),
+                                      onPressed: () {
+                                        db.clearPanier(); // on vide le panier avant d'y ajouter le nouveau produit
+                                        db
+                                            .addProduit(this.produit)
+                                            .then((insertedId) {
+                                          Navigator.of(context).pop();
+                                          setState(() {});
+                                        }).catchError((error) {
+                                          print("Erreur : " + error.toString());
+                                        });
+                                      },
+                                    ),
                                   ],
-                                ),
-                              ),
-                              actions: <Widget>[
-                                new FlatButton(
-                                  child:
-                                  new Text('ANNULER', style: TextStyle(color: Colors.lightGreen)),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                                new FlatButton(
-                                  child: new Text('Ajouter au panier', style: TextStyle(color: Colors.lightGreen)),
-                                  onPressed: () {
-
-                                    db.clearPanier(); // on vide le panier avant d'y ajouter le nouveau produit
-                                    db.addProduit(this.produit).then((insertedId) {
-                                      Navigator.of(context).pop();
-                                      setState(() {});
-                                    }).catchError((error) {
-                                      print("Erreur : " + error.toString());
-                                    });
-
-                                  },
-                                ),
-                              ],
+                                );
+                              },
                             );
-                          },
-                        );
+                          } else {
+                            // sinon on ajoute le produit au panier
 
-                      }else{ // sinon on ajoute le produit au panier
-
-                        db.addProduit(this.produit).then((insertedId) {
-                          setState(() {});
+                            db.addProduit(this.produit).then((insertedId) {
+                              setState(() {});
+                            }).catchError((error) {
+                              print("Erreur : " + error.toString());
+                            });
+                          }
                         }).catchError((error) {
                           print("Erreur : " + error.toString());
                         });
-
                       }
-                    }).catchError((error) {
-                      print("Erreur : " + error.toString());
-                    });
-
-
-                  }
-                },
-                child: SizedBox(
-                    width: double.infinity,
-                    child: Text(
-                      isProductInCart
-                          ? "RETIRER DU PANIER"
-                          : "AJOUTER AU PANIER",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 16.0, fontWeight: FontWeight.bold),
-                    )),
-                shape: new RoundedRectangleBorder(
-                    borderRadius: new BorderRadius.circular(0.0)),
-                textColor: Colors.white,
-                color: Colors.lightGreen,
-                elevation: 1.0,
-              ))
+                    },
+                    child: SizedBox(
+                        width: double.infinity,
+                        child: Text(
+                          isProductInCart
+                              ? getLocaleText(
+                                  context: context,
+                                  strinKey: StringKeys.RETIRER_PANIER_BTN)
+                              : getLocaleText(
+                                  context: context,
+                                  strinKey: StringKeys.AJOUTER_PANIER_BTN),
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 16.0, fontWeight: FontWeight.bold),
+                        )),
+                    shape: new RoundedRectangleBorder(
+                        borderRadius: new BorderRadius.circular(0.0)),
+                    textColor: Colors.white,
+                    color: isProductInCart ? Colors.grey : Colors.lightGreen,
+                    elevation: 1.0,
+                  ),
+                  flex: 2,
+                ),
+                Expanded(
+                    child: RaisedButton(
+                  onPressed: () {
+                    panier();
+                  },
+                  child: SizedBox(
+                      width: double.infinity,
+                      child: Text(
+                        getLocaleText(
+                            context: context,
+                            strinKey: StringKeys.PANIER_MON_PANIER),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 16.0, fontWeight: FontWeight.bold),
+                      )),
+                  shape: new RoundedRectangleBorder(
+                      borderRadius: new BorderRadius.circular(0.0)),
+                  textColor: Colors.white,
+                  color: Colors.redAccent,
+                  elevation: 1.0,
+                ))
+              ],
+            ),
+          )
         ],
       ),
     );
   }
 
-  Future<bool> actualize(Produit dbProd) async{
-    this.produit.qteCmder = dbProd.nbCmds;
-    if(this.produit.options == null || this.produit.options.length == 0) return true;
-    for(int i = 0; i < this.produit.options.length; i++){
+  Widget panier() {
+    _scaffoldKey.currentState.showBottomSheet<Null>((BuildContext context) {
+      return new Container(height: 500.0, child: PanierScreen());
+    });
+  }
 
-      if(this.produit.options[i].complements == null || this.produit.options[i].complements.length == 0) continue;
-      for(int j = 0; j < this.produit.options[i].complements.length; j++)
-        this.produit.options[i].complements[j].selected = await db.isComplementInCart(
-            opt_id: this.produit.options[i].id,
-            cp_id: this.produit.options[i].complements[j].id)
-      ;
+  Future<bool> actualize(Produit dbProd) async {
+    this.produit.qteCmder = dbProd.nbCmds;
+    if (this.produit.options == null || this.produit.options.length == 0)
+      return true;
+    for (int i = 0; i < this.produit.options.length; i++) {
+      if (this.produit.options[i].complements == null ||
+          this.produit.options[i].complements.length == 0) continue;
+      for (int j = 0; j < this.produit.options[i].complements.length; j++)
+        this.produit.options[i].complements[j].selected =
+            await db.isComplementInCart(
+                opt_id: this.produit.options[i].id,
+                cp_id: this.produit.options[i].complements[j].id);
     }
 
     return true;
@@ -466,7 +646,7 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
       default:
         return FutureBuilder(
             future: db.getProduit(widget.produit.id),
-            builder: (BuildContext context, AsyncSnapshot snapshot){
+            builder: (BuildContext context, AsyncSnapshot snapshot) {
               if (snapshot.hasData) {
                 Produit prod = snapshot.data;
 
@@ -478,11 +658,9 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
                   isProductInCart = true;
                   return FutureBuilder(
                       future: actualize(prod),
-                      builder: (BuildContext context, AsyncSnapshot snapshot){
+                      builder: (BuildContext context, AsyncSnapshot snapshot) {
                         if (snapshot.hasData) {
-
                           return getContent();
-
                         } else
                           return Container(
                               height: double.infinity,
@@ -491,9 +669,7 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
                                 child: CircularProgressIndicator(),
                               ));
                       });
-
                 }
-
               } else
                 return Container(
                     height: double.infinity,
@@ -510,14 +686,19 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
     return Material(
       child: Stack(
         children: <Widget>[
-          Column(
-            children: <Widget>[
-              HomeAppBar(), // logo allozoe
-              Expanded(child: getAppropriateScene())
-            ],
+          Scaffold(
+            key: _scaffoldKey,
+            body: Column(
+              children: <Widget>[
+                HomeAppBar(),
+                // logo allozoe
+
+                Expanded(child: getAppropriateScene())
+              ],
+            ),
           ),
           Container(
-            height: AppBar().preferredSize.height,
+            height: AppBar().preferredSize.height+50,
             child: AppBar(
               iconTheme: IconThemeData(
                 color: Colors.black, //change your color here

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'Utils/AppBars.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
@@ -93,12 +95,29 @@ class HomeStateScreen extends State<HomeScreen> {
   }
 
 
-
+  bool _isIPhoneX(MediaQueryData mediaQuery) {
+    if (Platform.isIOS) {
+      var size = mediaQuery.size;
+      if (size.height >= 812.0 || size.width <= 375.0) {
+        return true;
+      }
+    }
+    return true;
+  }
 
   @override
   Widget build(BuildContext context) {
+    var mediaQueryData = MediaQuery.of(context);
+    var homeIndicatorHeight =
+    // TODO verify exact values
+    mediaQueryData.orientation == Orientation.portrait ? 5.0 : 8.0;
+
+    var outer = mediaQueryData.padding;
+    var bottom = !_isIPhoneX(mediaQueryData)?outer.bottom: outer.bottom + homeIndicatorHeight;
     Widget buttonSection = Container(
-      padding: EdgeInsets.only(top: 5.0, bottom: 5.0),
+      //padding: EdgeInsets.only(top: 5.0, bottom: 5.0),
+      padding: new EdgeInsets.fromLTRB(
+          outer.left, outer.top, outer.right, bottom),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [

@@ -11,17 +11,31 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>client_app</string>
+	<string>Allozoé</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>$(FLUTTER_BUILD_NAME)</string>
+	<string>1.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<string>3</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>Allozoé souhaite acceder à vos Medias</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Allozoé souhaite acceder à votre Calandrier</string>
+	<key>NSContactsUsageDescription</key>
+	<string>Allozoé souhaite acceder à vos Contacts</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Allozoé souhaite acceder à votre emplacement</string>
+	<key>NSMotionUsageDescription</key>
+	<string>Allozoé souhaite acceder à vos émotions</string>
+	<key>NSPrefPaneIconFile</key>
+	<string></string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Allozoé souhaite acceder à votre Microphone</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
@@ -41,9 +55,9 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>NSLocationWhenInUseUsageDescription</key>
-    <string>This app access your location to show you localized content.</string>
-    <key>io.flutter.embedded_views_preview</key>
-    <string>YES</string>
+	<key>io.flutter.embedded_views_preview</key>
+	<string>YES</string>
+	<key>kTCCServiceMediaLibrary</key>
+	<string>Allozoé souhaite acceder à vos Musiques</string>
 </dict>
 </plist>

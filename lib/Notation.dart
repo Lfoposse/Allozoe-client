@@ -1,9 +1,10 @@
+import 'package:client_app/StringKeys.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating/flutter_rating.dart';
-import 'Models/Commande.dart';
-import 'DAO/Presenters/NotePresenter.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 
+import 'DAO/Presenters/NotePresenter.dart';
+import 'Models/Commande.dart';
 
 Future<Null> showRatingDialog(BuildContext context, Commande commande) async {
   return showDialog<Null>(
@@ -26,7 +27,7 @@ class RateDelivery extends StatefulWidget {
   RateDeliveryState createState() => new RateDeliveryState();
 }
 
-class RateDeliveryState extends State<RateDelivery> implements NoteContract{
+class RateDeliveryState extends State<RateDelivery> implements NoteContract {
   double deliverRating, restauRating;
   int starCount;
   bool isDeliverAlreadyRated;
@@ -48,9 +49,7 @@ class RateDeliveryState extends State<RateDelivery> implements NoteContract{
     _presenter = new NotePresenter(this);
     stateIndex = 0;
     isSearching = false;
-
   }
-
 
   void _showDialog(String title) {
     // flutter defined function
@@ -59,12 +58,12 @@ class RateDeliveryState extends State<RateDelivery> implements NoteContract{
       builder: (BuildContext context) {
         // return object of type Dialog
         return AlertDialog(
-          title: new Text("Avertissement"),
-          content: new Text(
-              title),
+          title: new Text(getLocaleText(
+              context: context, strinKey: StringKeys.AVERTISSEMENT)),
+          content: new Text(title),
           actions: <Widget>[
             new FlatButton(
-              child: new Text("Compris"),
+              child: new Text("OK"),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -75,34 +74,29 @@ class RateDeliveryState extends State<RateDelivery> implements NoteContract{
     );
   }
 
-
   void _submit() {
-
-    if(!isDeliverAlreadyRated) {
-
-      pourboireKey.currentState.save();
+    if (!isDeliverAlreadyRated) {
+      //pourboireKey.currentState.save();
 
       try {
         int.parse(_pourboire);
       } catch (error) {
-        _showDialog("montant invalide");
+        _showDialog(getLocaleText(
+            context: context, strinKey: StringKeys.CARD_AMOUNT_INVALIDE));
         return;
       }
 
       setState(() {
         isDeliverAlreadyRated = true;
       });
-
-    }else{
-
+    } else {
       setState(() {
         isSearching = true;
       });
-      _presenter.noterService(widget.commande.id, restauRating, deliverRating, int.parse(_pourboire));
+      _presenter.noterService(widget.commande.id, restauRating, deliverRating,
+          int.parse(_pourboire));
     }
-
   }
-
 
   Widget getPourboireContent() {
     return Column(
@@ -113,7 +107,8 @@ class RateDeliveryState extends State<RateDelivery> implements NoteContract{
           width: double.infinity,
           margin: EdgeInsets.symmetric(vertical: 10.0),
           child: Text(
-              "Donner un pourboire",
+              getLocaleText(
+                  context: context, strinKey: StringKeys.COMMANDE_POURBOIRE),
               textAlign: TextAlign.center,
               style: TextStyle(
                   fontSize: 14.0,
@@ -150,7 +145,6 @@ class RateDeliveryState extends State<RateDelivery> implements NoteContract{
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -163,34 +157,46 @@ class RateDeliveryState extends State<RateDelivery> implements NoteContract{
             child: Row(
               children: <Widget>[
                 PositionedTapDetector(
-                  onTap: (position){
-                    if(isDeliverAlreadyRated){
+                  onTap: (position) {
+                    if (isDeliverAlreadyRated) {
                       setState(() {
                         isDeliverAlreadyRated = false;
                       });
-                    }else{
+                    } else {
                       Navigator.of(context).pop();
                     }
                   },
-                  child: Icon(Icons.backspace, size: 20.0, color: Colors.black,),
+                  child: Icon(
+                    Icons.backspace,
+                    size: 20.0,
+                    color: Colors.black,
+                  ),
                 ),
                 Expanded(
-                  child: Text(isDeliverAlreadyRated ? "Noter le restaurant" : "Noter le livreur",
+                  child: Text(
+                    isDeliverAlreadyRated
+                        ? getLocaleText(
+                            context: context,
+                            strinKey: StringKeys.COMMANDE_NOTE_LIVREUR)
+                        : getLocaleText(
+                            context: context,
+                            strinKey: StringKeys.COMMANDE_NOTE_RESTAURANT),
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16.0,
-                        decoration: TextDecoration.underline
-                    ),),
+                        decoration: TextDecoration.underline),
+                  ),
                 ),
               ],
             ),
           ),
-
           Container(
             margin: EdgeInsets.only(bottom: 5.0, top: 25.0),
             child: Text(
-              "Note : " + (isDeliverAlreadyRated ? restauRating : deliverRating).toString(),
+              "Note : " +
+                  (isDeliverAlreadyRated ? restauRating : deliverRating)
+                      .toString(),
               style: new TextStyle(fontSize: 15.0, fontWeight: FontWeight.bold),
             ),
           ),
@@ -206,64 +212,67 @@ class RateDeliveryState extends State<RateDelivery> implements NoteContract{
               starCount: starCount,
               onRatingChanged: (rating) => setState(
                     () {
-                  if(isDeliverAlreadyRated){
-                    this.restauRating = rating;
-                  }else{
-                    this.deliverRating = rating;
-                  }
-                },
-              ),
+                      if (isDeliverAlreadyRated) {
+                        this.restauRating = rating;
+                      } else {
+                        this.deliverRating = rating;
+                      }
+                    },
+                  ),
             ),
           ),
-
-          !isDeliverAlreadyRated ? getPourboireContent() : Container(),
-
+          //!isDeliverAlreadyRated ? getPourboireContent() :
+          Container(),
           isSearching
               ? Container(
-            margin: EdgeInsets.symmetric(vertical: 15.0),
-            child: Center(
-              child: new CircularProgressIndicator(),
-            ),
-          ):
-          PositionedTapDetector(
-            onTap: (position){
-              _submit();
-            },
-            child: Container(
-              padding: EdgeInsets.all(10.0),
-              margin: EdgeInsets.only(bottom: 10.0, top: 20.0),
-              decoration: BoxDecoration(
-                  color: Colors.lightGreen,
-                  borderRadius: BorderRadius.all(Radius.circular(5.0))
-              ),
-              child: Text(
-                isDeliverAlreadyRated ? "ENVOYER" :"SUIVANT",
-                style: new TextStyle(fontSize: 15.0, color: Colors.white),
-              ),
-            ),
-          )
+                  margin: EdgeInsets.symmetric(vertical: 15.0),
+                  child: Center(
+                    child: new CircularProgressIndicator(),
+                  ),
+                )
+              : PositionedTapDetector(
+                  onTap: (position) {
+                    _submit();
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(10.0),
+                    margin: EdgeInsets.only(bottom: 10.0, top: 20.0),
+                    decoration: BoxDecoration(
+                        color: Colors.lightGreen,
+                        borderRadius: BorderRadius.all(Radius.circular(5.0))),
+                    child: Text(
+                      isDeliverAlreadyRated
+                          ? getLocaleText(
+                              context: context,
+                              strinKey: StringKeys.COMMANDE_NOTE_ENVOYER)
+                          : getLocaleText(
+                              context: context,
+                              strinKey: StringKeys.COMMANDE_NOTE_SUIVANT),
+                      style: new TextStyle(fontSize: 15.0, color: Colors.white),
+                    ),
+                  ),
+                )
         ],
       ),
     );
   }
-
 
   @override
   void onConnectionError() {
     setState(() {
       isSearching = false;
     });
-    _showDialog("échec de connexion");
+    _showDialog(getLocaleText(
+        context: context, strinKey: StringKeys.ERROR_CONNECTION_FAILED));
   }
 
   @override
   void onRequestError() {
-
     setState(() {
       isSearching = false;
     });
-    _showDialog("Erreur! Réessayez SVP");
-
+    _showDialog(
+        getLocaleText(context: context, strinKey: StringKeys.ERROR_OCCURED));
   }
 
   @override
@@ -273,6 +282,7 @@ class RateDeliveryState extends State<RateDelivery> implements NoteContract{
       isSearching = false;
     });
     Navigator.of(context).pop();
-    _showDialog("Votre note et pourboire ont bien été soumis");
+    _showDialog(
+        getLocaleText(context: context, strinKey: StringKeys.COMMANDE_NOTE_OK));
   }
 }

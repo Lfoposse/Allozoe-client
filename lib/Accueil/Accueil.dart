@@ -1,35 +1,36 @@
-import '../Models/Restaurant.dart';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import '../Utils/MyBehavior.dart';
-import '../DAO/Presenters/RestaurantsPresenter.dart';
-import '../Utils/Loading.dart';
-import 'package:positioned_tap_detector/positioned_tap_detector.dart';
-import '../RestaurantCategorizedMenus.dart';
-import '../Database/DatabaseHelper.dart';
-import 'package:flutter_google_places_autocomplete/flutter_google_places_autocomplete.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_webservice/places.dart';
+import 'package:positioned_tap_detector/positioned_tap_detector.dart';
+
+import '../DAO/Presenters/RestaurantsPresenter.dart';
+import '../Database/DatabaseHelper.dart';
+import '../Models/Restaurant.dart';
+import '../RestaurantCategorizedMenus.dart';
 import '../StringKeys.dart';
+import '../Utils/Loading.dart';
+import '../Utils/MyBehavior.dart';
 
 const kGoogleApiKey = "AIzaSyBNm8cnYw5inbqzgw8LjXyt3rMhFhEVTjY";
 
-
 // to get places detail (lat/lng)
-GoogleMapsPlaces _places = new GoogleMapsPlaces(apiKey: kGoogleApiKey);/*kGoogleApiKey*/
+GoogleMapsPlaces _places =
+    new GoogleMapsPlaces(apiKey: kGoogleApiKey); /*kGoogleApiKey*/
 final homeScaffoldKey = new GlobalKey<ScaffoldState>();
 double latitude, longitude;
-
 
 _showMessage(String message) {
   homeScaffoldKey.currentState
       .showSnackBar(new SnackBar(content: new Text(message)));
 }
 
-
 class Accueil extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => new AccueilState();
 }
-
 
 class AccueilState extends State<Accueil> implements RestaurantContract {
   int stateIndex;
@@ -43,20 +44,23 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
   @override
   void initState() {
     super.initState();
+    adressName=null;
     deviceLocationMode = true;
-    geolocator = Geolocator()
-      ..forceAndroidLocationManager = false;
+    geolocator = Geolocator()..forceAndroidLocationManager = false;
     db = new DatabaseHelper();
     restaurants = null;
     latitude = 48.9031145;
     longitude = 2.2638343;
 
     var locationOptions =
-    LocationOptions(accuracy: LocationAccuracy.high, distanceFilter: 100);
+        LocationOptions(accuracy: LocationAccuracy.high, distanceFilter: 100);
     geolocator.getPositionStream(locationOptions).listen((Position position) {
-      if(position != null){ //  si la position n'est pas nulle
-        debugPrint("updated position : lat = " + position.latitude.toString() + " long = " + position.longitude.toString());
-
+      if (position != null) {
+        //  si la position n'est pas nulle
+        debugPrint("updated position : lat = " +
+            position.latitude.toString() +
+            " long = " +
+            position.longitude.toString());
       }
     });
 
@@ -67,6 +71,7 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
   Widget researchBox(
       String hintText, Color bgdColor, Color textColor, Color borderColor) {
     return Container(
+      height:double.infinity,
       padding: EdgeInsets.only(left: 10.0, right: 10.0),
       decoration: new BoxDecoration(
           color: bgdColor,
@@ -102,15 +107,14 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
   }
 
   loadRestaurantNearBy() async {
-
     setState(() {
       stateIndex = 0;
-      adressName = "Restaurants a proximite";
+      adressName = "Restaurant";
       deviceLocationMode = true;
     });
 
-
-    GeolocationStatus geolocationStatus = await geolocator.checkGeolocationPermissionStatus();
+    GeolocationStatus geolocationStatus =
+        await geolocator.checkGeolocationPermissionStatus();
 
     if (geolocationStatus == GeolocationStatus.granted) {
       Position position = await geolocator.getCurrentPosition(
@@ -119,50 +123,57 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
         debugPrint("actual position : lat = " +
             position.latitude.toString() +
             " long = " +
-            position.longitude.toString()
-        );
+            position.longitude.toString());
         latitude = position.latitude;
+        //latitude = 48.8566;
         longitude = position.longitude;
+        //longitude = 2.349014;
         _presenter.loadRestaurants(latitude, longitude);
-
       } else {
-        Position pos = await Geolocator().getLastKnownPosition(desiredAccuracy: LocationAccuracy.high);
+        Position pos = await Geolocator()
+            .getLastKnownPosition(desiredAccuracy: LocationAccuracy.high);
         if (pos == null) {
-
           debugPrint(" actual position not found");
           _presenter.loadRestaurants(latitude, longitude);
-
         } else {
-
-          debugPrint("last known position : lat = " + pos.latitude.toString() + " long = " + pos.longitude.toString());
+          debugPrint("last known position : lat = " +
+              pos.latitude.toString() +
+              " long = " +
+              pos.longitude.toString());
           latitude = pos.latitude;
           longitude = pos.longitude;
           _presenter.loadRestaurants(latitude, longitude);
         }
       }
-
-    }else{
-
+    } else {
       debugPrint("Permission de geolocation refusee");
       _presenter.loadRestaurants(latitude, longitude);
     }
   }
 
-
-
   void _onRetryClick() {
-
     setState(() {
       stateIndex = 0;
       _presenter.loadRestaurants(latitude, longitude);
     });
   }
-
-
-
+  final _controller = PositionedTapController();
+  void _handleTap() {
+    // ...
+    _controller.onTap();
+  }
+  bool _isIPhoneX(MediaQueryData mediaQuery) {
+    if (Platform.isIOS) {
+      var size = mediaQuery.size;
+      if (size.height >= 812.0 || size.width <= 375.0) {
+        return true;
+      }
+    }
+    return true;
+  }
   @override
   Widget build(BuildContext context) {
-
+    var mediaQueryData = MediaQuery.of(context);
     Container getItem(itemIndex) {
       return Container(
         margin: EdgeInsets.only(top: 5.0, bottom: 5.0),
@@ -236,7 +247,15 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
                                 width: 0.5)),
                         child: Row(
                           children: <Widget>[
-                            new Text(restaurants[itemIndex].note != null ? (restaurants[itemIndex].note.rating == 0.0 ? "2.5" : restaurants[itemIndex].note.rating.toString()) : "2.5",
+                            new Text(
+                                restaurants[itemIndex].note != null
+                                    ? (restaurants[itemIndex].note.rating == 0.0
+                                        ? "2.5"
+                                        : restaurants[itemIndex]
+                                            .note
+                                            .rating
+                                            .toString())
+                                    : "2.5",
                                 textAlign: TextAlign.left,
                                 style: new TextStyle(
                                   color: Colors.black,
@@ -249,7 +268,18 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
                               color: Color.fromARGB(255, 255, 215, 0),
                               size: 15.0,
                             ),
-                            new Text("(" + (restaurants[itemIndex].note != null ? (restaurants[itemIndex].note.count == 0 ? "10" : restaurants[itemIndex].note.count.toString()) : "10") + ")",
+                            new Text(
+                                "(" +
+                                    (restaurants[itemIndex].note != null
+                                        ? (restaurants[itemIndex].note.count ==
+                                                0
+                                            ? "10"
+                                            : restaurants[itemIndex]
+                                                .note
+                                                .count
+                                                .toString())
+                                        : "10") +
+                                    ")",
                                 textAlign: TextAlign.left,
                                 style: new TextStyle(
                                   color: Colors.black,
@@ -285,25 +315,28 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
             children: <Widget>[
               Flexible(
                 child: Container(
-                  decoration:
-                      BoxDecoration(border: Border.all(color: Colors.grey)),
+                  height: double.infinity,
+                  //decoration:
+                      //BoxDecoration(border: Border.all(color: Colors.grey)),
                   child: Row(
                     mainAxisSize: MainAxisSize.max,
                     children: <Widget>[
                       Expanded(
                           child: Stack(
                         children: <Widget>[
-                          researchBox(adressName, Colors.white70,
-                              Colors.black54, Colors.transparent),
+                          researchBox(adressName==null?
+                              getLocaleText(
+                                  context: context, strinKey: StringKeys.VILLE):adressName,
+                              Colors.white70,
+                              Colors.black54,
+                              Colors.transparent),
                           PositionedTapDetector(
+                            controller: _controller,
                             onTap: (position) async {
-                              Prediction p = await showGooglePlacesAutocomplete(
+                              Prediction p = await PlacesAutocomplete.show(
                                   context: context,
                                   apiKey: kGoogleApiKey,
-                                  onError: (res) {
-                                    _showMessage(res.errorMessage);
-                                  },
-                                  mode: Mode.overlay,
+                                  mode: Mode.overlay, // Mode.fullscreen
                                   language: "fr",
                                   components: [
                                     new Component(Component.country, "fr")
@@ -352,14 +385,17 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
                     ],
                   ),
                 ),
-                flex: 2,
+                flex: !_isIPhoneX(mediaQueryData)?2:4,
               ),
               Flexible(
                 child: stateIndex == 1
                     ? Container(
                         child: Center(
                           child: Text(
-                            getLocaleText(context: context, strinKey: StringKeys.RESTAURANTS_NEARBY_NOT_FOUND),
+                            getLocaleText(
+                                context: context,
+                                strinKey:
+                                    StringKeys.RESTAURANTS_NEARBY_NOT_FOUND),
                             textAlign: TextAlign.center,
                             style: TextStyle(
                                 color: Colors.black,
@@ -388,7 +424,6 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
     }
   }
 
-
   @override
   void onConnectionError() {
     setState(() {
@@ -396,14 +431,12 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
     });
   }
 
-
   @override
   void onLoadingError() {
     setState(() {
       stateIndex = 1;
     });
   }
-
 
   @override
   void onLoadingSuccess(List<Restaurant> restaurants) {

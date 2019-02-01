@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/client_app.iml" filepath="$PROJECT_DIR$/client_app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/client_app_android.iml" filepath="$PROJECT_DIR$/client_app_android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/flutter_plugin/flutter_plugin.iml" filepath="$PROJECT_DIR$/flutter_plugin/flutter_plugin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/stripe_allozoe/stripe_allozoe.iml" filepath="$PROJECT_DIR$/stripe_allozoe/stripe_allozoe.iml" />
+      <module fileurl="file://$PROJECT_DIR$/stripe_flutter/stripe_flutter.iml" filepath="$PROJECT_DIR$/stripe_flutter/stripe_flutter.iml" />
+    </modules>
+  </component>
+</project>

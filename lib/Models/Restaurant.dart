@@ -10,7 +10,6 @@ class Restaurant {
   double _longitude;
   Note _note;
 
-
   Restaurant.empty() {
     this._id = -1;
     this._name = null;
@@ -22,12 +21,9 @@ class Restaurant {
     this._note = null;
   }
 
-
   Restaurant(this._id, this._name);
 
-
-  Restaurant copy(){
-
+  Restaurant copy() {
     Restaurant restaurant = new Restaurant.empty();
     restaurant.id = _id;
     restaurant._name = _name;
@@ -42,17 +38,24 @@ class Restaurant {
   }
 
   Restaurant.map(dynamic obj) {
-
-    if(obj is String) return;
+    if (obj is String) return;
 
     this._id = obj["id"];
     this._name = obj["name"];
     this._photo = obj["image"];
     this._city = obj["city"];
     this._address = obj["address"];
-    this._latitude = obj["position"] != null ? double.parse(obj["position"]["latitude"]) : 0.0;
-    this._longitude = obj["position"] != null ? double.parse(obj["position"]["longitude"]) : 0.0;
-    this._note = obj["note"] == null ? null : Note.map(obj["note"]);
+    this._latitude = obj["position"] != null
+        ? double.parse(obj["position"]["latitude"])
+        : 0.0;
+    this._longitude = obj["position"] != null
+        ? double.parse(obj["position"]["longitude"])
+        : 0.0;
+    if (!obj.containsKey("stars")) {
+      this._note = Note(0.0, 1);
+    } else {
+      this._note = obj["note"] == null ? null : Note.map(obj["note"]);
+    }
   }
 
   Map<String, dynamic> toMap() {
@@ -77,8 +80,6 @@ class Restaurant {
   String get city => _city;
 
   Note get note => _note;
-
-
 
   set note(Note value) {
     _note = value;

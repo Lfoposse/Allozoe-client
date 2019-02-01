@@ -2,9 +2,9 @@ PODS:
   - Flutter (1.0.0)
   - flutter_statusbar_manager (0.0.1):
     - Flutter
-  - FMDB (2.7.2):
-    - FMDB/standard (= 2.7.2)
-  - FMDB/standard (2.7.2)
+  - FMDB (2.7.5):
+    - FMDB/standard (= 2.7.5)
+  - FMDB/standard (2.7.5)
   - geolocator (2.1.1):
     - Flutter
   - google_api_availability (1.0.4):
@@ -27,6 +27,9 @@ PODS:
     - Flutter
     - FMDB (~> 2.7.2)
   - Stripe (11.5.0)
+  - stripe_flutter (0.0.1):
+    - Flutter
+    - Stripe
   - stripe_payment (0.0.1):
     - Flutter
     - Stripe
@@ -34,7 +37,7 @@ PODS:
     - Flutter
 
 DEPENDENCIES:
-  - Flutter (from `.symlinks/flutter/ios`)
+  - Flutter (from `.symlinks/flutter/ios-release`)
   - flutter_statusbar_manager (from `.symlinks/plugins/flutter_statusbar_manager/ios`)
   - geolocator (from `.symlinks/plugins/geolocator/ios`)
   - google_api_availability (from `.symlinks/plugins/google_api_availability/ios`)
@@ -43,6 +46,8 @@ DEPENDENCIES:
   - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
   - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
   - sqflite (from `.symlinks/plugins/sqflite/ios`)
+  - Stripe
+  - stripe_flutter (from `.symlinks/plugins/stripe_flutter/ios`)
   - stripe_payment (from `.symlinks/plugins/stripe_payment/ios`)
   - url_launcher (from `.symlinks/plugins/url_launcher/ios`)
 
@@ -54,7 +59,7 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   Flutter:
-    :path: ".symlinks/flutter/ios"
+    :path: ".symlinks/flutter/ios-release"
   flutter_statusbar_manager:
     :path: ".symlinks/plugins/flutter_statusbar_manager/ios"
   geolocator:
@@ -71,6 +76,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/shared_preferences/ios"
   sqflite:
     :path: ".symlinks/plugins/sqflite/ios"
+  stripe_flutter:
+    :path: ".symlinks/plugins/stripe_flutter/ios"
   stripe_payment:
     :path: ".symlinks/plugins/stripe_payment/ios"
   url_launcher:
@@ -79,7 +86,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   Flutter: 9d0fac939486c9aba2809b7982dfdbb47a7b0296
   flutter_statusbar_manager: eb7538441baef19aa0899dc64565bc5befb1e7e1
-  FMDB: 6198a90e7b6900cfc046e6bc0ef6ebb7be9236aa
+  FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
   geolocator: c2e347e8da0e60d3b08e714a684851e9c137abbe
   google_api_availability: b19830d6be60d6b92dce5fc5b9137c31b04afbf1
   google_maps_flutter: 6449d5918d3f1a69a37dc9c557bbad7bb9bcf0e9
@@ -89,9 +96,10 @@ SPEC CHECKSUMS:
   shared_preferences: 5a1d487c427ee18fcd3ea1f2a131569481834b53
   sqflite: 801b6b0983f722fa29baf00d1476e4556ada6de4
   Stripe: 10761682d20dc491c52287393c800db056c9748d
+  stripe_flutter: ae92cd7df5059f60ebaaed21886a01c199f2828b
   stripe_payment: 53d46765892f2d8b95d3177d6c3645002ce18810
   url_launcher: 92b89c1029a0373879933c21642958c874539095
 
-PODFILE CHECKSUM: 0a576b919d964f68fc27036580d0ad6be5d2a0bb
+PODFILE CHECKSUM: 9e0b9dfaed494a2d038c0fe27c39d7aefbb2e2a4
 
 COCOAPODS: 1.5.3

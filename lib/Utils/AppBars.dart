@@ -60,8 +60,11 @@ class HomeAppBarState extends State<HomeAppBar> {
           height: 56.0, // in logical pixels
           margin: EdgeInsets.only(
               top: _statusBarHeight == 0 ? 40.0 : _statusBarHeight),
-          padding: EdgeInsets.only(left: 8.0, right: 8.0,top: 3.0, bottom: 3.0),
-          decoration: BoxDecoration(color: Colors.white,),
+          padding:
+              EdgeInsets.only(left: 8.0, right: 8.0, top: 3.0, bottom: 3.0),
+          decoration: BoxDecoration(
+            color: Colors.white,
+          ),
           child: Center(
             child: Image.asset(
               'images/logo-header.png',
@@ -78,6 +81,45 @@ Widget researchBox(
     padding: EdgeInsets.only(left: 10.0, right: 10.0),
     decoration: new BoxDecoration(
         color: bgdColor,
+        border: new Border(
+          top: BorderSide(
+              color: borderColor, style: BorderStyle.solid, width: 1.0),
+          bottom: BorderSide(
+              color: borderColor, style: BorderStyle.solid, width: 1.0),
+          left: BorderSide(
+              color: borderColor, style: BorderStyle.solid, width: 1.5),
+          right: BorderSide(
+              color: borderColor, style: BorderStyle.solid, width: 1.5),
+        )),
+    child: Row(children: [
+      Icon(Icons.search, color: textColor),
+      Expanded(
+          child: Container(
+              padding: EdgeInsets.only(left: 5.0, right: 5.0),
+              child: TextFormField(
+                  autofocus: false,
+                  autocorrect: false,
+                  keyboardType: TextInputType.text,
+                  decoration: InputDecoration(
+                      border: InputBorder.none,
+                      hintText: hintText,
+                      hintStyle: TextStyle(color: textColor)),
+                  style: TextStyle(
+                    fontSize: 12.0,
+                    color: textColor,
+                    fontWeight: FontWeight.bold,
+                  ))))
+    ]),
+  );
+}
+
+Widget researchBoxLeft(
+    String hintText, Color bgdColor, Color textColor, Color borderColor) {
+  return Container(
+    alignment: Alignment.topRight,
+    padding: EdgeInsets.only(left: 10.0, right: 10.0),
+    decoration: new BoxDecoration(
+        color: Colors.red,
         border: new Border(
           top: BorderSide(
               color: borderColor, style: BorderStyle.solid, width: 1.0),

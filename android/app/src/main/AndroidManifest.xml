@@ -17,7 +17,7 @@
     <application
         android:name="io.flutter.app.FlutterApplication"
         android:label="Allozoé"
-        android:icon="@mipmap/icone_launcher">
+        android:icon="@mipmap/launcher_icon">
 
         <meta-data android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBNm8cnYw5inbqzgw8LjXyt3rMhFhEVTjY"/>

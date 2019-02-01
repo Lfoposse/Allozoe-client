@@ -1,12 +1,13 @@
-import 'Models/Restaurant.dart';
 import 'package:flutter/material.dart';
-import 'Models/Categorie.dart';
-import 'Utils/AppBars.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
+
 import 'DAO/Presenters/CategorieRestaurantsPresenter.dart';
+import 'Models/Categorie.dart';
+import 'Models/Restaurant.dart';
+import 'RestaurantMenusScreen.dart';
+import 'Utils/AppBars.dart';
 import 'Utils/Loading.dart';
 import 'Utils/MyBehavior.dart';
-import 'RestaurantMenusScreen.dart';
 
 class CategorieRestaurantssScreen extends StatefulWidget {
   final Categorie categorie;
@@ -18,11 +19,9 @@ class CategorieRestaurantssScreen extends StatefulWidget {
 
 class CategorieRestaurantsScreenState extends State<CategorieRestaurantssScreen>
     implements CategorieRestaurantsContract {
-
   int stateIndex;
   List<Restaurant> restaurants;
   CategorieRestaurantsPresenter _presenter;
-
 
   @override
   void initState() {
@@ -32,21 +31,18 @@ class CategorieRestaurantsScreenState extends State<CategorieRestaurantssScreen>
     super.initState();
   }
 
-
-  void _onRetryClick(){
+  void _onRetryClick() {
     setState(() {
       stateIndex = 0;
       _presenter.loadCategorieRestaurantsList(widget.categorie.id);
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
-
     Container getItem(itemIndex) {
       return Container(
-        margin: EdgeInsets.only(top : 5.0 , bottom: 5.0),
+        margin: EdgeInsets.only(top: 5.0, bottom: 5.0),
         padding: EdgeInsets.all(10.0),
         color: Colors.white,
         height: 320.0,
@@ -56,11 +52,11 @@ class CategorieRestaurantsScreenState extends State<CategorieRestaurantssScreen>
           children: <Widget>[
             Expanded(
               child: PositionedTapDetector(
-                onTap: (position){
+                onTap: (position) {
                   //afficher les restaurants dans cette categorie
-                  Navigator.of(context).push(
-                      new MaterialPageRoute(builder: (context) => RestaurantMenusScreen(restaurants[itemIndex], widget.categorie)));
-
+                  Navigator.of(context).push(new MaterialPageRoute(
+                      builder: (context) => RestaurantMenusScreen(
+                          restaurants[itemIndex], widget.categorie)));
                 },
                 child: Container(
                   margin: EdgeInsets.only(bottom: 4.0),
@@ -78,8 +74,7 @@ class CategorieRestaurantsScreenState extends State<CategorieRestaurantssScreen>
               child: Center(
                 child: Container(
                   width: double.infinity,
-                  child: new Text(
-                      restaurants[itemIndex].name,
+                  child: new Text(restaurants[itemIndex].name,
                       textAlign: TextAlign.left,
                       overflow: TextOverflow.ellipsis,
                       style: new TextStyle(
@@ -98,24 +93,36 @@ class CategorieRestaurantsScreenState extends State<CategorieRestaurantssScreen>
                   width: double.infinity,
                   child: Row(
                     children: <Widget>[
-                      Expanded(child: new Text(
-                          restaurants[itemIndex].name.toString(),
-                          textAlign: TextAlign.left,
-                          style: new TextStyle(
-                            color: Colors.black,
-                            fontFamily: 'Roboto',
-                            decoration: TextDecoration.none,
-                            fontSize: 14.0,
-                            fontWeight: FontWeight.normal,
-                          ))
-                      ),
+                      Expanded(
+                          child:
+                              new Text(restaurants[itemIndex].name.toString(),
+                                  textAlign: TextAlign.left,
+                                  style: new TextStyle(
+                                    color: Colors.black,
+                                    fontFamily: 'Roboto',
+                                    decoration: TextDecoration.none,
+                                    fontSize: 14.0,
+                                    fontWeight: FontWeight.normal,
+                                  ))),
                       //Icon(Icons.shopping_cart, color: Color.fromARGB(255, 255, 215, 0),size: 14.0, ),
                       Container(
-                        padding: EdgeInsets.only(left : 5.0, right: 5.0),
-                        decoration: new BoxDecoration(border: new Border.all(color: Colors.lightGreen, style: BorderStyle.solid, width: 0.5)),
+                        padding: EdgeInsets.only(left: 5.0, right: 5.0),
+                        decoration: new BoxDecoration(
+                            border: new Border.all(
+                                color: Colors.lightGreen,
+                                style: BorderStyle.solid,
+                                width: 0.5)),
                         child: Row(
                           children: <Widget>[
-                            new Text(restaurants[itemIndex].note != null ? (restaurants[itemIndex].note.rating == 0.0 ? "2.5" : restaurants[itemIndex].note.rating.toString()) : "2.5",
+                            new Text(
+                                restaurants[itemIndex].note != null
+                                    ? (restaurants[itemIndex].note.rating == 0.0
+                                        ? "2.5"
+                                        : restaurants[itemIndex]
+                                            .note
+                                            .rating
+                                            .toString())
+                                    : "2.5",
                                 textAlign: TextAlign.left,
                                 style: new TextStyle(
                                   color: Colors.black,
@@ -123,8 +130,23 @@ class CategorieRestaurantsScreenState extends State<CategorieRestaurantssScreen>
                                   fontSize: 14.0,
                                   fontWeight: FontWeight.normal,
                                 )),
-                            Icon(Icons.star, color: Color.fromARGB(255, 255, 215, 0),size: 15.0, ),
-                            new Text("(" + (restaurants[itemIndex].note != null ? (restaurants[itemIndex].note.count == 0 ? "10" : restaurants[itemIndex].note.count.toString()) : "10") + ")",
+                            Icon(
+                              Icons.star,
+                              color: Color.fromARGB(255, 255, 215, 0),
+                              size: 15.0,
+                            ),
+                            new Text(
+                                "(" +
+                                    (restaurants[itemIndex].note != null
+                                        ? (restaurants[itemIndex].note.count ==
+                                                0
+                                            ? "10"
+                                            : restaurants[itemIndex]
+                                                .note
+                                                .count
+                                                .toString())
+                                        : "10") +
+                                    ")",
                                 textAlign: TextAlign.left,
                                 style: new TextStyle(
                                   color: Colors.black,
@@ -210,17 +232,18 @@ class CategorieRestaurantsScreenState extends State<CategorieRestaurantssScreen>
       );
     }
 
-    Widget getAppropriateScene(){
+    Widget getAppropriateScene() {
+      switch (stateIndex) {
+        case 0:
+          return ShowLoadingView();
 
-      switch(stateIndex){
+        case 1:
+          return ShowLoadingErrorView(_onRetryClick);
 
-        case 0 : return ShowLoadingView();
+        case 2:
+          return ShowConnectionErrorView(_onRetryClick);
 
-        case 1 : return ShowLoadingErrorView(_onRetryClick);
-
-        case 2 : return ShowConnectionErrorView(_onRetryClick);
-
-        default :
+        default:
           return Column(
             children: <Widget>[
               Expanded(
@@ -229,30 +252,37 @@ class CategorieRestaurantsScreenState extends State<CategorieRestaurantssScreen>
                     Container(
                       decoration: BoxDecoration(
                           color: Colors.white,
-                          border: Border.all(color: Colors.lightGreen, width: 2.0,)
-                      ),
+                          border: Border.all(
+                            color: Colors.lightGreen,
+                            width: 2.0,
+                          )),
                       padding: EdgeInsets.symmetric(vertical: 10.0),
-                      child: Center(child: Text(widget.categorie.name, style: TextStyle(color: Colors.lightGreen, fontSize: 26.0, fontWeight: FontWeight.bold))),
+                      child: Center(
+                          child: Text(widget.categorie.name,
+                              style: TextStyle(
+                                  color: Colors.lightGreen,
+                                  fontSize: 26.0,
+                                  fontWeight: FontWeight.bold))),
                     ),
-                    Flexible(child: Container(
-                        color: Colors.black12,
-                        child: ScrollConfiguration(
-                          behavior: MyBehavior(),
-                          child: new ListView.builder(
-                              padding: EdgeInsets.all(0.0),
-                              scrollDirection: Axis.vertical,
-                              itemCount: restaurants.length ,
-                              itemBuilder: (BuildContext ctxt, int index) {
-                                return getItem(index);
-                              }),
-                        )))
+                    Flexible(
+                        child: Container(
+                            color: Colors.black12,
+                            child: ScrollConfiguration(
+                              behavior: MyBehavior(),
+                              child: new ListView.builder(
+                                  padding: EdgeInsets.all(0.0),
+                                  scrollDirection: Axis.vertical,
+                                  itemCount: restaurants.length,
+                                  itemBuilder: (BuildContext ctxt, int index) {
+                                    return getItem(index);
+                                  }),
+                            )))
                   ],
                 ),
               ),
             ],
           );
       }
-
     }
 
     return Material(
@@ -267,7 +297,7 @@ class CategorieRestaurantsScreenState extends State<CategorieRestaurantssScreen>
             ],
           ),
           Container(
-            height: AppBar().preferredSize.height,
+            height: AppBar().preferredSize.height+50,
             child: AppBar(
               iconTheme: IconThemeData(
                 color: Colors.black, //change your color here
@@ -279,7 +309,6 @@ class CategorieRestaurantsScreenState extends State<CategorieRestaurantssScreen>
         ],
       ),
     );
-
   }
 
   @override

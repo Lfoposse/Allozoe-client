@@ -1,16 +1,19 @@
 import 'dart:async';
-import '../Models/Commande.dart';
-import 'package:positioned_tap_detector/positioned_tap_detector.dart';
+
+import 'package:client_app/StringKeys.dart';
 import 'package:flutter/material.dart';
-import '../Utils/MyBehavior.dart';
+import 'package:positioned_tap_detector/positioned_tap_detector.dart';
+
 import '../DAO/Presenters/CommandeHistoryPresenter.dart';
-import '../Utils/Loading.dart';
+import '../Database/DatabaseHelper.dart';
 import '../DetailsCommande.dart';
 import '../Models/Client.dart';
-import '../Database/DatabaseHelper.dart';
-import '../Utils/CommandStatusHelper.dart';
-import '../Utils/PriceFormatter.dart';
+import '../Models/Commande.dart';
 import '../Notation.dart';
+import '../Utils/CommandStatusHelper.dart';
+import '../Utils/Loading.dart';
+import '../Utils/MyBehavior.dart';
+import '../Utils/PriceFormatter.dart';
 
 class Commandes extends StatefulWidget {
   @override
@@ -23,10 +26,10 @@ class CommandesState extends State<Commandes>
   List<Commande> commandes;
   int stateIndex;
   Client client;
-  List<Commande> searchResultCommandes; // les commandes du resultat de la recherche
+  List<Commande>
+      searchResultCommandes; // les commandes du resultat de la recherche
   bool isSearching; // determine si une recherche est en cours ou pas
   final controller = new TextEditingController();
-
 
   @override
   void initState() {
@@ -37,20 +40,22 @@ class CommandesState extends State<Commandes>
     isSearching = false;
     controller.addListener(() {
       String currentText = controller.text;
-      if(currentText.length > 0){
-
+      if (currentText.length > 0) {
         setState(() {
           searchResultCommandes = new List<Commande>();
-          for(Commande commande in commandes){ // pour chaque commande
-            if(commande.reference.toLowerCase().contains(currentText.toLowerCase())){ // si ca commence par le texte taper
-              searchResultCommandes.add(commande); // l'ajouter au resultat de recherche
+          for (Commande commande in commandes) {
+            // pour chaque commande
+            if (commande.reference
+                .toLowerCase()
+                .contains(currentText.toLowerCase())) {
+              // si ca commence par le texte taper
+              searchResultCommandes
+                  .add(commande); // l'ajouter au resultat de recherche
             }
           }
           isSearching = true;
         });
-
-      }else{
-
+      } else {
         setState(() {
           isSearching = false;
         });
@@ -80,9 +85,6 @@ class CommandesState extends State<Commandes>
     );
   }
 
-
-
-
   Widget researchBox(
       String hintText, Color bgdColor, Color textColor, Color borderColor) {
     return Container(
@@ -110,7 +112,7 @@ class CommandesState extends State<Commandes>
             child: Container(
                 padding: EdgeInsets.only(left: 10.0, right: 10.0),
                 child: TextFormField(
-                  controller: controller,
+                    controller: controller,
                     autofocus: false,
                     autocorrect: false,
                     maxLines: 1,
@@ -128,8 +130,6 @@ class CommandesState extends State<Commandes>
     );
   }
 
-
-
   String _value = new DateTime.now().toString().substring(0, 11);
   int cliked = 2;
 
@@ -142,7 +142,6 @@ class CommandesState extends State<Commandes>
     if (picked != null)
       setState(() => _value = picked.toString().substring(0, 11));
   }
-
 
   Widget getDatedBox() {
     return Row(
@@ -242,14 +241,15 @@ class CommandesState extends State<Commandes>
     );
   }
 
-
   Widget getItem(int index) {
     return PositionedTapDetector(
         onTap: (position) {
           Navigator.of(context)
               .push(new MaterialPageRoute(
                   builder: (context) => DetailsCommande(
-                        commande: isSearching ? searchResultCommandes[index] : commandes[index],
+                        commande: isSearching
+                            ? searchResultCommandes[index]
+                            : commandes[index],
                       )))
               .then((value) {
             setState(() {});
@@ -264,18 +264,23 @@ class CommandesState extends State<Commandes>
               margin: EdgeInsets.symmetric(vertical: 10.0),
               child: Row(
                 children: <Widget>[
-                  Expanded(child: RichText(
+                  Expanded(
+                      child: RichText(
                     text: new TextSpan(
                       children: [
                         new TextSpan(
-                            text: "Référence: ",
+                            text: getLocaleText(
+                                context: context,
+                                strinKey: StringKeys.COMMANDE_REF),
                             style: new TextStyle(
                               color: Colors.blue[900],
                               fontSize: 16.0,
                               fontWeight: FontWeight.bold,
                             )),
                         new TextSpan(
-                            text: isSearching ? searchResultCommandes[index].reference : this.commandes[index].reference,
+                            text: isSearching
+                                ? searchResultCommandes[index].reference
+                                : this.commandes[index].reference,
                             style: new TextStyle(
                               color: Colors.black54,
                               fontSize: 16.0,
@@ -284,49 +289,69 @@ class CommandesState extends State<Commandes>
                       ],
                     ),
                   )),
-                  isDelivredAndNotRated(isSearching ? searchResultCommandes[index] : this.commandes[index]) ? PositionedTapDetector(
-                    onTap: (position){
-                      // Afficher la vue de notation du service de livraison recue
-                      showRatingDialog(context, isSearching ? searchResultCommandes[index] : this.commandes[index]).then((Null){
-                        setState(() {
-                          print("commandes set State");
-                        });
-                      });
-                    },
-                    child: Container(
-                      margin: EdgeInsets.only(right: 5.0),
-                      padding: EdgeInsets.all(5.0),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                        color: Colors.lightGreen,
-                      ),
-                      child: Text("Noter",
-                        style: TextStyle(
-                            fontSize: 14.0,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black
-                        ),),
-                    ),
-                  ) : Container()
+                  isDelivredAndNotRated(isSearching
+                          ? searchResultCommandes[index]
+                          : this.commandes[index])
+                      ? PositionedTapDetector(
+                          onTap: (position) {
+                            // Afficher la vue de notation du service de livraison recue
+                            showRatingDialog(
+                                    context,
+                                    isSearching
+                                        ? searchResultCommandes[index]
+                                        : this.commandes[index])
+                                .then((Null) {
+                              setState(() {
+                                print("commandes set State");
+                              });
+                            });
+                          },
+                          child: Container(
+                            margin: EdgeInsets.only(right: 5.0),
+                            padding: EdgeInsets.all(5.0),
+                            decoration: BoxDecoration(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(5.0)),
+                              color: Colors.lightGreen,
+                            ),
+                            child: Text(
+                              getLocaleText(
+                                  context: context,
+                                  strinKey: StringKeys.COMMANDE_NOTE),
+                              style: TextStyle(
+                                  fontSize: 14.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black),
+                            ),
+                          ),
+                        )
+                      : Container()
                 ],
               ),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Text(getStatusCommandValue(this.commandes[index].status),
+                Text(
+                    getStatusCommandValue(
+                        this.commandes[index].status, context),
                     textAlign: TextAlign.left,
                     style: new TextStyle(
-                      color: getStatusCommandValueColor(
-                          isSearching ? searchResultCommandes[index].status : this.commandes[index].status),
+                      color: getStatusCommandValueColor(isSearching
+                          ? searchResultCommandes[index].status
+                          : this.commandes[index].status),
                       decoration: TextDecoration.none,
                       fontSize: 14.0,
                       fontWeight: FontWeight.bold,
                     )),
                 Text(
-                    "Total: " +
+                    getLocaleText(
+                            context: context,
+                            strinKey: StringKeys.COMMANDE_TOTAL) +
                         PriceFormatter.formatPrice(
-                            price: isSearching ? searchResultCommandes[index].prix : this.commandes[index].prix),
+                            price: isSearching
+                                ? searchResultCommandes[index].prix
+                                : this.commandes[index].prix),
                     textAlign: TextAlign.left,
                     style: new TextStyle(
                       color: Colors.blue[900],
@@ -341,7 +366,10 @@ class CommandesState extends State<Commandes>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Text(isSearching ? searchResultCommandes[index].date : this.commandes[index].date,
+                  Text(
+                      isSearching
+                          ? searchResultCommandes[index].date
+                          : this.commandes[index].date,
                       textAlign: TextAlign.left,
                       style: new TextStyle(
                         color: Colors.black54,
@@ -349,7 +377,10 @@ class CommandesState extends State<Commandes>
                         fontSize: 14.0,
                         fontWeight: FontWeight.normal,
                       )),
-                  Text(isSearching ? searchResultCommandes[index].heure : this.commandes[index].heure,
+                  Text(
+                      isSearching
+                          ? searchResultCommandes[index].heure
+                          : this.commandes[index].heure,
                       textAlign: TextAlign.left,
                       style: new TextStyle(
                         color: Colors.black54,
@@ -363,7 +394,6 @@ class CommandesState extends State<Commandes>
           ],
         ));
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -391,7 +421,9 @@ class CommandesState extends State<Commandes>
                         Container(
                           padding: EdgeInsets.symmetric(vertical: 15.0),
                           child: researchBox(
-                              "Chercher ici",
+                              getLocaleText(
+                                  context: context,
+                                  strinKey: StringKeys.COMMANDE_RECHERCHER),
                               Color.fromARGB(15, 0, 0, 0),
                               Colors.grey,
                               Colors.transparent),
@@ -408,16 +440,22 @@ class CommandesState extends State<Commandes>
                                         child: ListView.builder(
                                             padding: EdgeInsets.all(0.0),
                                             scrollDirection: Axis.vertical,
-                                            itemCount: this.searchResultCommandes.length,
+                                            itemCount: this
+                                                .searchResultCommandes
+                                                .length,
                                             itemBuilder:
                                                 (BuildContext ctxt, int index) {
                                               return getItem(index);
                                             }),
                                       ))
                                   : Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 20.0),
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 20.0),
                                       child: Text(
-                                        "Commande inexistante",
+                                        getLocaleText(
+                                            context: context,
+                                            strinKey:
+                                                StringKeys.COMMANDE_NOT_FOUND),
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold,
@@ -459,8 +497,9 @@ class CommandesState extends State<Commandes>
                               ),
                             ),
                             Text(
-                              "Historique des commandes vides. \n\nVous n'avez encore effectué aucune commande. N'hesitez surtout "
-                                  "pas à passer vos commandes.\n\nNous vous garantissons une livraison dans les délais",
+                              getLocaleText(
+                                  context: context,
+                                  strinKey: StringKeys.COMMANDE_VIDE),
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
@@ -474,7 +513,6 @@ class CommandesState extends State<Commandes>
             ));
     }
   }
-
 
   @override
   void onConnectionError() {

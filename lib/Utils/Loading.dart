@@ -1,5 +1,5 @@
+import 'package:client_app/StringKeys.dart';
 import 'package:flutter/material.dart';
-import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 
 class ShowLoadingView extends StatelessWidget {
   @override
@@ -16,11 +16,10 @@ class ShowLoadingView extends StatelessWidget {
               padding: EdgeInsets.all(20.0),
               child: CircularProgressIndicator(),
             ),
-            Text("Chargement",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16.0
-            ),)
+            Text(
+              getLocaleText(context: context, strinKey: StringKeys.LOADING),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
+            )
           ],
         ),
       ),
@@ -29,7 +28,6 @@ class ShowLoadingView extends StatelessWidget {
 }
 
 class ShowConnectionErrorView extends StatelessWidget {
-
   final void Function() onRetryClick;
   ShowConnectionErrorView(this.onRetryClick);
 
@@ -43,22 +41,25 @@ class ShowConnectionErrorView extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-
             Container(
               padding: EdgeInsets.all(20.0),
               child: RaisedButton(
                   onPressed: onRetryClick,
                   color: Colors.transparent,
                   elevation: 0.0,
-                  child: Icon(Icons.refresh, size: 50.0, color: Colors.blue,)
-              ),
+                  child: Icon(
+                    Icons.refresh,
+                    size: 50.0,
+                    color: Colors.blue,
+                  )),
             ),
-            Text("Il semble que votre appareil n'est pas connecté à internet.\nVerifiez puis reéssayez",
+            Text(
+              getLocaleText(
+                  context: context,
+                  strinKey: StringKeys.ERROR_CONNECTION_FAILED),
               textAlign: TextAlign.center,
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16.0
-              ),)
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
+            )
           ],
         ),
       ),
@@ -66,11 +67,7 @@ class ShowConnectionErrorView extends StatelessWidget {
   }
 }
 
-
-
-
 class ShowLoadingErrorView extends StatelessWidget {
-
   final void Function() onRetryClick;
   ShowLoadingErrorView(this.onRetryClick);
 
@@ -90,14 +87,17 @@ class ShowLoadingErrorView extends StatelessWidget {
                   onPressed: onRetryClick,
                   color: Colors.transparent,
                   elevation: 0.0,
-                  child: Icon(Icons.refresh, size: 50.0, color: Colors.blue,)
-              ),
+                  child: Icon(
+                    Icons.refresh,
+                    size: 50.0,
+                    color: Colors.blue,
+                  )),
             ),
-            Text("Une erreur innattendue est survénue.\nReéssayez",
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16.0
-              ),)
+            Text(
+              getLocaleText(
+                  context: context, strinKey: StringKeys.ERROR_OCCURED),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
+            )
           ],
         ),
       ),

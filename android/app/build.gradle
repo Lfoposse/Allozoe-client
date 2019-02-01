@@ -60,6 +60,13 @@ android {
     buildTypes {
         release {
             signingConfig signingConfigs.release
+//            signingConfig signingConfigs.release
+
+            minifyEnabled true
+//            shrinkResources true
+            useProguard false
+
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 }
