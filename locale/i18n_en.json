@@ -152,7 +152,7 @@
   "CARD_ACCOUNT_UNKNOW" : "Unable to authenticate account",
   "CARD_NO_CARD_FOUND" : "No payment card registered",
   "CARD_SELECT_CARD" : "Select the card",
-  "CARD_YOUR_CARD" : "Your payment cardst",
+  "CARD_YOUR_CARD" : "Your payment cards",
   "CARD_ANOTHER_CARD" : "+ Use a new card",
   "CARD_ADD_CARD" : "+ Add a new card",
   "CARD_TICKET_AMOUNT_CARD" : "Enter the amount of your ticket",

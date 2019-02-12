@@ -61,7 +61,7 @@ class CategorieRestaurantsScreenState extends State<CategorieRestaurantssScreen>
                 child: Container(
                   margin: EdgeInsets.only(bottom: 4.0),
                   child: Image.network(
-                    restaurants[itemIndex].photo,
+                    restaurants[itemIndex].photo!=null?restaurants[itemIndex].photo:'',
                     width: double.infinity,
                     height: double.infinity,
                     fit: BoxFit.cover,

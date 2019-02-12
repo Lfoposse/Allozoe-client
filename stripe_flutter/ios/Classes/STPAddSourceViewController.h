@@ -37,7 +37,7 @@
  @param completion            call this callback when you're done sending the token to your backend
  */
 - (void)addCardViewController:(STPAddSourceViewController *)addCardViewController
-               didCreateSource:(STPSource *)source
+               didCreateSource:(NSString *)source
                    completion:(STPErrorBlock)completion;
 
 @end

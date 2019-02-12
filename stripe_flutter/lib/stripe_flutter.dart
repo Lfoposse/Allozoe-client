@@ -30,7 +30,7 @@ class StripeView {
 
   static Future<String> getCard() async {
     final String token = await _channel.invokeMethod('addSource');
-
+     print(token);
     return token;
   }
 

@@ -321,8 +321,10 @@ class ConfirmAccountState extends State<ConfirmAccountScreen> implements Confirm
 
       new DatabaseHelper().saveClient(client);
       AppSharedPreferences().setAppLoggedIn(true); // on memorise qu'un compte s'est connecter
-      Navigator.of(context).pushAndRemoveUntil(
-          new MaterialPageRoute(builder: (context) => HomeScreen()), ModalRoute.withName(Navigator.defaultRouteName));
+     /* Navigator.of(context).pushAndRemoveUntil(
+          new MaterialPageRoute(builder: (context) => HomeScreen()), ModalRoute.withName(Navigator.defaultRouteName));*/
+      Navigator.of(context);
+      Navigator.of(context);
     }
   }
 

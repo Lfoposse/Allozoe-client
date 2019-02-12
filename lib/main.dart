@@ -57,15 +57,15 @@ class _SplashScreenState extends State<SplashScreen>
 
               AppSharedPreferences().isAppLoggedIn().then((bool is_logged){
 
-                if(is_logged){ // on va direct a la page d'accueil
+                //if(is_logged){ // on va direct a la page d'accueil
 
                   Navigator.pushReplacement(context, new MaterialPageRoute(builder: (BuildContext context) {
                     return HomeScreen();
                   }));
 
-                }else{
-                  goToAuthentification();
-                }
+               // }else{
+                //  goToAuthentification();
+               // }
               },
                   onError: (e){
                     goToAuthentification();

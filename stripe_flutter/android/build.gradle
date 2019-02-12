@@ -1,6 +1,4 @@
-package android
-
-group 'com.stripe.stripe'
+group 'fr.allozoe.stripeflutter'
 version '1.0-SNAPSHOT'
 
 buildscript {

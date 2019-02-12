@@ -1,7 +1,7 @@
 import 'package:client_app/StringKeys.dart';
 import 'package:flutter/material.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
-
+import 'package:client_app/Utils/AppSharedPreferences.dart';
 import '../Database/DatabaseHelper.dart';
 import '../Database/PanierPresenter.dart';
 import '../Models/Client.dart';
@@ -572,25 +572,42 @@ class PanierState extends State<Panier> implements PanierContract {
                       child: Center(
                         child: PositionedTapDetector(
                             onTap: (position) {
-                              db.loadClient().then((Client client) {
-                                if ((getTotal() - fraisLivraison) < 15.0) {
-                                  _showSnackBar(getLocaleText(
-                                      context: context,
-                                      strinKey:
-                                          StringKeys.PANIER_MIN_PRICE_PANIER));
-                                  return;
-                                }
-                                Navigator.of(context)
-                                    .push(new MaterialPageRoute(
-                                        builder: (context) =>
-                                            RecapitulatifCommande(
-                                                produits: produits,
-                                                fraisLivraison: fraisLivraison,
-                                                client: client)))
-                                    .then((value) {
-                                  _updateView();
-                                });
+
+                              if ((getTotal() - fraisLivraison) < 15.0) {
+                                _showSnackBar(getLocaleText(
+                                    context: context,
+                                    strinKey:
+                                    StringKeys.PANIER_MIN_PRICE_PANIER));
+                                return;
+                              }
+                            AppSharedPreferences().isAppLoggedIn().then((bool is_logged){
+
+                            if(is_logged){
+                            db.loadClient().then((Client client) {
+                              Navigator.of(context)
+                                  .push(new MaterialPageRoute(
+                                  builder: (context) =>
+                                      RecapitulatifCommande(
+                                          produits: produits,
+                                          fraisLivraison: fraisLivraison,
+                                          client: client)))
+                                  .then((value) {
+                                _updateView();
                               });
+                               });
+                            }else{
+                              Navigator.of(context)
+                                  .push(new MaterialPageRoute(
+                                  builder: (context) =>
+                                      RecapitulatifCommande(
+                                          produits: produits,
+                                          fraisLivraison: fraisLivraison,
+                                          client: new Client.empty())))
+                                  .then((value) {
+                                _updateView();
+                              });
+                            }
+                            });
                             },
                             child: Container(
                               width: double.infinity,

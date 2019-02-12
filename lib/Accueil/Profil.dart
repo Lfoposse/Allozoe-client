@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:client_app/DAO/Presenters/LogoutPresenter.dart';
+import 'package:client_app/HomeScreen.dart';
 import 'package:client_app/StringKeys.dart';
 import 'package:client_app/Utils/MyBehavior.dart';
 import 'package:flutter/material.dart';
@@ -59,7 +60,7 @@ Future<Null> _confirmerDeconnexion(BuildContext context) async {
               AppSharedPreferences().setAppLoggedIn(
                   false); // on memorise qu'un compte s'est connecter
               Navigator.of(context).pushAndRemoveUntil(
-                  new MaterialPageRoute(builder: (context) => SignInScreen()),
+                  new MaterialPageRoute(builder: (context) => HomeScreen()),
                   ModalRoute.withName(Navigator.defaultRouteName));
 
               DatabaseHelper().loadClient().then((client) {

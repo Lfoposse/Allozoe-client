@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>en</string>
+	<string>fr_FR</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -19,7 +19,7 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>3</string>
+	<string>5</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppleMusicUsageDescription</key>
@@ -29,7 +29,7 @@
 	<key>NSContactsUsageDescription</key>
 	<string>Allozoé souhaite acceder à vos Contacts</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Allozoé souhaite acceder à votre emplacement</string>
+	<string>Allozoé wants to get to your location so that you can find restaurants around you</string>
 	<key>NSMotionUsageDescription</key>
 	<string>Allozoé souhaite acceder à vos émotions</string>
 	<key>NSPrefPaneIconFile</key>

@@ -347,11 +347,12 @@ class SignInScreenState extends State<SignInScreen>
 
       new DatabaseHelper().saveClient(client);
       AppSharedPreferences().setAppLoggedIn(true); // on memorise qu'un compte s'est connecter
-      Navigator.of(context)
+    /*  Navigator.of(context)
           .pushAndRemoveUntil(
           new MaterialPageRoute(builder: (context) => HomeScreen()),
-          ModalRoute.withName(Navigator.defaultRouteName));
-
+          ModalRoute.withName(Navigator.defaultRouteName));*/
+      Navigator.of(context).pop();
+      //Navigator.of(context);
     }else{ // si le compte n'est pas activee
 
       Navigator.of(context).push(new MaterialPageRoute(

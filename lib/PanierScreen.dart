@@ -12,6 +12,7 @@ import 'package:client_app/Utils/MyBehavior.dart';
 import 'package:client_app/Utils/PriceFormatter.dart';
 import 'package:flutter/material.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
+import 'package:client_app/Utils/AppSharedPreferences.dart';
 
 class PanierScreen extends StatefulWidget {
   @override
@@ -581,24 +582,41 @@ class PanierScreenState extends State<PanierScreen> implements PanierContract {
                       child: Center(
                         child: PositionedTapDetector(
                             onTap: (position) {
-                              db.loadClient().then((Client client) {
-                                if ((getTotal() - fraisLivraison) < 15.0) {
-                                  _showSnackBar(getLocaleText(
-                                      context: context,
-                                      strinKey:
-                                          StringKeys.PANIER_MIN_PRICE_PANIER));
-                                  return;
-                                }
-                                Navigator.of(context)
-                                    .push(new MaterialPageRoute(
+
+                              if ((getTotal() - fraisLivraison) < 15.0) {
+                                _showSnackBar(getLocaleText(
+                                    context: context,
+                                    strinKey:
+                                    StringKeys.PANIER_MIN_PRICE_PANIER));
+                                return;
+                              }
+                              AppSharedPreferences().isAppLoggedIn().then((bool is_logged){
+
+                                if(is_logged){
+                                  db.loadClient().then((Client client) {
+                                    Navigator.of(context)
+                                        .push(new MaterialPageRoute(
                                         builder: (context) =>
                                             RecapitulatifCommande(
                                                 produits: produits,
                                                 fraisLivraison: fraisLivraison,
                                                 client: client)))
-                                    .then((value) {
-                                  _updateView();
-                                });
+                                        .then((value) {
+                                      _updateView();
+                                    });
+                                  });
+                                }else{
+                                  Navigator.of(context)
+                                      .push(new MaterialPageRoute(
+                                      builder: (context) =>
+                                          RecapitulatifCommande(
+                                              produits: produits,
+                                              fraisLivraison: fraisLivraison,
+                                              client: new Client.empty())))
+                                      .then((value) {
+                                    _updateView();
+                                  });
+                                }
                               });
                             },
                             child: Container(

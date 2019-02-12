@@ -125,9 +125,9 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
             " long = " +
             position.longitude.toString());
         latitude = position.latitude;
-        //latitude = 48.8566;
+        latitude = 48.7885281;
         longitude = position.longitude;
-        //longitude = 2.349014;
+        longitude = 2.5823022;
         _presenter.loadRestaurants(latitude, longitude);
       } else {
         Position pos = await Geolocator()

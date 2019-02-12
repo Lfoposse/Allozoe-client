@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:client_app/Utils/AppSharedPreferences.dart';
 import 'package:flutter/material.dart';
 import 'Utils/AppBars.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
@@ -19,7 +20,7 @@ class HomeScreen extends StatefulWidget {
 
 class HomeStateScreen extends State<HomeScreen> {
   int space_index = 0;
-
+  bool isconnect = false;
   @override
   void initState(){
     super.initState();
@@ -105,6 +106,15 @@ class HomeStateScreen extends State<HomeScreen> {
     return true;
   }
 
+  bool checkUser(){
+    AppSharedPreferences().isAppLoggedIn().then((bool is_logged){
+      setState(() {
+        isconnect =is_logged;
+      });
+
+    });
+    return isconnect;
+  }
   @override
   Widget build(BuildContext context) {
     var mediaQueryData = MediaQuery.of(context);
@@ -118,7 +128,7 @@ class HomeStateScreen extends State<HomeScreen> {
       //padding: EdgeInsets.only(top: 5.0, bottom: 5.0),
       padding: new EdgeInsets.fromLTRB(
           outer.left, outer.top, outer.right, bottom),
-      child: Row(
+      child:checkUser()==true? Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           buildButtonColumn(Icons.home, getLocaleText(context: context, strinKey: StringKeys.ACCUEIL_TITLE), isSelectedButton(0), 0),
@@ -126,6 +136,13 @@ class HomeStateScreen extends State<HomeScreen> {
           buildButtonColumn(Icons.shopping_cart, getLocaleText(context: context, strinKey: StringKeys.CART_TITLE), isSelectedButton(4), 4),
           buildButtonColumn(Icons.list, getLocaleText(context: context, strinKey: StringKeys.COMMANDES_TITLE), isSelectedButton(2), 2),
           buildButtonColumn(Icons.person, getLocaleText(context: context, strinKey: StringKeys.PROFIL_TITLE), isSelectedButton(3), 3),
+        ],
+      ):Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          buildButtonColumn(Icons.home, getLocaleText(context: context, strinKey: StringKeys.ACCUEIL_TITLE), isSelectedButton(0), 0),
+          buildButtonColumn(Icons.search, getLocaleText(context: context, strinKey: StringKeys.SEARCH_TITLE), isSelectedButton(1), 1),
+          buildButtonColumn(Icons.shopping_cart, getLocaleText(context: context, strinKey: StringKeys.CART_TITLE), isSelectedButton(4), 4),
         ],
       ),
     );

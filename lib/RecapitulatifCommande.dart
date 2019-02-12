@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
-
+import 'package:client_app/Utils/AppSharedPreferences.dart';
 import 'Database/DatabaseHelper.dart';
 import 'Models/Client.dart';
 import 'Models/Complement.dart';
@@ -13,6 +13,7 @@ import 'Paiements/CardListScreen.dart';
 import 'Utils/AppBars.dart';
 import 'Utils/MyBehavior.dart';
 import 'Utils/PriceFormatter.dart';
+import 'SignInScreen.dart';
 
 const kGoogleApiKey = "AIzaSyBNm8cnYw5inbqzgw8LjXyt3rMhFhEVTjY";
 // to get places detail (lat/lng)
@@ -40,6 +41,7 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande> {
   String _deliveryType = "";
   String _deliveryNote = "";
   int _radioValue = 0;
+  bool isconnect = false;
   final myController = TextEditingController();
   @override
   void initState() {
@@ -71,29 +73,53 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande> {
       },
     );
   }
+  bool checkUser(){
+    AppSharedPreferences().isAppLoggedIn().then((bool is_logged){
+      setState(() {
+        isconnect =is_logged;
+      });
 
+    });
+    return isconnect;
+  }
   void _submit({@required int paymentMode}) {
     phoneKey.currentState.save();
 
     if (_address.length == 0 || _phone.length == 0) {
       _showDialog();
-    } else {
-      new DatabaseHelper().getClientCards().then((List<CreditCard> cards) {
-        Navigator.of(context).push(new MaterialPageRoute(
-            builder: (context) => CardListScreen(
-                forPaiement: true,
-                paymentMode: paymentMode,
-                montantPaiement: getTotal(false) + widget.fraisLivraison,
-                cards: cards,
-                produits: widget.produits,
-                address: _address,
-                phone: _phone,
-                type: _deliveryType,
-                note: _deliveryNote,
-                langue: getLocaleText(
-                    context: context, strinKey: StringKeys.LANGUE))));
-      });
     }
+    else{
+      AppSharedPreferences().isAppLoggedIn().then((bool is_logged){
+         if(is_logged){
+        new DatabaseHelper().getClientCards().then((List<CreditCard> cards) {
+        Navigator.of(context).push(new MaterialPageRoute(
+        builder: (context) => CardListScreen(
+        forPaiement: true,
+        paymentMode: paymentMode,
+        montantPaiement: getTotal(false) + widget.fraisLivraison,
+        cards: cards,
+        produits: widget.produits,
+        address: _address,
+        phone: _phone,
+        type: _deliveryType,
+        note: _deliveryNote,
+        langue: getLocaleText(
+        context: context, strinKey: StringKeys.LANGUE))));
+        });
+        }else{
+           showDialog(
+             context: context,
+             builder: (BuildContext context) {
+               // return object of type Dialog
+               return  SignInScreen();
+             },
+           );
+         }
+
+      });
+
+    }
+
   }
 
   Widget getDivider(double height, {bool horizontal}) {
