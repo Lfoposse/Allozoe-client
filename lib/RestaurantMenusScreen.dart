@@ -1,3 +1,4 @@
+import 'package:client_app/PanierScreen.dart';
 import 'package:client_app/StringKeys.dart';
 import 'package:flutter/material.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
@@ -31,7 +32,7 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
 
   bool isSearching; // determine si une recherche est en cours ou pas
   final controller = new TextEditingController();
-
+  final _scaffoldKey = new GlobalKey<ScaffoldState>();
   @override
   void initState() {
     stateIndex = 0;
@@ -455,6 +456,157 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
         });
   }
 
+//  Widget getItem(itemIndex) {
+//    return FutureBuilder(
+//        future: db.getProduit(produits[itemIndex].id),
+//        builder: (BuildContext context, AsyncSnapshot snapshot) {
+//          if (snapshot.hasData) {
+//            Produit prod = snapshot.data;
+//            bool isProductInCart;
+//
+//            if (prod.id < 0) {
+//              // si le produit n'est pas dans le panier
+//              isProductInCart = false;
+//            } else {
+//              isProductInCart = true;
+//
+//              if (isSearching)
+//                searchResultProduits[itemIndex].qteCmder = prod.nbCmds;
+//              else
+//                produits[itemIndex].qteCmder = prod.nbCmds;
+//            }
+//
+//            return Column(
+//              mainAxisSize: MainAxisSize.min,
+//              children: <Widget>[
+//                getDivider(1.0, horizontal: true),
+//                Container(
+//                  height: 150.0,
+//                  padding: EdgeInsets.symmetric(vertical: 8.0),
+//                  child: PositionedTapDetector(
+//                    onTap: (position) {
+//                      // afficher la description du produit selectionner
+//                      Navigator.of(context).push(new MaterialPageRoute(
+//                          builder: (context) =>
+//                              ProductDetailScreen(produits[itemIndex])));
+//                    },
+//                    child: Row(
+//                      mainAxisSize: MainAxisSize.max,
+//                      children: <Widget>[
+//                        Expanded(
+//                          child: Container(
+//                            margin: EdgeInsets.only(right: 15.0, left: 3.0),
+//                            child: Column(
+//                              mainAxisSize: MainAxisSize.min,
+//                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                              crossAxisAlignment: CrossAxisAlignment.start,
+//                              children: <Widget>[
+//                                Text(produits[itemIndex].name,
+//                                    overflow: TextOverflow.ellipsis,
+//                                    textAlign: TextAlign.left,
+//                                    maxLines: 2,
+//                                    style: new TextStyle(
+//                                      color: Colors.black87,
+//                                      fontSize: 20.0,
+//                                      fontWeight: FontWeight.bold,
+//                                    )),
+//                                Container(
+//                                  margin: EdgeInsets.symmetric(vertical: 3.0),
+//                                  child:
+//                                      Text(
+//                                          ((isSearching
+//                                                  ? (searchResultProduits[
+//                                                                  itemIndex]
+//                                                              .description ==
+//                                                          null ||
+//                                                      searchResultProduits[
+//                                                                  itemIndex]
+//                                                              .description
+//                                                              .length ==
+//                                                          0)
+//                                                  : (produits[itemIndex]
+//                                                              .description ==
+//                                                          null ||
+//                                                      produits[itemIndex]
+//                                                              .description
+//                                                              .length ==
+//                                                          0))
+//                                              ? getLocaleText(
+//                                                  context: context,
+//                                                  strinKey: StringKeys
+//                                                      .PRODUIT_NO_DESCRIPTION)
+//                                              : (isSearching
+//                                                  ? searchResultProduits[
+//                                                          itemIndex]
+//                                                      .description
+//                                                  : produits[itemIndex]
+//                                                      .description)),
+//                                          maxLines: 3,
+//                                          textAlign: TextAlign.left,
+//                                          overflow: TextOverflow.ellipsis,
+//                                          style: new TextStyle(
+//                                            color: Colors.black54,
+//                                            fontSize: 15.0,
+//                                            fontWeight: FontWeight.normal,
+//                                          )),
+//                                ),
+//                                Row(
+//                                  mainAxisSize: MainAxisSize.max,
+//                                  children: <Widget>[
+//                                    Expanded(
+//                                        child: Text(
+//                                            PriceFormatter.formatPrice(
+//                                                price:
+//                                                    produits[itemIndex].prix),
+//                                            textAlign: TextAlign.left,
+//                                            style: new TextStyle(
+//                                              color: Colors.lightGreen,
+//                                              fontSize: 20.0,
+//                                              fontWeight: FontWeight.bold,
+//                                            ))),
+//                                    isProductInCart
+//                                        ? Icon(
+//                                            Icons.shopping_cart,
+//                                            color: Color.fromARGB(
+//                                                255, 255, 215, 0),
+//                                            size: 25.0,
+//                                          )
+//                                        : Container()
+//                                  ],
+//                                )
+//                              ],
+//                            ),
+//                          ),
+//                          flex: 3,
+//                        ),
+//                        Expanded(
+//                          child: Container(
+//                            padding: EdgeInsets.only(right: 3.0),
+//                            child: Image.network(
+//                              produits[itemIndex].photo,
+//                              width: double.infinity,
+//                              height: double.infinity,
+//                              fit: BoxFit.contain,
+//                            ),
+//                          ),
+//                          flex: 2,
+//                        )
+//                      ],
+//                    ),
+//                  ),
+//                )
+//              ],
+//            );
+//          } else
+//            return Container(
+//                height: double.infinity,
+//                width: double.infinity,
+//                child: Center(
+//                  child: CircularProgressIndicator(),
+//                ));
+//        });
+//  }
+
   Widget getAppropriateScene() {
     switch (stateIndex) {
       case 0:
@@ -489,14 +641,10 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
                     child: new ListView.builder(
                         padding: EdgeInsets.all(0.0),
                         scrollDirection: Axis.vertical,
-                        itemCount: (isSearching
-                                ? searchResultProduits == null
-                                : produits == null)
-                            ? 0
-                            : (isSearching
-                                ? searchResultProduits.length
-                                : produits.length),
-                        itemBuilder: (BuildContext ctxt, int index) {
+                        itemCount: isSearching
+                            ? searchResultProduits.length
+                            : produits.length,
+                        itemBuilder: (BuildContext context, int index) {
                           return getItem(index);
                         }),
                   ),
@@ -514,27 +662,41 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
     return Material(
       child: Stack(
         children: <Widget>[
-          Column(
-            children: <Widget>[
-              HomeAppBar(),
-              Expanded(
-                child: getAppropriateScene(),
-              ),
-            ],
-          ),
+          Scaffold(
+              key: _scaffoldKey,
+              body: Column(
+                children: <Widget>[
+                  HomeAppBar(),
+                  Expanded(
+                    child: getAppropriateScene(),
+                  ),
+                ],
+              )),
           Container(
-            height: AppBar().preferredSize.height+50,
+            height: AppBar().preferredSize.height + 50,
             child: AppBar(
               iconTheme: IconThemeData(
                 color: Colors.black, //change your color here
               ),
               backgroundColor: Colors.transparent,
               elevation: 0.0,
+              actions: <Widget>[
+                new IconButton(
+                  icon: Icon(Icons.shopping_cart),
+                  onPressed: () => panier(),
+                ),
+              ],
             ),
           )
         ],
       ),
     );
+  }
+
+  Widget panier() {
+    _scaffoldKey.currentState.showBottomSheet<Null>((BuildContext context) {
+      return new Container(height: 500.0, child: PanierScreen());
+    });
   }
 
   @override
@@ -555,6 +717,8 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
   void onLoadingSuccess(List<Produit> produits) {
     setState(() {
       this.produits = produits;
+      print("loard produits");
+      print(produits.length);
       stateIndex = 3;
     });
   }
