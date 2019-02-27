@@ -29,6 +29,10 @@
   "SIGNUP_EMAIL_HINT": "Enter an email",
   "SIGNUP_PASSWORD_HINT": "Password",
   "PHONE_HINT": "356987412",
+
+  "PHONE_NUMBER": "Phone Number",
+  "PAY" : "Pay",
+
   "CONFIDENTIALITE_BEGIN": "By clicking on « SIGN UP », you agree with the ",
   "CONDITIONS_GENERALES": "Usage terms",
   "AND": " and ",

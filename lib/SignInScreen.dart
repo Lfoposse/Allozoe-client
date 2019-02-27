@@ -1,29 +1,27 @@
-import 'ConfirmAccountScreen.dart';
-import 'SignUpScreen.dart';
-import 'HomeScreen.dart';
 import 'package:flutter/material.dart';
-import 'Utils/MyBehavior.dart';
-import 'Utils/AppSharedPreferences.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
+
+import 'ConfirmAccountScreen.dart';
 import 'DAO/Presenters/LoginPresenter.dart';
-import 'Models/Client.dart';
-import 'EmailRecoveryAccountScreen.dart';
 import 'Database/DatabaseHelper.dart';
+import 'EmailRecoveryAccountScreen.dart';
+import 'Models/Client.dart';
+import 'SignUpScreen.dart';
 import 'StringKeys.dart';
+import 'Utils/AppSharedPreferences.dart';
+import 'Utils/MyBehavior.dart';
 
 class SignInScreen extends StatefulWidget {
   @override
   createState() => new SignInScreenState();
 }
 
-class SignInScreenState extends State<SignInScreen>
-    implements LoginContract {
+class SignInScreenState extends State<SignInScreen> implements LoginContract {
   bool _isLoading = false;
   bool _showError = false;
   bool hide_content = true;
-  String _errorMsg ;
+  String _errorMsg;
   static const double padding_from_screen = 30.0;
-
 
   final emailKey = new GlobalKey<FormState>();
   final passKey = new GlobalKey<FormState>();
@@ -42,7 +40,8 @@ class SignInScreenState extends State<SignInScreen>
 
     if (_email.length == 0 || _password.length == 0) {
       setState(() {
-        _errorMsg = getLocaleText(context: context, strinKey: StringKeys.ERROR_ENTER_ALL_CREDENTIALS);
+        _errorMsg = getLocaleText(
+            context: context, strinKey: StringKeys.ERROR_ENTER_ALL_CREDENTIALS);
         _showError = true;
       });
     } else {
@@ -51,7 +50,8 @@ class SignInScreenState extends State<SignInScreen>
       RegExp regex = new RegExp(pattern);
       if (!regex.hasMatch(_email)) {
         setState(() {
-          _errorMsg = getLocaleText(context: context, strinKey: StringKeys.ERROR_INVALID_EMAIL);
+          _errorMsg = getLocaleText(
+              context: context, strinKey: StringKeys.ERROR_INVALID_EMAIL);
           _showError = true;
         });
       } else {
@@ -99,8 +99,10 @@ class SignInScreenState extends State<SignInScreen>
         String hintText, TextInputType inputType, bool hide_content) {
       Color color = Colors.grey;
       return Container(
-        decoration: new BoxDecoration(border: new Border.all(color: color, width: 2.0)),
-        padding: EdgeInsets.only(left: 10.0, right: 10.0, top: 5.0, bottom: 5.0),
+        decoration:
+            new BoxDecoration(border: new Border.all(color: color, width: 2.0)),
+        padding:
+            EdgeInsets.only(left: 10.0, right: 10.0, top: 5.0, bottom: 5.0),
         margin: EdgeInsets.only(
             left: padding_from_screen, right: padding_from_screen),
         child: new Form(
@@ -136,7 +138,8 @@ class SignInScreenState extends State<SignInScreen>
     Container buildPassEntry(String hintText) {
       Color color = Colors.grey;
       return Container(
-        decoration: new BoxDecoration(border: new Border.all(color: color, width: 2.0)),
+        decoration:
+            new BoxDecoration(border: new Border.all(color: color, width: 2.0)),
         padding: EdgeInsets.only(left: 10.0, right: 10.0),
         margin: EdgeInsets.only(
             left: padding_from_screen,
@@ -159,9 +162,7 @@ class SignInScreenState extends State<SignInScreen>
                           maxLines: 1,
                           keyboardType: TextInputType.text,
                           decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: hintText
-                          ),
+                              border: InputBorder.none, hintText: hintText),
                           style: TextStyle(
                             fontSize: 14.0,
                             color: Colors.black,
@@ -189,7 +190,9 @@ class SignInScreenState extends State<SignInScreen>
           onPressed: _submit,
           child: SizedBox(
             width: double.infinity,
-            child: Text(getLocaleText(context: context, strinKey: StringKeys.LOGIN_BTN_TITLE),
+            child: Text(
+                getLocaleText(
+                    context: context, strinKey: StringKeys.LOGIN_BTN_TITLE),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16.0,
@@ -214,7 +217,9 @@ class SignInScreenState extends State<SignInScreen>
             text: new TextSpan(
               children: [
                 new TextSpan(
-                    text: getLocaleText(context: context, strinKey: StringKeys.NOT_HAVE_ACCOUNT),
+                    text: getLocaleText(
+                        context: context,
+                        strinKey: StringKeys.NOT_HAVE_ACCOUNT),
                     style: new TextStyle(
                       color: Colors.black,
                       fontSize: 16.0,
@@ -223,15 +228,14 @@ class SignInScreenState extends State<SignInScreen>
               ],
             ),
           ),
-          Expanded(
-              child: Container()
-          ),
+          Expanded(child: Container()),
           PositionedTapDetector(
               onTap: (position) {
                 Navigator.of(context).push(new MaterialPageRoute(
                     builder: (context) => SignUpScreen()));
               },
-              child: Text(getLocaleText(context: context, strinKey: StringKeys.SIGN_UP),
+              child: Text(
+                  getLocaleText(context: context, strinKey: StringKeys.SIGN_UP),
                   style: new TextStyle(
                     color: Colors.lightGreen,
                     decoration: TextDecoration.none,
@@ -263,16 +267,24 @@ class SignInScreenState extends State<SignInScreen>
                           left: padding_from_screen,
                           right: padding_from_screen),
                       child: new Text(
-                          getLocaleText(context: context, strinKey: StringKeys.WELCOME_TEXT),
+                          getLocaleText(
+                              context: context,
+                              strinKey: StringKeys.WELCOME_TEXT),
                           style: new TextStyle(
                             color: Colors.black54,
                             fontSize: 18.0,
                             fontWeight: FontWeight.bold,
                           )),
                     ),
-                    buildEntrieRow(Icons.email, null, getLocaleText(context: context, strinKey: StringKeys.EMAIL_HINT),
-                        TextInputType.emailAddress, false),
-                    buildPassEntry(getLocaleText(context: context, strinKey: StringKeys.PASSWORD_HINT)),
+                    buildEntrieRow(
+                        Icons.email,
+                        null,
+                        getLocaleText(
+                            context: context, strinKey: StringKeys.EMAIL_HINT),
+                        TextInputType.emailAddress,
+                        false),
+                    buildPassEntry(getLocaleText(
+                        context: context, strinKey: StringKeys.PASSWORD_HINT)),
                     showError(),
                     _isLoading
                         ? Container(
@@ -291,12 +303,18 @@ class SignInScreenState extends State<SignInScreen>
                       PositionedTapDetector(
                           onTap: (position) {
                             Navigator.of(context).push(new MaterialPageRoute(
-                                builder: (context) => EmailRecoveryAccountScreen()));
+                                builder: (context) =>
+                                    EmailRecoveryAccountScreen()));
                           },
                           child: Container(
                               margin: EdgeInsets.only(
-                                  left: padding_from_screen, right: padding_from_screen, bottom: 15.0),
-                              child: Text(getLocaleText(context: context, strinKey: StringKeys.FORGOT_PASSWORD),
+                                  left: padding_from_screen,
+                                  right: padding_from_screen,
+                                  bottom: 15.0),
+                              child: Text(
+                                  getLocaleText(
+                                      context: context,
+                                      strinKey: StringKeys.FORGOT_PASSWORD),
                                   style: new TextStyle(
                                     color: Colors.lightGreen,
                                     decoration: TextDecoration.underline,
@@ -310,15 +328,16 @@ class SignInScreenState extends State<SignInScreen>
                   ],
                 )),
             Container(
-              height: AppBar().preferredSize.height+50,
+              height: AppBar().preferredSize.height + 50,
               child: AppBar(
                 iconTheme: IconThemeData(
                   color: Colors.black, //change your color here
                 ),
-                title: Text(getLocaleText(context: context, strinKey: StringKeys.LOGIN_PAGE_TITLE),
-                style: TextStyle(
-                  color: Colors.black
-                )),
+                title: Text(
+                    getLocaleText(
+                        context: context,
+                        strinKey: StringKeys.LOGIN_PAGE_TITLE),
+                    style: TextStyle(color: Colors.black)),
                 centerTitle: true,
                 backgroundColor: Colors.transparent,
                 elevation: 0.0,
@@ -334,35 +353,43 @@ class SignInScreenState extends State<SignInScreen>
   void onLoginError() {
     setState(() {
       _isLoading = false;
-      _errorMsg = getLocaleText(context: context, strinKey: StringKeys.ERROR_WRONG_CREDENTIALS);
+      _errorMsg = getLocaleText(
+          context: context, strinKey: StringKeys.ERROR_WRONG_CREDENTIALS);
       _showError = true;
     });
   }
 
   @override
   void onLoginSuccess(Client client) async {
-
     setState(() => _isLoading = false);
-    if(client.active) { // si le compte est activee
+    if (client.active) {
+      // si le compte est activee
 
       new DatabaseHelper().saveClient(client);
-      AppSharedPreferences().setAppLoggedIn(true); // on memorise qu'un compte s'est connecter
-    /*  Navigator.of(context)
+      AppSharedPreferences()
+          .setAppLoggedIn(true); // on memorise qu'un compte s'est connecter
+      /*  Navigator.of(context)
           .pushAndRemoveUntil(
           new MaterialPageRoute(builder: (context) => HomeScreen()),
           ModalRoute.withName(Navigator.defaultRouteName));*/
       Navigator.of(context).pop();
       //Navigator.of(context);
-    }else{ // si le compte n'est pas activee
+    } else {
+      // si le compte n'est pas activee
 
       Navigator.of(context).push(new MaterialPageRoute(
-          builder: (context) => ConfirmAccountScreen(clientId: client.id, isForResetPassword: false, clientEmail: _email,)));
+          builder: (context) => ConfirmAccountScreen(
+                clientId: client.id,
+                isForResetPassword: false,
+                clientEmail: _email,
+              )));
     }
   }
 
   @override
   void onConnectionError() {
-    _showSnackBar(getLocaleText(context: context, strinKey: StringKeys.ERROR_CONNECTION_FAILED));
+    _showSnackBar(getLocaleText(
+        context: context, strinKey: StringKeys.ERROR_CONNECTION_FAILED));
     setState(() => _isLoading = false);
   }
 }

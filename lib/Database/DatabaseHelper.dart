@@ -273,7 +273,8 @@ class DatabaseHelper {
     var dbProduit = await db;
     List<Map> list = await dbProduit
         .rawQuery('SELECT * FROM Produit WHERE prod_id = ?', [produitID]);
-    print(list.toString());
+    print('produits');
+    print(list);
     if (list.length > 0) {
       Produit produit = new Produit(
           list[0]["nbCmds"],

@@ -1,3 +1,4 @@
+import 'package:client_app/PanierScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 
@@ -22,6 +23,8 @@ class CategorieRestaurantsScreenState extends State<CategorieRestaurantssScreen>
   int stateIndex;
   List<Restaurant> restaurants;
   CategorieRestaurantsPresenter _presenter;
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -61,7 +64,9 @@ class CategorieRestaurantsScreenState extends State<CategorieRestaurantssScreen>
                 child: Container(
                   margin: EdgeInsets.only(bottom: 4.0),
                   child: Image.network(
-                    restaurants[itemIndex].photo!=null?restaurants[itemIndex].photo:'',
+                    restaurants[itemIndex].photo != null
+                        ? restaurants[itemIndex].photo
+                        : '',
                     width: double.infinity,
                     height: double.infinity,
                     fit: BoxFit.cover,
@@ -288,27 +293,42 @@ class CategorieRestaurantsScreenState extends State<CategorieRestaurantssScreen>
     return Material(
       child: Stack(
         children: <Widget>[
-          Column(
-            children: <Widget>[
-              HomeAppBar(),
-              Expanded(
-                child: getAppropriateScene(),
-              ),
-            ],
+          Scaffold(
+            key: _scaffoldKey,
+            body: Column(
+              children: <Widget>[
+                HomeAppBar(),
+                Expanded(
+                  child: getAppropriateScene(),
+                ),
+              ],
+            ),
           ),
           Container(
-            height: AppBar().preferredSize.height+50,
+            height: AppBar().preferredSize.height + 50,
             child: AppBar(
               iconTheme: IconThemeData(
                 color: Colors.black, //change your color here
               ),
               backgroundColor: Colors.transparent,
               elevation: 0.0,
+              actions: <Widget>[
+                new IconButton(
+                  icon: Icon(Icons.shopping_cart),
+                  onPressed: () => panier(),
+                ),
+              ],
             ),
           )
         ],
       ),
     );
+  }
+
+  Widget panier() {
+    _scaffoldKey.currentState.showBottomSheet<Null>((BuildContext context) {
+      return new Container(height: 500.0, child: PanierScreen());
+    });
   }
 
   @override

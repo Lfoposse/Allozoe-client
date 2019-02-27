@@ -44,7 +44,7 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
   @override
   void initState() {
     super.initState();
-    adressName=null;
+    adressName = null;
     deviceLocationMode = true;
     geolocator = Geolocator()..forceAndroidLocationManager = false;
     db = new DatabaseHelper();
@@ -71,7 +71,7 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
   Widget researchBox(
       String hintText, Color bgdColor, Color textColor, Color borderColor) {
     return Container(
-      height:double.infinity,
+      height: double.infinity,
       padding: EdgeInsets.only(left: 10.0, right: 10.0),
       decoration: new BoxDecoration(
           color: bgdColor,
@@ -157,11 +157,13 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
       _presenter.loadRestaurants(latitude, longitude);
     });
   }
+
   final _controller = PositionedTapController();
   void _handleTap() {
     // ...
     _controller.onTap();
   }
+
   bool _isIPhoneX(MediaQueryData mediaQuery) {
     if (Platform.isIOS) {
       var size = mediaQuery.size;
@@ -171,6 +173,7 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
     }
     return true;
   }
+
   @override
   Widget build(BuildContext context) {
     var mediaQueryData = MediaQuery.of(context);
@@ -317,16 +320,19 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
                 child: Container(
                   height: double.infinity,
                   //decoration:
-                      //BoxDecoration(border: Border.all(color: Colors.grey)),
+                  //BoxDecoration(border: Border.all(color: Colors.grey)),
                   child: Row(
                     mainAxisSize: MainAxisSize.max,
                     children: <Widget>[
                       Expanded(
                           child: Stack(
                         children: <Widget>[
-                          researchBox(adressName==null?
-                              getLocaleText(
-                                  context: context, strinKey: StringKeys.VILLE):adressName,
+                          researchBox(
+                              adressName == null
+                                  ? getLocaleText(
+                                      context: context,
+                                      strinKey: StringKeys.VILLE)
+                                  : adressName,
                               Colors.white70,
                               Colors.black54,
                               Colors.transparent),
@@ -385,7 +391,7 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
                     ],
                   ),
                 ),
-                flex: !_isIPhoneX(mediaQueryData)?2:4,
+                flex: !_isIPhoneX(mediaQueryData) ? 2 : 4,
               ),
               Flexible(
                 child: stateIndex == 1

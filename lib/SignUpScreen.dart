@@ -1,22 +1,21 @@
-import 'package:flutter/material.dart';
-import 'DAO/Presenters/SignUpPresenter.dart';
-import 'package:client_app/Utils/SelectCountryWidget.dart';
 import 'package:client_app/Utils/MyBehavior.dart';
+import 'package:client_app/Utils/SelectCountryWidget.dart';
+import 'package:flutter/material.dart';
+
 import 'ConfirmAccountScreen.dart';
+import 'DAO/Presenters/SignUpPresenter.dart';
 import 'Models/Client.dart';
 import 'StringKeys.dart';
 
 class SignUpScreen extends StatefulWidget {
-
   @override
   State<StatefulWidget> createState() => new SignUpScreenState();
 }
 
-class SignUpScreenState extends State<SignUpScreen> implements SignUpContract{
-
+class SignUpScreenState extends State<SignUpScreen> implements SignUpContract {
   static const double padding_from_screen = 30.0;
   bool _showError = false;
-  String _errorMsg ;
+  String _errorMsg;
   bool _isLoading = false;
 
   final nameKey = new GlobalKey<FormState>();
@@ -41,16 +40,20 @@ class SignUpScreenState extends State<SignUpScreen> implements SignUpContract{
   }
 
   void _submit() {
-
     nameKey.currentState.save();
     surnameKey.currentState.save();
     emailKey.currentState.save();
     phoneKey.currentState.save();
     passKey.currentState.save();
 
-    if (_name.length == 0 || _surname.length == 0 || _email.length == 0 || _phone.length == 0 || _password.length == 0) {
+    if (_name.length == 0 ||
+        _surname.length == 0 ||
+        _email.length == 0 ||
+        _phone.length == 0 ||
+        _password.length == 0) {
       setState(() {
-        _errorMsg = getLocaleText(context: context, strinKey: StringKeys.ERROR_FILL_ALL_GAPS);
+        _errorMsg = getLocaleText(
+            context: context, strinKey: StringKeys.ERROR_FILL_ALL_GAPS);
         _showError = true;
       });
     } else {
@@ -59,12 +62,20 @@ class SignUpScreenState extends State<SignUpScreen> implements SignUpContract{
       RegExp regex = new RegExp(pattern);
       if (!regex.hasMatch(_email)) {
         setState(() {
-          _errorMsg = getLocaleText(context: context, strinKey: StringKeys.ERROR_INVALID_EMAIL);
+          _errorMsg = getLocaleText(
+              context: context, strinKey: StringKeys.ERROR_INVALID_EMAIL);
           _showError = true;
         });
       } else {
-
-        Client client = new Client(-1, _name + " " + _surname, _password, _surname, _email, "+" + _selectContry.getSelectedPhoneCode() + _phone, false, _name);
+        Client client = new Client(
+            -1,
+            _name + " " + _surname,
+            _password,
+            _surname,
+            _email,
+            "+" + _selectContry.getSelectedPhoneCode() + _phone,
+            false,
+            _name);
 
         setState(() {
           _isLoading = true;
@@ -78,23 +89,24 @@ class SignUpScreenState extends State<SignUpScreen> implements SignUpContract{
 
   @override
   Widget build(BuildContext context) {
-
     Widget showError() {
       return _showError
           ? Container(
-        margin: EdgeInsets.only(
-            left: padding_from_screen, right: padding_from_screen, top: 10.0),
-        child: Center(
-          child: Text(
-            _errorMsg,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-                color: Colors.red,
-                fontSize: 14.0,
-                fontWeight: FontWeight.bold),
-          ),
-        ),
-      )
+              margin: EdgeInsets.only(
+                  left: padding_from_screen,
+                  right: padding_from_screen,
+                  top: 10.0),
+              child: Center(
+                child: Text(
+                  _errorMsg,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+            )
           : Container();
     }
 
@@ -114,16 +126,16 @@ class SignUpScreenState extends State<SignUpScreen> implements SignUpContract{
                       child: Container(
                           padding: EdgeInsets.only(left: 10.0, right: 10.0),
                           child: TextFormField(
-                              onSaved: (val){
-                                if(key == nameKey){
+                              onSaved: (val) {
+                                if (key == nameKey) {
                                   _name = val;
-                                }else if(key == surnameKey){
+                                } else if (key == surnameKey) {
                                   _surname = val;
-                                }else if(key == emailKey){
+                                } else if (key == emailKey) {
                                   _email = val;
-                                }else if(key == phoneKey){
+                                } else if (key == phoneKey) {
                                   _phone = val;
-                                }else if(key == passKey){
+                                } else if (key == passKey) {
                                   _password = val;
                                 }
                               },
@@ -143,28 +155,48 @@ class SignUpScreenState extends State<SignUpScreen> implements SignUpContract{
                               )))),
                   Icon(endIcon, color: color),
                 ],
-              )
-          )
-      );
+              )));
     }
 
     Widget entriesSection = Container(
       margin: EdgeInsets.only(top: 15.0),
-      padding: const EdgeInsets.only(left: padding_from_screen, right: padding_from_screen),
+      padding: const EdgeInsets.only(
+          left: padding_from_screen, right: padding_from_screen),
       child: Column(
         children: [
           Row(children: <Widget>[
             new Flexible(
-              child: buildEntrieRow(nameKey,Icons.person, null, getLocaleText(context: context, strinKey: StringKeys.NAME_HINT), TextInputType.text, false),
+              child: buildEntrieRow(
+                  nameKey,
+                  Icons.person,
+                  null,
+                  getLocaleText(
+                      context: context, strinKey: StringKeys.NAME_HINT),
+                  TextInputType.text,
+                  false),
               flex: 1,
             ),
             SizedBox(width: 8.0),
             new Flexible(
-              child: buildEntrieRow(surnameKey, Icons.person, null, getLocaleText(context: context, strinKey: StringKeys.SURNAME_HINT), TextInputType.text, false),
+              child: buildEntrieRow(
+                  surnameKey,
+                  Icons.person,
+                  null,
+                  getLocaleText(
+                      context: context, strinKey: StringKeys.SURNAME_HINT),
+                  TextInputType.text,
+                  false),
               flex: 1,
             ),
           ]),
-          buildEntrieRow(emailKey, Icons.email, null, getLocaleText(context: context, strinKey: StringKeys.SIGNUP_EMAIL_HINT), TextInputType.emailAddress, false),
+          buildEntrieRow(
+              emailKey,
+              Icons.email,
+              null,
+              getLocaleText(
+                  context: context, strinKey: StringKeys.SIGNUP_EMAIL_HINT),
+              TextInputType.emailAddress,
+              false),
           Row(children: <Widget>[
             new Flexible(
               child: _selectContry,
@@ -172,23 +204,41 @@ class SignUpScreenState extends State<SignUpScreen> implements SignUpContract{
             ),
             SizedBox(width: 8.0),
             new Flexible(
-              child: buildEntrieRow(phoneKey, Icons.phone, null, getLocaleText(context: context, strinKey: StringKeys.PHONE_HINT), TextInputType.number, false),
+              child: buildEntrieRow(
+                  phoneKey,
+                  Icons.phone,
+                  null,
+                  getLocaleText(
+                      context: context, strinKey: StringKeys.PHONE_HINT),
+                  TextInputType.number,
+                  false),
               flex: 6,
             ),
           ]),
-          buildEntrieRow(passKey, Icons.lock, null, getLocaleText(context: context, strinKey: StringKeys.SIGNUP_PASSWORD_HINT), TextInputType.text, true),
+          buildEntrieRow(
+              passKey,
+              Icons.lock,
+              null,
+              getLocaleText(
+                  context: context, strinKey: StringKeys.SIGNUP_PASSWORD_HINT),
+              TextInputType.text,
+              true),
         ],
       ),
     );
 
     Widget buttonSection = Container(
         padding: const EdgeInsets.only(
-            left: padding_from_screen, right: padding_from_screen, top: 10.0, bottom: 15.0),
+            left: padding_from_screen,
+            right: padding_from_screen,
+            top: 10.0,
+            bottom: 15.0),
         child: RaisedButton(
           onPressed: _submit,
           child: SizedBox(
             width: double.infinity,
-            child: Text(getLocaleText(context: context, strinKey: StringKeys.SIGN_UP),
+            child: Text(
+                getLocaleText(context: context, strinKey: StringKeys.SIGN_UP),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16.0,
@@ -209,15 +259,18 @@ class SignUpScreenState extends State<SignUpScreen> implements SignUpContract{
         text: new TextSpan(
           children: [
             new TextSpan(
-                text:
-                getLocaleText(context: context, strinKey: StringKeys.CONFIDENTIALITE_BEGIN),
+                text: getLocaleText(
+                    context: context,
+                    strinKey: StringKeys.CONFIDENTIALITE_BEGIN),
                 style: new TextStyle(
                   color: Colors.black54,
                   fontSize: 16.0,
                   fontWeight: FontWeight.bold,
                 )),
             new TextSpan(
-                text: getLocaleText(context: context, strinKey: StringKeys.CONDITIONS_GENERALES),
+                text: getLocaleText(
+                    context: context,
+                    strinKey: StringKeys.CONDITIONS_GENERALES),
                 style: new TextStyle(
                   color: Colors.lightGreen,
                   decoration: TextDecoration.underline,
@@ -232,7 +285,8 @@ class SignUpScreenState extends State<SignUpScreen> implements SignUpContract{
                   fontWeight: FontWeight.bold,
                 )),
             new TextSpan(
-              text: getLocaleText(context: context, strinKey: StringKeys.CONFIDENTIALITE),
+              text: getLocaleText(
+                  context: context, strinKey: StringKeys.CONFIDENTIALITE),
               style: new TextStyle(
                 color: Colors.lightGreen,
                 decoration: TextDecoration.underline,
@@ -267,29 +321,29 @@ class SignUpScreenState extends State<SignUpScreen> implements SignUpContract{
                     conditionsSection,
                     _isLoading
                         ? Container(
-                      padding: const EdgeInsets.only(
-                          left: padding_from_screen,
-                          right: padding_from_screen,
-                          top: 30.0,
-                          bottom: 15.0),
-                      child: Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    )
+                            padding: const EdgeInsets.only(
+                                left: padding_from_screen,
+                                right: padding_from_screen,
+                                top: 30.0,
+                                bottom: 15.0),
+                            child: Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          )
                         : buttonSection,
                   ],
-                )
-            ),
+                )),
             Container(
-              height: AppBar().preferredSize.height+50,
+              height: AppBar().preferredSize.height + 50,
               child: AppBar(
                 iconTheme: IconThemeData(
                   color: Colors.black, //change your color here
                 ),
-                title: Text(getLocaleText(context: context, strinKey: StringKeys.SIGNUP_PAGE_TITLE),
-                    style: TextStyle(
-                        color: Colors.black
-                    )),
+                title: Text(
+                    getLocaleText(
+                        context: context,
+                        strinKey: StringKeys.SIGNUP_PAGE_TITLE),
+                    style: TextStyle(color: Colors.black)),
                 centerTitle: true,
                 backgroundColor: Colors.transparent,
                 elevation: 0.0,
@@ -303,26 +357,29 @@ class SignUpScreenState extends State<SignUpScreen> implements SignUpContract{
 
   @override
   void onConnectionError() {
-    _showSnackBar(getLocaleText(context: context, strinKey: StringKeys.ERROR_CONNECTION_FAILED));
+    _showSnackBar(getLocaleText(
+        context: context, strinKey: StringKeys.ERROR_CONNECTION_FAILED));
     setState(() => _isLoading = false);
   }
 
   @override
   void onSignUpError() {
-
     setState(() {
       _isLoading = false;
-      _errorMsg = getLocaleText(context: context, strinKey: StringKeys.ERROR_ACCOUNT_ALREADY_EXISTS);
+      _errorMsg = getLocaleText(
+          context: context, strinKey: StringKeys.ERROR_ACCOUNT_ALREADY_EXISTS);
       _showError = true;
     });
   }
 
   @override
   void onSignUpSuccess(int clientID) {
-
     setState(() => _isLoading = false);
     Navigator.of(context).push(new MaterialPageRoute(
-        builder: (context) => ConfirmAccountScreen(clientId: clientID, isForResetPassword: false, clientEmail: _email,)));
+        builder: (context) => ConfirmAccountScreen(
+              clientId: clientID,
+              isForResetPassword: false,
+              clientEmail: _email,
+            )));
   }
-
 }

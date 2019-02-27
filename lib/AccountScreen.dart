@@ -1,20 +1,19 @@
 import 'package:client_app/Utils/MyBehavior.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 
+import 'DAO/Presenters/UpdateAccountInfosPresenter.dart';
 import 'Database/DatabaseHelper.dart';
 import 'Models/Client.dart';
-import 'package:flutter/material.dart';
-import 'package:positioned_tap_detector/positioned_tap_detector.dart';
-import 'package:flutter/services.dart';
-import 'Database/DatabaseHelper.dart';
-import 'DAO/Presenters/UpdateAccountInfosPresenter.dart';
 
 class AccountScreen extends StatefulWidget {
   @override
   createState() => new AccountStateScreen();
 }
 
-class AccountStateScreen extends State<AccountScreen> implements UpdateAccountInfosContract {
-
+class AccountStateScreen extends State<AccountScreen>
+    implements UpdateAccountInfosContract {
   bool isOnEditingMode = false;
   Client client;
   bool _isLoading = false;
@@ -28,7 +27,7 @@ class AccountStateScreen extends State<AccountScreen> implements UpdateAccountIn
 
   String _name, _firstname, _lastname, _phone;
 
-  AccountStateScreen(){
+  AccountStateScreen() {
     _presenter = new UpdateAccountInfosPresenter(this);
   }
 
@@ -63,11 +62,12 @@ class AccountStateScreen extends State<AccountScreen> implements UpdateAccountIn
     lastnameKey.currentState.save();
     phoneKey.currentState.save();
 
-    if (_name.length == 0 || _firstname.length == 0 || _lastname.length == 0 || _phone.length == 0) {
+    if (_name.length == 0 ||
+        _firstname.length == 0 ||
+        _lastname.length == 0 ||
+        _phone.length == 0) {
       _showSnackBar("Renseigner tous les champs");
     } else {
-
-
       client.username = _name;
       client.firstname = _firstname;
       client.lastname = _lastname;
@@ -263,7 +263,6 @@ class AccountStateScreen extends State<AccountScreen> implements UpdateAccountIn
                             child: PositionedTapDetector(
                               onTap: (position) {
                                 // TODO: select picture in Gallery or launch camera
-
                               },
                               child: Icon(Icons.camera_enhance),
                             ),
@@ -274,41 +273,50 @@ class AccountStateScreen extends State<AccountScreen> implements UpdateAccountIn
               ),
             ),
             Expanded(
-                child: ScrollConfiguration(behavior: MyBehavior(), child: SingleChildScrollView(
-                  child: Column(
-                    children: <Widget>[
-                      Container(
-                        width: double.infinity,
-                        color: Colors.white,
-                        padding: EdgeInsets.symmetric(vertical: 10.0),
-                        child: Text("Informations de compte",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.bold,
-                          decoration: TextDecoration.underline,
-                          color: Colors.black
-                        ),),
+                child: ScrollConfiguration(
+                    behavior: MyBehavior(),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: <Widget>[
+                          Container(
+                            width: double.infinity,
+                            color: Colors.white,
+                            padding: EdgeInsets.symmetric(vertical: 10.0),
+                            child: Text(
+                              "Informations de compte",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.bold,
+                                  decoration: TextDecoration.underline,
+                                  color: Colors.black),
+                            ),
+                          ),
+                          buildUserItem(
+                              null, "Email", client.email, true, false),
+                          buildUserItem(
+                              nameKey, "username", client.username, true, true),
+                          buildUserItem(
+                              firstnameKey,
+                              "Nom",
+                              client.firstname == null ||
+                                      client.firstname.length == 0
+                                  ? client.username.split(" ")[0]
+                                  : client.firstname,
+                              true,
+                              true),
+                          buildUserItem(lastnameKey, "Prénom", client.lastname,
+                              true, true),
+                          buildUserItem(
+                              phoneKey, "Numéro", client.phone, true, true),
+                          getActionButton()
+                        ],
                       ),
-                      buildUserItem(
-                          null, "Email", client.email, true, false),
-                      buildUserItem(
-                          nameKey, "username", client.username, true, true),
-                      buildUserItem(
-                          firstnameKey, "Nom", client.firstname == null ||  client.firstname.length == 0 ? client.username.split(" ")[0] : client.firstname, true, true),
-                      buildUserItem(
-                          lastnameKey, "Prénom", client.lastname, true, true),
-                      buildUserItem(
-                          phoneKey, "Numéro", client.phone, true, true),
-
-                      getActionButton()
-                    ],
-                  ),
-                )))
+                    )))
           ],
         ),
         Container(
-          height: AppBar().preferredSize.height+50,
+          height: AppBar().preferredSize.height + 50,
           child: AppBar(
             iconTheme: IconThemeData(
               color: Colors.black,
@@ -358,12 +366,12 @@ class AccountStateScreen extends State<AccountScreen> implements UpdateAccountIn
 
   @override
   void onRequestSuccess(Client client) {
-    DatabaseHelper().updateClient(client).then((success){
-
-      setState((){ _isLoading = false; isOnEditingMode = false;});
+    DatabaseHelper().updateClient(client).then((success) {
+      setState(() {
+        _isLoading = false;
+        isOnEditingMode = false;
+      });
       _showSnackBar("Modification des informations réussie");
-
     });
-
   }
 }

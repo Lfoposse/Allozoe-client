@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:client_app/PanierScreen.dart';
 import 'package:client_app/StringKeys.dart';
-import 'package:client_app/Utils/IPhoneXPadding.dart';
 import 'package:client_app/Utils/Loading.dart';
 import 'package:client_app/Utils/MyBehavior.dart';
 import 'package:flutter/material.dart';
@@ -289,6 +288,7 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
     }
     return total * this.produit.nbCmds;
   }
+
   bool _isIPhoneX(MediaQueryData mediaQuery) {
     if (Platform.isIOS) {
       var size = mediaQuery.size;
@@ -298,9 +298,12 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
     }
     return false;
   }
+
   Widget getContent() {
     return Container(
-      padding: !_isIPhoneX(MediaQuery.of(context))?EdgeInsets.only(bottom: 5.0):EdgeInsets.only(bottom: 15.0),
+      padding: !_isIPhoneX(MediaQuery.of(context))
+          ? EdgeInsets.only(bottom: 5.0)
+          : EdgeInsets.only(bottom: 15.0),
       child: Column(
         children: <Widget>[
           Expanded(
@@ -344,6 +347,17 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
                       ),
                     ),
                     flex: 1,
+                  ),
+//                  description du produit
+                  Center(
+                    child: Text(this.produit.description,
+                        textAlign: TextAlign.center,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.bold)),
                   ),
                   getDivider(1.0, horizontal: true),
                   this.produit.options != null &&
@@ -698,7 +712,7 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
             ),
           ),
           Container(
-            height: AppBar().preferredSize.height+50,
+            height: AppBar().preferredSize.height + 50,
             child: AppBar(
               iconTheme: IconThemeData(
                 color: Colors.black, //change your color here

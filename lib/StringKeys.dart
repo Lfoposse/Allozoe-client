@@ -47,6 +47,10 @@ class StringKeys {
   static final String SIGNUP_EMAIL_HINT = "SIGNUP_EMAIL_HINT";
   static final String SIGNUP_PASSWORD_HINT = "SIGNUP_PASSWORD_HINT";
   static final String PHONE_HINT = "PHONE_HINT";
+
+  static final String PHONE_NUMBER = "PHONE_NUMBER";
+  static final String PAY = "PAY";
+
   static final String CONFIDENTIALITE_BEGIN = "CONFIDENTIALITE_BEGIN";
   static final String CONDITIONS_GENERALES = "CONDITIONS_GENERALES";
   static final String AND = "AND";

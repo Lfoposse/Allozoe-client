@@ -1,19 +1,21 @@
+import 'package:client_app/PanierScreen.dart';
 import 'package:client_app/StringKeys.dart';
+import 'package:client_app/Utils/AppSharedPreferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
-import 'package:client_app/Utils/AppSharedPreferences.dart';
+
 import 'Database/DatabaseHelper.dart';
 import 'Models/Client.dart';
 import 'Models/Complement.dart';
 import 'Models/CreditCard.dart';
 import 'Models/Produit.dart';
 import 'Paiements/CardListScreen.dart';
+import 'SignInScreen.dart';
 import 'Utils/AppBars.dart';
 import 'Utils/MyBehavior.dart';
 import 'Utils/PriceFormatter.dart';
-import 'SignInScreen.dart';
 
 const kGoogleApiKey = "AIzaSyBNm8cnYw5inbqzgw8LjXyt3rMhFhEVTjY";
 // to get places detail (lat/lng)
@@ -43,6 +45,9 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande> {
   int _radioValue = 0;
   bool isconnect = false;
   final myController = TextEditingController();
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
   @override
   void initState() {
     _address = "";
@@ -73,53 +78,50 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande> {
       },
     );
   }
-  bool checkUser(){
-    AppSharedPreferences().isAppLoggedIn().then((bool is_logged){
-      setState(() {
-        isconnect =is_logged;
-      });
 
+  bool checkUser() {
+    AppSharedPreferences().isAppLoggedIn().then((bool is_logged) {
+      setState(() {
+        isconnect = is_logged;
+      });
     });
     return isconnect;
   }
+
   void _submit({@required int paymentMode}) {
     phoneKey.currentState.save();
 
     if (_address.length == 0 || _phone.length == 0) {
       _showDialog();
-    }
-    else{
-      AppSharedPreferences().isAppLoggedIn().then((bool is_logged){
-         if(is_logged){
-        new DatabaseHelper().getClientCards().then((List<CreditCard> cards) {
-        Navigator.of(context).push(new MaterialPageRoute(
-        builder: (context) => CardListScreen(
-        forPaiement: true,
-        paymentMode: paymentMode,
-        montantPaiement: getTotal(false) + widget.fraisLivraison,
-        cards: cards,
-        produits: widget.produits,
-        address: _address,
-        phone: _phone,
-        type: _deliveryType,
-        note: _deliveryNote,
-        langue: getLocaleText(
-        context: context, strinKey: StringKeys.LANGUE))));
-        });
-        }else{
-           showDialog(
-             context: context,
-             builder: (BuildContext context) {
-               // return object of type Dialog
-               return  SignInScreen();
-             },
-           );
-         }
-
+    } else {
+      AppSharedPreferences().isAppLoggedIn().then((bool is_logged) {
+        if (is_logged) {
+          new DatabaseHelper().getClientCards().then((List<CreditCard> cards) {
+            Navigator.of(context).push(new MaterialPageRoute(
+                builder: (context) => CardListScreen(
+                    forPaiement: true,
+                    paymentMode: paymentMode,
+                    montantPaiement: getTotal(false) + widget.fraisLivraison,
+                    cards: cards,
+                    produits: widget.produits,
+                    address: _address,
+                    phone: _phone,
+                    type: _deliveryType,
+                    note: _deliveryNote,
+                    langue: getLocaleText(
+                        context: context, strinKey: StringKeys.LANGUE))));
+          });
+        } else {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              // return object of type Dialog
+              return SignInScreen();
+            },
+          );
+        }
       });
-
     }
-
   }
 
   Widget getDivider(double height, {bool horizontal}) {
@@ -298,7 +300,8 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande> {
           left: PADDING_HORIZONTAL + 10.0,
           right: PADDING_HORIZONTAL + 10.0,
           top: 8.0,
-          bottom: 8.0),
+//          bottom: 8.0
+      ),
       child: Row(
         children: <Widget>[
           Text(title,
@@ -544,214 +547,234 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande> {
     return Material(
       child: Stack(
         children: <Widget>[
-          Column(
-            children: <Widget>[
-              HomeAppBar(),
-              Expanded(
-                  child: Container(
-                color: Colors.white,
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  children: <Widget>[
-                    Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.symmetric(
-                            horizontal: PADDING_HORIZONTAL),
-                        child: Text(
+          Scaffold(
+            key: _scaffoldKey,
+            body: Column(
+              children: <Widget>[
+                HomeAppBar(),
+                Expanded(
+                    child: Container(
+                  color: Colors.white,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    children: <Widget>[
+                      Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: PADDING_HORIZONTAL),
+                          child: Text(
+                            getLocaleText(
+                                context: context,
+                                strinKey: StringKeys.DELIVERY_ADDRESS),
+                            textAlign: TextAlign.left,
+                            style: TextStyle(
+                                fontSize: 20.0,
+                                color: Colors.grey,
+                                fontWeight: FontWeight.bold),
+                          )),
+                      getCoordonneeLivraison(
+                          null,
+                          getLocaleText(
+                                  context: context,
+                                  strinKey: StringKeys.ADDRESS) +
+                              ":\t\t",
+                          _address,
                           getLocaleText(
                               context: context,
                               strinKey: StringKeys.DELIVERY_ADDRESS),
-                          textAlign: TextAlign.left,
-                          style: TextStyle(
-                              fontSize: 20.0,
-                              color: Colors.grey,
-                              fontWeight: FontWeight.bold),
-                        )),
-                    getCoordonneeLivraison(
-                        null,
-                        getLocaleText(
-                                context: context,
-                                strinKey: StringKeys.ADDRESS) +
-                            ":\t\t",
-                        _address,
-                        getLocaleText(
+                          TextInputType.text, onTap: (position) async {
+                        Prediction p = await PlacesAutocomplete.show(
                             context: context,
-                            strinKey: StringKeys.DELIVERY_ADDRESS),
-                        TextInputType.text, onTap: (position) async {
-                      Prediction p = await PlacesAutocomplete.show(
-                          context: context,
-                          apiKey: kGoogleApiKey,
-                          mode: Mode.overlay, // Mode.fullscreen
-                          language: "fr",
-                          components: [new Component(Component.country, "fr")]);
-                      if (p != null) {
-                        PlacesDetailsResponse detail =
-                            await _places.getDetailsByPlaceId(p.placeId);
-                        setState(() {
-                          _address = detail.result.formattedAddress;
-                        });
-                      }
-                    }),
-                    getCoordonneeLivraison(
-                        phoneKey,
-                        getLocaleText(
-                                context: context,
-                                strinKey: StringKeys.CONTACT) +
-                            ":\t\t",
-                        widget.client.phone == null ||
-                                widget.client.phone.toString() == "null"
-                            ? ""
-                            : widget.client.phone,
-                        getLocaleText(
-                                context: context,
-                                strinKey: StringKeys.DELIVERY_ADDRESS) +
-                            " (" +
-                            getLocaleText(
-                                context: context,
-                                strinKey: StringKeys.FORMAT_INTERNATIONAL) +
-                            ")",
-                        TextInputType.phone,
-                        onTap: null),
-                    Container(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          new Radio(
-                            value: 0,
-                            groupValue: _radioValue,
-                            onChanged: _handleRadioValueChange,
-                          ),
-                          new Text(getLocaleText(
-                              context: context,
-                              strinKey: StringKeys.DELIVERY_HOME)),
-                          new Radio(
-                            value: 1,
-                            groupValue: _radioValue,
-                            onChanged: _handleRadioValueChange,
-                          ),
-                          new Text(getLocaleText(
-                              context: context,
-                              strinKey: StringKeys.DELIVERY_ROAD)),
-                          new Container(
-                            padding: EdgeInsets.only(right: 10.0),
-                          ),
-                          FloatingActionButton(
-                            backgroundColor: Colors.green,
-                            onPressed: _dialogNote,
-                            tooltip: 'Show me the value!',
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Text("note"),
-                                Icon(Icons.create)
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                        width: double.infinity,
-                        margin: EdgeInsets.only(top: 10.0),
-                        padding: EdgeInsets.symmetric(horizontal: 15.0),
-                        child: Text(
+                            apiKey: kGoogleApiKey,
+                            mode: Mode.overlay, // Mode.fullscreen
+                            language: "fr",
+                            components: [
+                              new Component(Component.country, "fr")
+                            ]);
+                        if (p != null) {
+                          PlacesDetailsResponse detail =
+                              await _places.getDetailsByPlaceId(p.placeId);
+                          setState(() {
+                            _address = detail.result.formattedAddress;
+                          });
+                        }
+                      }),
+                      getCoordonneeLivraison(
+                          phoneKey,
+                          getLocaleText(
+                                  context: context,
+                                  strinKey: StringKeys.CONTACT) +
+                              ":\t\t",
+                          widget.client.phone == null ||
+                                  widget.client.phone.toString() == "null"
+                              ? ""
+                              : widget.client.phone,
                           getLocaleText(
                               context: context,
-                              strinKey: StringKeys.ARTICLE_COMMANDE),
-                          textAlign: TextAlign.left,
-                          style: TextStyle(
-                              fontSize: 20.0,
-                              color: Colors.grey,
-                              fontWeight: FontWeight.bold),
-                        )),
-                    Expanded(child: getRecapCommandeSection()),
-                    getPricesSection(),
-                    Container(
-                      margin: EdgeInsets.only(bottom: 10.0, top: 15.0),
-                      child: Center(
+                              strinKey: StringKeys.PHONE_NUMBER),
+//                            +
+//                            " (" +
+//                            getLocaleText(
+//                                context: context,
+//                                strinKey: StringKeys.FORMAT_INTERNATIONAL) +
+//                            ")"
+
+                          TextInputType.text,
+                          onTap: null),
+                      Container(
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            Expanded(
-                                child: PositionedTapDetector(
-                                    onTap: (position) {
-                                      _submit(paymentMode: TICKET_RESTAURANT);
-                                    },
-                                    child: Container(
-                                      width: double.infinity,
-                                      margin: EdgeInsets.symmetric(
-                                          horizontal: 10.0),
-                                      padding:
-                                          EdgeInsets.symmetric(vertical: 5.0),
-                                      decoration: BoxDecoration(
-                                          border: Border.all(
-                                              color: Colors.lightGreen,
-                                              style: BorderStyle.solid,
-                                              width: 1.0),
-                                          color: Colors.lightGreen),
-                                      child: Text(
-                                          getLocaleText(
-                                              context: context,
-                                              strinKey: StringKeys.CARD_TICKET),
-                                          textAlign: TextAlign.center,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: new TextStyle(
-                                            color: Colors.white,
-                                            decoration: TextDecoration.none,
-                                            fontSize: 13.0,
-                                            fontWeight: FontWeight.bold,
-                                          )),
-                                    ))),
-                            Expanded(
-                                child: PositionedTapDetector(
-                                    onTap: (position) {
-                                      _submit(paymentMode: CARTE_BANCAIRE);
-                                    },
-                                    child: Container(
-                                      width: double.infinity,
-                                      margin: EdgeInsets.symmetric(
-                                          horizontal: 10.0),
-                                      padding:
-                                          EdgeInsets.symmetric(vertical: 5.0),
-                                      decoration: BoxDecoration(
-                                          border: Border.all(
-                                              color: Colors.lightGreen,
-                                              style: BorderStyle.solid,
-                                              width: 1.0),
-                                          color: Colors.lightGreen),
-                                      child: Text(
-                                          getLocaleText(
-                                              context: context,
-                                              strinKey: StringKeys.CART_TITLE),
-                                          textAlign: TextAlign.center,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: new TextStyle(
-                                            color: Colors.white,
-                                            decoration: TextDecoration.none,
-                                            fontSize: 13.0,
-                                            fontWeight: FontWeight.bold,
-                                          )),
-                                    )))
+                            new Radio(
+                              value: 0,
+                              groupValue: _radioValue,
+                              onChanged: _handleRadioValueChange,
+                            ),
+                            new Text(getLocaleText(
+                                context: context,
+                                strinKey: StringKeys.DELIVERY_HOME)),
+                            new Radio(
+                              value: 1,
+                              groupValue: _radioValue,
+                              onChanged: _handleRadioValueChange,
+                            ),
+                            new Text(getLocaleText(
+                                context: context,
+                                strinKey: StringKeys.DELIVERY_ROAD)),
+                            new Container(
+                              padding: EdgeInsets.only(right: 10.0),
+                            ),
+                            FloatingActionButton(
+                              backgroundColor: Colors.green,
+                              onPressed: _dialogNote,
+                              tooltip: 'Show me the value!',
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Text("note"),
+                                  Icon(Icons.create)
+                                ],
+                              ),
+                            ),
                           ],
                         ),
                       ),
-                    )
-                  ],
-                ),
-              )),
-            ],
+                      Container(
+                          width: double.infinity,
+                          margin: EdgeInsets.only(top: 10.0),
+                          padding: EdgeInsets.symmetric(horizontal: 15.0),
+                          child: Text(
+                            getLocaleText(
+                                context: context,
+                                strinKey: StringKeys.ARTICLE_COMMANDE),
+                            textAlign: TextAlign.left,
+                            style: TextStyle(
+                                fontSize: 20.0,
+                                color: Colors.grey,
+                                fontWeight: FontWeight.bold),
+                          )),
+                      Expanded(child: getRecapCommandeSection()),
+                      getPricesSection(),
+                      Container(
+                        margin: EdgeInsets.only(bottom: 10.0, top: 15.0),
+                        child: Center(
+                          child: Row(
+                            children: <Widget>[
+                              Expanded(
+                                  child: PositionedTapDetector(
+                                      onTap: (position) {
+                                        _submit(paymentMode: TICKET_RESTAURANT);
+                                      },
+                                      child: Container(
+                                        width: double.infinity,
+                                        margin: EdgeInsets.symmetric(
+                                            horizontal: 10.0),
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 5.0),
+                                        decoration: BoxDecoration(
+                                            border: Border.all(
+                                                color: Colors.lightGreen,
+                                                style: BorderStyle.solid,
+                                                width: 1.0),
+                                            color: Colors.lightGreen),
+                                        child: Text(
+                                            getLocaleText(
+                                                context: context,
+                                                strinKey:
+                                                    StringKeys.CARD_TICKET),
+                                            textAlign: TextAlign.center,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: new TextStyle(
+                                              color: Colors.white,
+                                              decoration: TextDecoration.none,
+                                              fontSize: 13.0,
+                                              fontWeight: FontWeight.bold,
+                                            )),
+                                      ))),
+                              Expanded(
+                                  child: PositionedTapDetector(
+                                      onTap: (position) {
+                                        _submit(paymentMode: CARTE_BANCAIRE);
+                                      },
+                                      child: Container(
+                                        width: double.infinity,
+                                        margin: EdgeInsets.symmetric(
+                                            horizontal: 10.0),
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 5.0),
+                                        decoration: BoxDecoration(
+                                            border: Border.all(
+                                                color: Colors.lightGreen,
+                                                style: BorderStyle.solid,
+                                                width: 1.0),
+                                            color: Colors.lightGreen),
+                                        child: Text(
+                                            getLocaleText(
+                                                context: context,
+                                                strinKey: StringKeys.PAY),
+                                            textAlign: TextAlign.center,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: new TextStyle(
+                                              color: Colors.white,
+                                              decoration: TextDecoration.none,
+                                              fontSize: 13.0,
+                                              fontWeight: FontWeight.bold,
+                                            )),
+                                      )))
+                            ],
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                )),
+              ],
+            ),
           ),
           Container(
-            height: AppBar().preferredSize.height+50,
+            height: AppBar().preferredSize.height + 50,
             child: AppBar(
               iconTheme: IconThemeData(
                 color: Colors.black, //change your color here
               ),
               backgroundColor: Colors.transparent,
               elevation: 0.0,
+              actions: <Widget>[
+                new IconButton(
+                  icon: Icon(Icons.shopping_cart),
+                  onPressed: () => panier(),
+                ),
+              ],
             ),
           )
         ],
       ),
     );
+  }
+
+  Widget panier() {
+    _scaffoldKey.currentState.showBottomSheet<Null>((BuildContext context) {
+      return new Container(height: 500.0, child: PanierScreen());
+    });
   }
 }

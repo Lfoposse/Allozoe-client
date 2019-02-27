@@ -13,7 +13,6 @@ import '../Database/DatabaseHelper.dart';
 import '../Models/Client.dart';
 import '../Models/CreditCard.dart';
 import '../Paiements/CardListScreen.dart';
-import '../SignInScreen.dart';
 import '../Utils/AppSharedPreferences.dart';
 
 class Profil extends StatefulWidget {
@@ -483,24 +482,25 @@ class ChangePasswordContentState extends State<ChangePasswordContent>
                   )),
               _isLoading
                   ? Container(
-                margin: EdgeInsets.symmetric(vertical: 15.0),
-                child: Center(
-                  child: new CircularProgressIndicator(),
-                ),
-              )
+                      margin: EdgeInsets.symmetric(vertical: 15.0),
+                      child: Center(
+                        child: new CircularProgressIndicator(),
+                      ),
+                    )
                   : getButton(
-                  getLocaleText(
-                      context: context,
-                      strinKey: StringKeys.PROFILE_MODIFIER),
-                  0,
-                  Colors.lightGreen),
+                      getLocaleText(
+                          context: context,
+                          strinKey: StringKeys.PROFILE_MODIFIER),
+                      0,
+                      Colors.lightGreen),
               _isLoading
                   ? IgnorePointer(ignoring: true)
                   : getButton(
-                  getLocaleText(
-                      context: context, strinKey: StringKeys.PROFILE_ANNULER),
-                  1,
-                  Colors.red)
+                      getLocaleText(
+                          context: context,
+                          strinKey: StringKeys.PROFILE_ANNULER),
+                      1,
+                      Colors.red)
             ],
           ),
         ));

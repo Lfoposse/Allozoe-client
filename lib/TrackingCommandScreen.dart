@@ -1,3 +1,4 @@
+import 'package:client_app/PanierScreen.dart';
 import 'package:client_app/StringKeys.dart';
 import 'package:client_app/Utils/AppBars.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +30,7 @@ class TrackingCommandeScreenState extends State<TrackingCommandeScreen>
   DeliverPositionPresenter _presenter;
   GoogleMapController mapController;
   Marker deliverMarker;
-
+  final _scaffoldKey = new GlobalKey<ScaffoldState>();
   @override
   void initState() {
     super.initState();
@@ -85,6 +86,7 @@ class TrackingCommandeScreenState extends State<TrackingCommandeScreen>
   Widget build(BuildContext context) {
     return Material(
       child: Scaffold(
+        key: _scaffoldKey,
         body: Stack(
           children: <Widget>[
             Column(
@@ -105,19 +107,31 @@ class TrackingCommandeScreenState extends State<TrackingCommandeScreen>
               ],
             ),
             Container(
-              height: AppBar().preferredSize.height+50,
+              height: AppBar().preferredSize.height + 50,
               child: AppBar(
                 iconTheme: IconThemeData(
                   color: Colors.black, //change your color here
                 ),
                 backgroundColor: Colors.transparent,
                 elevation: 0.0,
+                actions: <Widget>[
+                  new IconButton(
+                    icon: Icon(Icons.shopping_cart),
+                    onPressed: () => panier(),
+                  ),
+                ],
               ),
             )
           ],
         ),
       ),
     );
+  }
+
+  Widget panier() {
+    _scaffoldKey.currentState.showBottomSheet<Null>((BuildContext context) {
+      return new Container(height: 500.0, child: PanierScreen());
+    });
   }
 
   @override

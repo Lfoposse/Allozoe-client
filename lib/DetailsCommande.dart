@@ -15,6 +15,8 @@ import 'Models/Produit.dart';
 import 'TrackingCommandScreen.dart';
 import 'Utils/PriceFormatter.dart';
 
+import 'package:client_app/PanierScreen.dart';
+
 _openMap(double lat, double lng, String title) async {
   // Android
   var url = 'geo:0,0?q=' + lat.toString() + ',' + lng.toString() + '($title)';
@@ -46,6 +48,8 @@ class DetailsCommandeState extends State<DetailsCommande>
   List<Produit> produits;
   int stateIndex;
   double PADDING_HORIZONTAL = 20.0;
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -408,7 +412,7 @@ class DetailsCommandeState extends State<DetailsCommande>
   Widget build(BuildContext context) {
     return Material(
       child: Scaffold(
-
+        key: _scaffoldKey,
         body: Stack(
           children: <Widget>[
             Column(
@@ -418,19 +422,31 @@ class DetailsCommandeState extends State<DetailsCommande>
               ],
             ),
             Container(
-              height: AppBar().preferredSize.height+50,
+              height: AppBar().preferredSize.height + 50,
               child: AppBar(
                 iconTheme: IconThemeData(
                   color: Colors.black, //change your color here
                 ),
                 backgroundColor: Colors.transparent,
                 elevation: 0.0,
+                actions: <Widget>[
+                  new IconButton(
+                    icon: Icon(Icons.shopping_cart),
+                    onPressed: () => panier(),
+                  ),
+                ],
               ),
             )
           ],
         ),
       ),
     );
+  }
+
+  Widget panier() {
+    _scaffoldKey.currentState.showBottomSheet<Null>((BuildContext context) {
+      return new Container(height: 500.0, child: PanierScreen());
+    });
   }
 
   @override
