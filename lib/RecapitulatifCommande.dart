@@ -547,9 +547,7 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande> {
       child: Stack(
         children: <Widget>[
           Scaffold(
-//            pour le test
             resizeToAvoidBottomPadding: false,
-
             key: _scaffoldKey,
             body: Column(
               children: <Widget>[
