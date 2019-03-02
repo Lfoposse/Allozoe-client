@@ -300,8 +300,7 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande> {
           left: PADDING_HORIZONTAL + 10.0,
           right: PADDING_HORIZONTAL + 10.0,
           top: 8.0,
-//          bottom: 8.0
-      ),
+          bottom: 8.0),
       child: Row(
         children: <Widget>[
           Text(title,
@@ -548,6 +547,9 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande> {
       child: Stack(
         children: <Widget>[
           Scaffold(
+//            pour le test
+            resizeToAvoidBottomPadding: false,
+
             key: _scaffoldKey,
             body: Column(
               children: <Widget>[
