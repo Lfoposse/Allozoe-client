@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:client_app/PanierScreen.dart';
 import 'package:client_app/StringKeys.dart';
 import 'package:client_app/Utils/AppBars.dart';
 import 'package:client_app/Utils/Loading.dart';
@@ -14,8 +15,6 @@ import 'Models/Complement.dart';
 import 'Models/Produit.dart';
 import 'TrackingCommandScreen.dart';
 import 'Utils/PriceFormatter.dart';
-
-import 'package:client_app/PanierScreen.dart';
 
 _openMap(double lat, double lng, String title) async {
   // Android
@@ -386,15 +385,19 @@ class DetailsCommandeState extends State<DetailsCommande>
                                 color: Colors.lightGreen,
                                 style: BorderStyle.solid,
                                 width: 1.0),
-                            color: widget.commande.status.id != 4
-                                ? Colors.lightGreen
-                                : Colors.black38),
+                            color: widget.commande.deliver == null
+                                ? Colors.black38
+                                : (widget.commande.status.id != 4
+                                    ? Colors.lightGreen
+                                    : Colors.black38)),
                         child: Text("TRACKING",
                             textAlign: TextAlign.center,
                             style: new TextStyle(
-                              color: widget.commande.status.id != 4
-                                  ? Colors.white
-                                  : Colors.black54,
+                              color: widget.commande.deliver == null
+                                  ? Colors.black38
+                                  : (widget.commande.status.id != 4
+                                      ? Colors.white
+                                      : Colors.black54),
                               decoration: TextDecoration.none,
                               fontSize: 16.0,
                               fontWeight: FontWeight.bold,
