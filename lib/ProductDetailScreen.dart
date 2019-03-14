@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:client_app/Models/Complement.dart';
 import 'package:client_app/PanierScreen.dart';
 import 'package:client_app/StringKeys.dart';
 import 'package:client_app/Utils/Loading.dart';
@@ -29,7 +30,11 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
   int stateIndex;
   ProductDetailPresenter _presenter;
   Produit produit;
-  int _radioValue1 = -1;
+  bool requirechoice = false;
+
+  Complement complement;
+  List<Complement> listComplements = [];
+
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   @override
   void initState() {
@@ -65,15 +70,17 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
                 scrollDirection: Axis.vertical,
                 itemCount: this.produit.options.length,
                 itemBuilder: (BuildContext ctxt, int index) {
-                  return getOptionItem(index);
+                  return this.produit.options[index].item_required == 1
+                      ? getRadioOpt(index)
+                      : getCheckoxOpt(index);
                 })));
   }
 
-  Widget getComplementItem(int optIndex, int cplIndex) {
+  Widget getRadioItem(int optIndex, int cplIndex) {
     void _handleRadioValueChange1(int value) {
       setState(() {
-        _radioValue1 = value;
-
+        this.produit.options[optIndex].posCurrentCpl = value;
+        requirechoice = false;
         print(this.produit.options[optIndex].complements[value].id);
         for (var i = 0;
             i < this.produit.options[optIndex].complements.length;
@@ -91,92 +98,45 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
         });
       }
     }
+//    List<Widget> allRows = new List();
+//    for (int i = 0;
+//        i < this.produit.options[optIndex].complements.length;
+//        i++) {
+//      if (this.produit.options[optIndex].item_required == 1) {
+//        listComplements.add(this.produit.options[optIndex].complements[i]);
+//        for (int j = 0; j < listComplements.length; j++) {
+//          allRows.add( Radio(
+//              activeColor: Colors.blueGrey,
+//              groupValue: complement,
+//              value: this.produit.options[optIndex].complements[cplIndex],
+//              onChanged: (active) {
+//                print("optIndex");
+//                print(optIndex);
+//                _handleRadioValueChange1(active);
+//              })
+//          );
+//        }
+//      }
+//    }
 
-    /*Widget getOptionType(Option opt){
-      if(opt.type == "REQUIRED"){
-      return  this.produit.options[optIndex].item_required == 1
-            ? Radio(
-            activeColor: Colors.blueGrey,
-            groupValue: _radioValue1,
-            value: cplIndex,
-            onChanged: (active) {
-              _handleRadioValueChange1(cplIndex);
-            })
-            : Checkbox(
-            activeColor: Colors.blueGrey,
-            value: this
-                .produit
-                .options[optIndex]
-                .complements[cplIndex]
-                .selected,
-            onChanged: (active) {
-              this
-                  .produit
-                  .options[optIndex]
-                  .complements[cplIndex]
-                  .selected =
-              !this
-                  .produit
-                  .options[optIndex]
-                  .complements[cplIndex]
-                  .selected;
-              if (isProductInCart) {
-                db.deleteProduit(this.produit);
-                db.addProduit(this.produit).then((insertedId) {
-                  setState(() {});
-                }).catchError((error) {
-                  print("Erreur : " + error.toString());
-                });
-              } else
-                setState(() {});
-            });
-      }else{
-        ret
-      }
-
-    }*/
     return Container(
       height: 80.0,
       margin: EdgeInsets.symmetric(vertical: 5.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          this.produit.options[optIndex].item_required == 1
-              ? Radio(
-                  activeColor: Colors.blueGrey,
-                  groupValue: _radioValue1,
-                  value: cplIndex,
-                  onChanged: (active) {
-                    _handleRadioValueChange1(cplIndex);
-                  })
-              : Checkbox(
-                  activeColor: Colors.blueGrey,
-                  value: this
-                      .produit
-                      .options[optIndex]
-                      .complements[cplIndex]
-                      .selected,
-                  onChanged: (active) {
-                    this
-                            .produit
-                            .options[optIndex]
-                            .complements[cplIndex]
-                            .selected =
-                        !this
-                            .produit
-                            .options[optIndex]
-                            .complements[cplIndex]
-                            .selected;
-                    if (isProductInCart) {
-                      db.deleteProduit(this.produit);
-                      db.addProduit(this.produit).then((insertedId) {
-                        setState(() {});
-                      }).catchError((error) {
-                        print("Erreur : " + error.toString());
-                      });
-                    } else
-                      setState(() {});
-                  }),
+          Radio(
+            activeColor: Colors.blueGrey,
+            groupValue: this.produit.options[optIndex].posCurrentCpl,
+            value: cplIndex,
+            onChanged: (active) {
+              print("Valeur");
+              print(this.produit.options[optIndex].posCurrentCpl);
+              print(cplIndex);
+              print(optIndex);
+              _handleRadioValueChange1(active);
+            },
+          ),
           Expanded(
             child: Image.network(
               this.produit.options[optIndex].complements[cplIndex].image,
@@ -233,28 +193,358 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
     );
   }
 
-  Widget getOptionItem(int optIndex) {
+  Widget getCheckboxItem(int optIndex, int cplIndex) {
+    return Container(
+      height: 80.0,
+      margin: EdgeInsets.symmetric(vertical: 5.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Checkbox(
+              activeColor: Colors.blueGrey,
+              value:
+                  this.produit.options[optIndex].complements[cplIndex].selected,
+              onChanged: (active) {
+                this.produit.options[optIndex].complements[cplIndex].selected =
+                    !this
+                        .produit
+                        .options[optIndex]
+                        .complements[cplIndex]
+                        .selected;
+                if (isProductInCart) {
+                  db.deleteProduit(this.produit);
+                  db.addProduit(this.produit).then((insertedId) {
+                    setState(() {});
+                  }).catchError((error) {
+                    print("Erreur : " + error.toString());
+                  });
+                } else
+                  setState(() {});
+              }),
+          Expanded(
+            child: Image.network(
+              this.produit.options[optIndex].complements[cplIndex].image,
+              width: double.infinity,
+              height: double.infinity,
+              fit: BoxFit.cover,
+            ),
+            flex: 2,
+          ),
+          Expanded(
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 10.0),
+              height: double.infinity,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisSize: MainAxisSize.max,
+                children: <Widget>[
+                  Text(
+                      this.produit.options[optIndex].complements[cplIndex].name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                          color: Colors.grey,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18.0)),
+                  Text(
+                      this
+                                  .produit
+                                  .options[optIndex]
+                                  .complements[cplIndex]
+                                  .price ==
+                              0
+                          ? getLocaleText(
+                              context: context,
+                              strinKey: StringKeys.PANIER_OFFERT)
+                          : PriceFormatter.formatPrice(
+                              price: this
+                                  .produit
+                                  .options[optIndex]
+                                  .complements[cplIndex]
+                                  .price),
+                      style: TextStyle(
+                          color: Colors.lightGreen,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18.0))
+                ],
+              ),
+            ),
+            flex: 3,
+          )
+        ],
+      ),
+    );
+  }
+
+//  Widget getComplementItem(int optIndex, int cplIndex) {
+//    void _handleRadioValueChange1(Complement value) {
+//      setState(() {
+////        _radioValue1 = value;
+//        complement = value;
+//        print(this.produit.options[optIndex].complements[cplIndex].id);
+//        for (var i = 0;
+//        i < this.produit.options[optIndex].complements.length;
+//        i++) {
+//          this.produit.options[optIndex].complements[i].selected = false;
+//        }
+//        this.produit.options[optIndex].complements[cplIndex].selected = true;
+//      });
+//      if (isProductInCart) {
+//        db.deleteProduit(this.produit);
+//        db.addProduit(this.produit).then((insertedId) {
+//          setState(() {});
+//        }).catchError((error) {
+//          print("Erreur : " + error.toString());
+//        });
+//      }
+//    }
+//
+//    List<Complement> getComplementOblig() {
+//      for (var i = 0;
+//      i < this.produit.options[optIndex].complements.length;
+//      i++) {
+//        if (this.produit.options[optIndex].item_required == 1) {
+//          listComplements.add(this.produit.options[optIndex].complements[i]);
+//          print("complements");
+//          print(this.produit.options[optIndex].complements[i]);
+//        }
+//      }
+//      print("taille");
+//      print(listComplements);
+//      return listComplements;
+//    }
+//
+//    return Container(
+//      height: 80.0,
+//      margin: EdgeInsets.symmetric(vertical: 5.0),
+//      child: Row(
+//        crossAxisAlignment: CrossAxisAlignment.start,
+//        children: <Widget>[
+//          this.produit.options[optIndex].item_required == 1
+//              ? Radio(
+//              activeColor: Colors.blueGrey,
+//              groupValue: optIndex,
+//              value: this.produit.options[optIndex].complements[cplIndex],
+//              onChanged: (active) {
+//                print("optIndex");
+//                print(optIndex);
+//                _handleRadioValueChange1(active);
+//              })
+//              : Checkbox(
+//              activeColor: Colors.blueGrey,
+//              value: this
+//                  .produit
+//                  .options[optIndex]
+//                  .complements[cplIndex]
+//                  .selected,
+//              onChanged: (active) {
+//                this
+//                    .produit
+//                    .options[optIndex]
+//                    .complements[cplIndex]
+//                    .selected =
+//                !this
+//                    .produit
+//                    .options[optIndex]
+//                    .complements[cplIndex]
+//                    .selected;
+//                if (isProductInCart) {
+//                  db.deleteProduit(this.produit);
+//                  db.addProduit(this.produit).then((insertedId) {
+//                    setState(() {});
+//                  }).catchError((error) {
+//                    print("Erreur : " + error.toString());
+//                  });
+//                } else
+//                  setState(() {});
+//              }),
+//          Expanded(
+//            child: Image.network(
+//              this.produit.options[optIndex].complements[cplIndex].image,
+//              width: double.infinity,
+//              height: double.infinity,
+//              fit: BoxFit.cover,
+//            ),
+//            flex: 2,
+//          ),
+//          Expanded(
+//            child: Container(
+//              margin: EdgeInsets.symmetric(horizontal: 10.0),
+//              height: double.infinity,
+//              child: Column(
+//                crossAxisAlignment: CrossAxisAlignment.start,
+//                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//                mainAxisSize: MainAxisSize.max,
+//                children: <Widget>[
+//                  Text(
+//                      this.produit.options[optIndex].complements[cplIndex].name,
+//                      maxLines: 2,
+//                      overflow: TextOverflow.ellipsis,
+//                      style: TextStyle(
+//                          color: Colors.grey,
+//                          fontWeight: FontWeight.bold,
+//                          fontSize: 18.0)),
+//                  Text(
+//                      this
+//                          .produit
+//                          .options[optIndex]
+//                          .complements[cplIndex]
+//                          .price ==
+//                          0
+//                          ? getLocaleText(
+//                          context: context,
+//                          strinKey: StringKeys.PANIER_OFFERT)
+//                          : PriceFormatter.formatPrice(
+//                          price: this
+//                              .produit
+//                              .options[optIndex]
+//                              .complements[cplIndex]
+//                              .price),
+//                      style: TextStyle(
+//                          color: Colors.lightGreen,
+//                          fontWeight: FontWeight.bold,
+//                          fontSize: 18.0))
+//                ],
+//              ),
+//            ),
+//            flex: 3,
+//          )
+//        ],
+//      ),
+//    );
+//  }
+//  Widget getRadioOpt(int optIndex) {
+//    return Container(
+//      margin: EdgeInsets.only(bottom: 20.0),
+//      child: Column(
+//        mainAxisSize: MainAxisSize.min,
+//        crossAxisAlignment: CrossAxisAlignment.start,
+//        children: <Widget>[
+//          Row(
+//            crossAxisAlignment: CrossAxisAlignment.start,
+//            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//            mainAxisSize: MainAxisSize.max,
+//            children: <Widget>[
+//              Column(
+//                children: <Widget>[
+//                  Text(
+//                    this.produit.options[optIndex].name,
+//                    style: TextStyle(
+//                        color: Colors.black,
+//                        fontWeight: FontWeight.bold,
+//                        fontSize: 20.0),
+//                  ),
+//                  Text(
+//                    "(Choisissez " +
+//                        this
+//                            .produit
+//                            .options[optIndex]
+//                            .item_required
+//                            .toString() +
+//                        ")",
+//                    style: TextStyle(
+//                        color: Colors.black38,
+//                        fontWeight: FontWeight.bold,
+//                        fontSize: 16.0),
+//                  ),
+//                ],
+//              ),
+//              this.produit.options[optIndex].item_required == 1
+//                  ? Container(
+//                child: Text(
+//                  "Obligatoire",
+//                  style: requirechoice
+//                      ? TextStyle(
+//                      color: Colors.redAccent,
+//                      fontWeight: FontWeight.bold,
+//                      fontSize: 16.0)
+//                      : TextStyle(
+//                      color: Colors.lightGreen,
+//                      fontWeight: FontWeight.bold,
+//                      fontSize: 16.0),
+//                ),
+//              )
+//                  : Container(
+//                child: Text(
+//                  "Facultatif",
+//                  style: TextStyle(
+//                      color: Colors.lightGreen,
+//                      fontWeight: FontWeight.bold,
+//                      fontSize: 16.0),
+//                ),
+//              )
+//            ],
+//          ),
+//          Container(
+//              child: ScrollConfiguration(
+//                  behavior: MyBehavior(),
+//                  child: ListView.builder(
+//                      padding: EdgeInsets.all(0.0),
+//                      scrollDirection: Axis.vertical,
+//                      physics: NeverScrollableScrollPhysics(),
+//                      shrinkWrap: true,
+//                      itemCount:
+//                      this.produit.options[optIndex].complements.length,
+//                      itemBuilder: (BuildContext ctxt, int index) {
+//                        return getComplementItem(optIndex, index);
+//                      })))
+//        ],
+//      ),
+//    );
+//  }
+//RadioOptions
+  Widget getRadioOpt(int optIndex) {
     return Container(
       margin: EdgeInsets.only(bottom: 20.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
-            this.produit.options[optIndex].name,
-            style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontSize: 20.0),
-          ),
-          Text(
-            "(choose " +
-                this.produit.options[optIndex].item_required.toString() +
-                ")",
-            style: TextStyle(
-                color: Colors.black38,
-                fontWeight: FontWeight.bold,
-                fontSize: 16.0),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisSize: MainAxisSize.max,
+            children: <Widget>[
+              Column(
+                children: <Widget>[
+                  Text(
+                    this.produit.options[optIndex].name,
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20.0),
+                  ),
+                  Text(
+                    "(Choisissez " +
+                        this
+                            .produit
+                            .options[optIndex]
+                            .item_required
+                            .toString() +
+                        ")",
+                    style: TextStyle(
+                        color: Colors.black38,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.0),
+                  ),
+                ],
+              ),
+              Container(
+                child: Text(
+                  "Obligatoire",
+                  style: requirechoice
+                      ? TextStyle(
+                          color: Colors.redAccent,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16.0)
+                      : TextStyle(
+                          color: Colors.lightGreen,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16.0),
+                ),
+              )
+            ],
           ),
           Container(
               child: ScrollConfiguration(
@@ -267,7 +557,73 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
                       itemCount:
                           this.produit.options[optIndex].complements.length,
                       itemBuilder: (BuildContext ctxt, int index) {
-                        return getComplementItem(optIndex, index);
+                        return getRadioItem(optIndex, index);
+                      })))
+        ],
+      ),
+    );
+  }
+
+//Checkbox options
+  Widget getCheckoxOpt(int optIndex) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 20.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisSize: MainAxisSize.max,
+            children: <Widget>[
+              Column(
+                children: <Widget>[
+                  Text(
+                    this.produit.options[optIndex].name,
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20.0),
+                  ),
+                  Text(
+                    "(Choisissez " +
+                        this
+                            .produit
+                            .options[optIndex]
+                            .item_required
+                            .toString() +
+                        ")",
+                    style: TextStyle(
+                        color: Colors.black38,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.0),
+                  ),
+                ],
+              ),
+              Container(
+                child: Text(
+                  "Facultatif",
+                  style: TextStyle(
+                      color: Colors.lightGreen,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.0),
+                ),
+              )
+            ],
+          ),
+          Container(
+              child: ScrollConfiguration(
+                  behavior: MyBehavior(),
+                  child: ListView.builder(
+                      padding: EdgeInsets.all(0.0),
+                      scrollDirection: Axis.vertical,
+                      physics: NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount:
+                          this.produit.options[optIndex].complements.length,
+                      itemBuilder: (BuildContext ctxt, int index) {
+                        return getCheckboxItem(optIndex, index);
                       })))
         ],
       ),
@@ -505,67 +861,99 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
                             .then((isDifferent) {
                           // si le produit a ajouter est different de celui des produits deja present dans le panier
                           if (isDifferent) {
-                            showDialog<Null>(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return new AlertDialog(
-                                  title: new Text(getLocaleText(
-                                      context: context,
-                                      strinKey: StringKeys.AVERTISSEMENT)),
-                                  content: new SingleChildScrollView(
-                                    child: new ListBody(
-                                      children: <Widget>[
-                                        new Text(getLocaleText(
-                                            context: context,
-                                            strinKey: StringKeys
-                                                .AVERTISEMENT_CHANGE_RESTAURANT)),
-                                      ],
-                                    ),
-                                  ),
-                                  actions: <Widget>[
-                                    new FlatButton(
-                                      child: new Text(
-                                          getLocaleText(
+                            for (int i = 0;
+                                i < this.produit.options.length;
+                                i++) {
+                              if (this.produit.options[i].item_required == 1) {
+                                if (this.produit.options[i].posCurrentCpl ==
+                                    null) {
+                                  setState(() {
+                                    requirechoice = true;
+                                  });
+                                  return;
+                                }
+                              }
+                            }
+                            if (requirechoice == false) {
+                              showDialog<Null>(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return new AlertDialog(
+                                    title: new Text(getLocaleText(
+                                        context: context,
+                                        strinKey: StringKeys.AVERTISSEMENT)),
+                                    content: new SingleChildScrollView(
+                                      child: new ListBody(
+                                        children: <Widget>[
+                                          new Text(getLocaleText(
                                               context: context,
-                                              strinKey: StringKeys.CANCEL_BTN),
-                                          style: TextStyle(
-                                              color: Colors.lightGreen)),
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
+                                              strinKey: StringKeys
+                                                  .AVERTISEMENT_CHANGE_RESTAURANT)),
+                                        ],
+                                      ),
                                     ),
-                                    new FlatButton(
-                                      child: new Text(
-                                          getLocaleText(
-                                              context: context,
-                                              strinKey:
-                                                  StringKeys.AJOUTER_PANIER),
-                                          style: TextStyle(
-                                              color: Colors.lightGreen)),
-                                      onPressed: () {
-                                        db.clearPanier(); // on vide le panier avant d'y ajouter le nouveau produit
-                                        db
-                                            .addProduit(this.produit)
-                                            .then((insertedId) {
+                                    actions: <Widget>[
+                                      new FlatButton(
+                                        child: new Text(
+                                            getLocaleText(
+                                                context: context,
+                                                strinKey:
+                                                    StringKeys.CANCEL_BTN),
+                                            style: TextStyle(
+                                                color: Colors.lightGreen)),
+                                        onPressed: () {
                                           Navigator.of(context).pop();
-                                          setState(() {});
-                                        }).catchError((error) {
-                                          print("Erreur : " + error.toString());
-                                        });
-                                      },
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
+                                        },
+                                      ),
+                                      new FlatButton(
+                                        child: new Text(
+                                            getLocaleText(
+                                                context: context,
+                                                strinKey:
+                                                    StringKeys.AJOUTER_PANIER),
+                                            style: TextStyle(
+                                                color: Colors.lightGreen)),
+                                        onPressed: () {
+                                          db.clearPanier(); // on vide le panier avant d'y ajouter le nouveau produit
+                                          db
+                                              .addProduit(this.produit)
+                                              .then((insertedId) {
+                                            Navigator.of(context).pop();
+                                            setState(() {});
+                                          }).catchError((error) {
+                                            print(
+                                                "Erreur : " + error.toString());
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            }
                           } else {
                             // sinon on ajoute le produit au panier
-
-                            db.addProduit(this.produit).then((insertedId) {
-                              setState(() {});
-                            }).catchError((error) {
-                              print("Erreur : " + error.toString());
-                            });
+                            // faire un test pour les choix facultatif/obligatoire
+                            for (int i = 0;
+                                i < this.produit.options.length;
+                                i++) {
+                              if (this.produit.options[i].item_required == 1) {
+                                if (this.produit.options[i].posCurrentCpl ==
+                                    null) {
+                                  setState(() {
+                                    requirechoice = true;
+                                  });
+                                  return;
+                                }
+                              }
+                            }
+                            if (requirechoice == false) {
+                              db.addProduit(this.produit).then((insertedId) {
+                                setState(() {});
+                              }).catchError((error) {
+                                print("Erreur : " + error.toString());
+                              });
+                            }
                           }
                         }).catchError((error) {
                           print("Erreur : " + error.toString());

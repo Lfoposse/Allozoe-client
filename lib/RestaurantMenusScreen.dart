@@ -1,5 +1,6 @@
 import 'package:client_app/PanierScreen.dart';
 import 'package:client_app/StringKeys.dart';
+import 'package:client_app/Utils/MyBehavior.dart';
 import 'package:flutter/material.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 
@@ -11,7 +12,6 @@ import 'Models/Restaurant.dart';
 import 'ProductDetailScreen.dart';
 import 'Utils/AppBars.dart';
 import 'Utils/Loading.dart';
-import 'Utils/MyBehavior.dart';
 import 'Utils/PriceFormatter.dart';
 
 class RestaurantMenusScreen extends StatefulWidget {
@@ -487,43 +487,46 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
 
       default:
         return Container(
-          color: Colors.white,
-          child: Column(
-            children: <Widget>[
-              getHeader(),
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 15.0),
-                child: researchBox(
-                    getLocaleText(
-                        context: context, strinKey: StringKeys.CHERCHER_ICI),
-                    Color.fromARGB(15, 0, 0, 0),
-                    Colors.grey,
-                    Colors.transparent),
-              ),
-              Expanded(
-                child: Container(
-                  margin: EdgeInsets.symmetric(horizontal: 15.0),
-                  child: ScrollConfiguration(
-                    behavior: MyBehavior(),
-                    child: new ListView.builder(
-                        controller: _scrollController,
-                        shrinkWrap: true,
-                        physics: ScrollPhysics(),
-                        padding: EdgeInsets.all(0.0),
-                        scrollDirection: Axis.vertical,
-                        itemCount: isSearching
-                            ? searchResultProduits.length
-                            : produits.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return getItem(index);
-                        }),
-                  ),
+            color: Colors.white,
+            child: Column(
+              children: <Widget>[
+                getHeader(),
+                Container(
+                  padding: EdgeInsets.symmetric(vertical: 15.0),
+                  child: researchBox(
+                      getLocaleText(
+                          context: context, strinKey: StringKeys.CHERCHER_ICI),
+                      Color.fromARGB(15, 0, 0, 0),
+                      Colors.grey,
+                      Colors.transparent),
                 ),
-                flex: 5,
-              )
-            ],
-          ),
-        );
+//                new Row(
+//                  children: <Widget>[
+                Expanded(
+                  child: Container(
+                    margin: EdgeInsets.symmetric(horizontal: 15.0),
+                    child: ScrollConfiguration(
+                      behavior: MyBehavior(),
+                      child: new ListView.builder(
+                          controller: _scrollController,
+                          shrinkWrap: true,
+                          physics: ScrollPhysics(),
+                          padding: EdgeInsets.all(0.0),
+                          scrollDirection: Axis.vertical,
+                          itemCount: isSearching
+                              ? searchResultProduits.length
+                              : produits.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return getItem(index);
+                          }),
+                    ),
+                  ),
+                  flex: 5,
+                )
+//                  ],
+//                ),
+              ],
+            ));
     }
   }
 
@@ -593,76 +596,3 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
     });
   }
 }
-
-//class HeaderWidget extends StatelessWidget {
-//  final String text;
-//
-//  HeaderWidget(this.text);
-//
-//  @override
-//  Widget build(BuildContext context) {
-//    return Container(
-//      padding: EdgeInsets.all(16.0),
-//      child: Text(text),
-//      color: Colors.grey[200],
-//    );
-//  }
-//}
-//
-//class BodyWidget extends StatelessWidget {
-//  final Color color;
-//
-//  BodyWidget(this.color);
-//
-//  @override
-//  Widget build(BuildContext context) {
-//    return Container(
-//      height: 100.0,
-//      color: color,
-//      alignment: Alignment.center,
-//    );
-//  }
-//}
-//
-//Container(
-//child: CustomScrollView(
-//slivers: <Widget>[
-//SliverList(
-//delegate: SliverChildListDelegate(
-//[
-//HeaderWidget('Item 1'),
-//HeaderWidget('Item 2'),
-//HeaderWidget('Item 3'),
-//HeaderWidget('Item 4'),
-//],
-//),
-//),
-//SliverList(
-//delegate: SliverChildListDelegate(
-//[
-//BodyWidget(Colors.blue),
-//BodyWidget(Colors.red),
-//BodyWidget(Colors.green),
-//BodyWidget(Colors.orange),
-//BodyWidget(Colors.blue),
-//BodyWidget(Colors.red),
-//],
-//),
-//),
-//SliverGrid(
-//gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-//crossAxisCount: 2),
-//delegate: SliverChildListDelegate(
-//[
-//BodyWidget(Colors.blue),
-//BodyWidget(Colors.green),
-//BodyWidget(Colors.yellow),
-//BodyWidget(Colors.orange),
-//BodyWidget(Colors.blue),
-//BodyWidget(Colors.red),
-//],
-//),
-//),
-//],
-//),
-//);

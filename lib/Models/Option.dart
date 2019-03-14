@@ -6,6 +6,7 @@ class Option {
   int _item_required;
   String _type;
   List<Complement> _complements;
+  int posCurrentCpl;
 
   Option(this._id, this._name);
 
