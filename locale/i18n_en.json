@@ -21,8 +21,6 @@
   "ERROR_ACCOUNT_NOT_ACTIVATED_TITLE": "Account not activated",
   "ERROR_ACCOUNT_NOT_ACTIVATED_MSG": "Your account haven't yet been activated.\nDo it before log in ",
 
-
-
   "SIGNUP_PAGE_TITLE": "Sign up page",
   "NAME_HINT": "Name",
   "SURNAME_HINT": "Surname",
@@ -32,6 +30,10 @@
 
   "PHONE_NUMBER": "Phone Number",
   "PAY" : "Pay",
+  "OPTIONAL": "Optional",
+  "REQUIRED": "Required",
+  "CHOOSE": "Choose",
+  "RESTAURANTS_CAT_NEARBY_NOT_FOUND" : "No restaurant found near you.\n\nTry another category",
 
   "CONFIDENTIALITE_BEGIN": "By clicking on « SIGN UP », you agree with the ",
   "CONDITIONS_GENERALES": "Usage terms",
@@ -41,23 +43,17 @@
   "ERROR_FILL_ALL_GAPS": "Fill all gaps",
   "ERROR_ACCOUNT_ALREADY_EXISTS": "An account already exists with this email. LOG IN",
 
-
-
   "RECOVERY_PAGE_TITLE": "Recovery account",
   "RECOVERY_DESCRIPTION_TEXT": "Enter your email account",
   "NEXT_BTN": "NEXT",
   "ERROR_UNKOWN_EMAIL": "Unknown email",
   "ERROR_ENTER_EMAIL": "Enter an email",
 
-
-
   "CONFIRMATION_PAGE_TITLE": "Code confirmation",
   "CONFIRMATION_DESCRIPTION_TEXT":"Enter the code sended to the adress ",
   "VALIDATE_BTN": "VALIDATE",
   "ERROR_WRONG_CODE": "Incorrect code",
   "ERROR_INCOMPLETE_CODE": "Complete the code",
-
-
 
   "RESET_PASS_DESCRIPTION_TEXT": "Define a new password for your account",
   "NEW_PASSWORD_HINT": "Enter a new password",
@@ -70,8 +66,6 @@
 
   "ERROR_PASS_AND_CONFIRM_NOT_MATCH": "Password and confirmation mismatch",
   "ERROR_OCCURED": "Error occured! Please retry.",
-
-
 
   "ACCUEIL_TITLE": "Home",
   "SEARCH_TITLE": "Search",

@@ -10,7 +10,7 @@
   "CANCEL_BTN": "Annuler",
   "ACTIVATE_BTN": "Activer",
   "LANGUE": "fr",
-  "VILLE": "ille",
+  "VILLE": "Ville",
 
   "ERROR_ENTER_ALL_CREDENTIALS": "Renseigner vos identifiants",
   "ERROR_INVALID_EMAIL": "Email invalide",
@@ -19,8 +19,6 @@
   "ERROR_CONNECTION_FAILED_TITLE": "Échec de connexion au serveur",
   "ERROR_ACCOUNT_NOT_ACTIVATED_TITLE": "Compte non activé",
   "ERROR_ACCOUNT_NOT_ACTIVATED_MSG": "Vous n'avez pas encore activé votre compte.\nActivez le afin de vous connecter",
-
-
 
   "SIGNUP_PAGE_TITLE": "Inscription",
   "NAME_HINT": "Nom",
@@ -31,6 +29,10 @@
 
   "PHONE_NUMBER": "Numéro de Téléphone",
   "PAY" : "Payer",
+  "OPTIONAL": "Facultatif",
+  "REQUIRED": "Obligatoire",
+  "CHOOSE": "Choisissez",
+  "RESTAURANTS_CAT_NEARBY_NOT_FOUND" : "Aucun restaurant trouvé à proximité de vous.\n\nEssayez une autre catégorie",
 
   "CONFIDENTIALITE_BEGIN": "En cliquant sur « S'INSCRIRE », je confirme avoir lu et accepté les ",
   "CONDITIONS_GENERALES": "Conditions générales",
@@ -40,23 +42,17 @@
   "ERROR_FILL_ALL_GAPS": "Renseigner tous les champs",
   "ERROR_ACCOUNT_ALREADY_EXISTS": "Un compte existe déjà avec cet email. Connectez vous",
 
-
-
   "RECOVERY_PAGE_TITLE": "Récuperation de compte",
   "RECOVERY_DESCRIPTION_TEXT": "Saisissez l'adresse email associé au compte à récupérer",
   "NEXT_BTN": "SUIVANT",
   "ERROR_UNKOWN_EMAIL": "Email non reconnu",
   "ERROR_ENTER_EMAIL": "Veuillez entrer un email",
 
-
-
   "CONFIRMATION_PAGE_TITLE": "Code de confirmation",
   "CONFIRMATION_DESCRIPTION_TEXT":"Saississez le code envoyé à l'adresse ",
   "VALIDATE_BTN": "VALIDER",
   "ERROR_WRONG_CODE": "Code incorrect",
   "ERROR_INCOMPLETE_CODE": "Compléter le code",
-
-
 
   "RESET_PASS_DESCRIPTION_TEXT": "Définissez un nouveau mot de passe pour votre compte",
   "NEW_PASSWORD_HINT": "Saisissez le nouveau mot de passe",
@@ -69,7 +65,6 @@
 
   "ERROR_PASS_AND_CONFIRM_NOT_MATCH": "Mot de passe et confirmation différents",
   "ERROR_OCCURED": "Erreur survénue. Réessayez SVP!",
-
 
 
   "ACCUEIL_TITLE": "Accueil",

@@ -48,9 +48,14 @@ class StringKeys {
   static final String SIGNUP_PASSWORD_HINT = "SIGNUP_PASSWORD_HINT";
   static final String PHONE_HINT = "PHONE_HINT";
 
+//ajouter pour les retours du client wilfried
   static final String PHONE_NUMBER = "PHONE_NUMBER";
   static final String PAY = "PAY";
-
+  static final String OPTIONAL = "OPTIONAL";
+  static final String REQUIRED = "REQUIRED";
+  static final String CHOOSE = "CHOOSE";
+  static final String RESTAURANTS_CAT_NEARBY_NOT_FOUND =
+      "RESTAURANTS_CAT_NEARBY_NOT_FOUND";
   static final String CONFIDENTIALITE_BEGIN = "CONFIDENTIALITE_BEGIN";
   static final String CONDITIONS_GENERALES = "CONDITIONS_GENERALES";
   static final String AND = "AND";

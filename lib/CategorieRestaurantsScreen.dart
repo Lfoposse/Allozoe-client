@@ -1,5 +1,8 @@
 import 'package:client_app/PanierScreen.dart';
+import 'package:client_app/StringKeys.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_webservice/places.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 
 import 'DAO/Presenters/CategorieRestaurantsPresenter.dart';
@@ -18,26 +21,88 @@ class CategorieRestaurantssScreen extends StatefulWidget {
   State<StatefulWidget> createState() => new CategorieRestaurantsScreenState();
 }
 
+const kGoogleApiKey = "AIzaSyBNm8cnYw5inbqzgw8LjXyt3rMhFhEVTjY";
+
+// to get places detail (lat/lng)
+GoogleMapsPlaces _places =
+    new GoogleMapsPlaces(apiKey: kGoogleApiKey); /*kGoogleApiKey*/
+final homeScaffoldKey = new GlobalKey<ScaffoldState>();
+double latitude, longitude;
+
 class CategorieRestaurantsScreenState extends State<CategorieRestaurantssScreen>
     implements CategorieRestaurantsContract {
   int stateIndex;
   List<Restaurant> restaurants;
   CategorieRestaurantsPresenter _presenter;
 
+  var geolocator;
+  bool deviceLocationMode;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
-    stateIndex = 0;
     _presenter = new CategorieRestaurantsPresenter(this);
-    _presenter.loadCategorieRestaurantsList(widget.categorie.id);
+//    _presenter.loadCategorieRestaurantsList(widget.categorie.id);
     super.initState();
+    deviceLocationMode = true;
+    geolocator = Geolocator()..forceAndroidLocationManager = false;
+    loadRestaurantNearBy();
+  }
+
+  loadRestaurantNearBy() async {
+    setState(() {
+      stateIndex = 0;
+      deviceLocationMode = true;
+    });
+    GeolocationStatus geolocationStatus =
+        await geolocator.checkGeolocationPermissionStatus();
+
+    if (geolocationStatus == GeolocationStatus.granted) {
+      Position position = await geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+      if (position != null) {
+        debugPrint("actual position : lat = " +
+            position.latitude.toString() +
+            " long = " +
+            position.longitude.toString());
+        latitude = position.latitude;
+        latitude = 48.7885281;
+        longitude = position.longitude;
+        longitude = 2.5823022;
+//        _presenter.loadRestaurants(latitude, longitude);
+        _presenter.loadCategorieRestaurantsList(
+            widget.categorie.id, latitude, longitude);
+      } else {
+        Position pos = await Geolocator()
+            .getLastKnownPosition(desiredAccuracy: LocationAccuracy.high);
+        if (pos == null) {
+          debugPrint(" actual position not found");
+//          _presenter.loadRestaurants(latitude, longitude);
+          _presenter.loadCategorieRestaurantsList(
+              widget.categorie.id, latitude, longitude);
+        } else {
+          debugPrint("last known position : lat = " +
+              pos.latitude.toString() +
+              " long = " +
+              pos.longitude.toString());
+          latitude = pos.latitude;
+          longitude = pos.longitude;
+//          _presenter.loadRestaurants(latitude, longitude);
+          _presenter.loadCategorieRestaurantsList(
+              widget.categorie.id, latitude, longitude);
+        }
+      }
+    } else {
+      debugPrint("Permission de geolocation refusee");
+//      _presenter.loadRestaurants(latitude, longitude);
+    }
   }
 
   void _onRetryClick() {
     setState(() {
       stateIndex = 0;
-      _presenter.loadCategorieRestaurantsList(widget.categorie.id);
+      _presenter.loadCategorieRestaurantsList(
+          widget.categorie.id, latitude, longitude);
     });
   }
 
@@ -270,18 +335,36 @@ class CategorieRestaurantsScreenState extends State<CategorieRestaurantssScreen>
                                   fontWeight: FontWeight.bold))),
                     ),
                     Flexible(
-                        child: Container(
-                            color: Colors.black12,
-                            child: ScrollConfiguration(
-                              behavior: MyBehavior(),
-                              child: new ListView.builder(
-                                  padding: EdgeInsets.all(0.0),
-                                  scrollDirection: Axis.vertical,
-                                  itemCount: restaurants.length,
-                                  itemBuilder: (BuildContext ctxt, int index) {
-                                    return getItem(index);
-                                  }),
-                            )))
+                        child: restaurants.length == null ||
+                                restaurants.length == 0
+                            ? Container(
+                                child: Center(
+                                  child: Text(
+                                    getLocaleText(
+                                        context: context,
+                                        strinKey: StringKeys
+                                            .RESTAURANTS_CAT_NEARBY_NOT_FOUND),
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 17.0,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              )
+                            : Container(
+                                color: Colors.black12,
+                                child: ScrollConfiguration(
+                                  behavior: MyBehavior(),
+                                  child: new ListView.builder(
+                                      padding: EdgeInsets.all(0.0),
+                                      scrollDirection: Axis.vertical,
+                                      itemCount: restaurants.length,
+                                      itemBuilder:
+                                          (BuildContext ctxt, int index) {
+                                        return getItem(index);
+                                      }),
+                                )))
                   ],
                 ),
               ),

@@ -1,5 +1,5 @@
-import '../Rest_dt.dart';
 import '../../Models/Restaurant.dart';
+import '../Rest_dt.dart';
 
 abstract class CategorieRestaurantsContract {
   void onLoadingSuccess(List<Restaurant> restaurants);
@@ -12,14 +12,16 @@ class CategorieRestaurantsPresenter {
   RestDatasource api = new RestDatasource();
   CategorieRestaurantsPresenter(this._view);
 
-
-  loadCategorieRestaurantsList(int categorieID) {
-    api.loadCategorieRestaurants(categorieID).then((List<Restaurant> restaurants) {
+  loadCategorieRestaurantsList(
+      int categorieID, double latitude, double longitude) {
+    api
+        .loadCategorieRestaurants(categorieID, latitude, longitude)
+        .then((List<Restaurant> restaurants) {
       if (restaurants != null)
         _view.onLoadingSuccess(restaurants);
       else
         _view.onLoadingError();
-    }).catchError((onError){
+    }).catchError((onError) {
       _view.onConnectionError();
     });
   }

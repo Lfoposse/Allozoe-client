@@ -98,26 +98,6 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
         });
       }
     }
-//    List<Widget> allRows = new List();
-//    for (int i = 0;
-//        i < this.produit.options[optIndex].complements.length;
-//        i++) {
-//      if (this.produit.options[optIndex].item_required == 1) {
-//        listComplements.add(this.produit.options[optIndex].complements[i]);
-//        for (int j = 0; j < listComplements.length; j++) {
-//          allRows.add( Radio(
-//              activeColor: Colors.blueGrey,
-//              groupValue: complement,
-//              value: this.produit.options[optIndex].complements[cplIndex],
-//              onChanged: (active) {
-//                print("optIndex");
-//                print(optIndex);
-//                _handleRadioValueChange1(active);
-//              })
-//          );
-//        }
-//      }
-//    }
 
     return Container(
       height: 80.0,
@@ -516,7 +496,9 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
                         fontSize: 20.0),
                   ),
                   Text(
-                    "(Choisissez " +
+                    "(" +
+                        getLocaleText(
+                            context: context, strinKey: StringKeys.CHOOSE) +
                         this
                             .produit
                             .options[optIndex]
@@ -532,7 +514,8 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
               ),
               Container(
                 child: Text(
-                  "Obligatoire",
+                  getLocaleText(
+                      context: context, strinKey: StringKeys.REQUIRED),
                   style: requirechoice
                       ? TextStyle(
                           color: Colors.redAccent,
@@ -586,24 +569,12 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
                         fontWeight: FontWeight.bold,
                         fontSize: 20.0),
                   ),
-                  Text(
-                    "(Choisissez " +
-                        this
-                            .produit
-                            .options[optIndex]
-                            .item_required
-                            .toString() +
-                        ")",
-                    style: TextStyle(
-                        color: Colors.black38,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16.0),
-                  ),
                 ],
               ),
               Container(
                 child: Text(
-                  "Facultatif",
+                  getLocaleText(
+                      context: context, strinKey: StringKeys.OPTIONAL),
                   style: TextStyle(
                       color: Colors.lightGreen,
                       fontWeight: FontWeight.bold,

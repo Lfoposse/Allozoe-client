@@ -221,12 +221,18 @@ class RestDatasource {
   }
 
   ///Retourne la liste des restaurants appartenant a une categorie precise
-  Future<List<Restaurant>> loadCategorieRestaurants(int categorieID) {
+  ///ajouter la lat et long du client
+  Future<List<Restaurant>> loadCategorieRestaurants(
+      int categorieID, double latitude, double longitude) {
     return _netUtil
         .get(LOAD_CATEGORIE_LIST_URL +
             "/" +
             categorieID.toString() +
-            "/restaurants")
+            "/restaurants" +
+            "?latitude=" +
+            latitude.toString() +
+            "&longitude=" +
+            longitude.toString())
         .then((dynamic res) {
       if (res["code"] == 200)
         return (res['items'] as List)
