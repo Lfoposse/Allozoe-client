@@ -8,11 +8,11 @@ import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 import 'Accueil/Accueil.dart';
 import 'Accueil/Categories.dart';
 import 'Accueil/Commandes.dart';
+import 'Accueil/LoginIfNot.dart';
 import 'Accueil/Panier.dart';
 import 'Accueil/Profil.dart';
 import 'StringKeys.dart';
 import 'Utils/AppBars.dart';
-//import 'Accueil/LoginIfNot.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -55,9 +55,9 @@ class HomeStateScreen extends State<HomeScreen> {
 
       case 4: // Zone de consultation du panier
         return Panier();
-
-//      case 5: // Ajouter pour proposer au client de se connecter ou de s'inscrire pour eviter de lui demander cela au moment de finaliser l'achat
-//        return LoginIfNot();
+// Ajouter pour proposer au client de se connecter ou de s'inscrire pour eviter de lui demander cela au moment de finaliser l'achat
+      case 5:
+        return LoginIfNot();
 
       default: // zone d'accueil
         return Accueil();
@@ -190,12 +190,12 @@ class HomeStateScreen extends State<HomeScreen> {
                         context: context, strinKey: StringKeys.CART_TITLE),
                     isSelectedButton(4),
                     4),
-//                buildButtonColumn(
-//                    Icons.person,
-//                    getLocaleText(
-//                        context: context, strinKey: StringKeys.PROFIL_TITLE),
-//                    isSelectedButton(5),
-//                    5),
+                buildButtonColumn(
+                    Icons.person,
+                    getLocaleText(
+                        context: context, strinKey: StringKeys.PROFIL_TITLE),
+                    isSelectedButton(5),
+                    5),
               ],
             ),
     );

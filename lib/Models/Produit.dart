@@ -1,12 +1,10 @@
-import 'Restaurant.dart';
-import 'Option.dart';
 import 'Complement.dart';
+import 'Option.dart';
+import 'Restaurant.dart';
 
 class Produit {
-
   int _qteCmder;
   bool _favoris;
-
 
   int _id;
   String _name;
@@ -16,9 +14,7 @@ class Produit {
   Restaurant _restaurant;
   List<Option> _options;
 
-
-
-  Produit.empty(){
+  Produit.empty() {
     this._id = -1;
     this._qteCmder = 1;
     this._name = null;
@@ -30,8 +26,7 @@ class Produit {
     this._options = null;
   }
 
-  Produit copy(){
-
+  Produit copy() {
     Produit produit = new Produit.empty();
     produit.id = _id;
     produit._name = _name;
@@ -40,33 +35,47 @@ class Produit {
     produit.prix = _prix;
     produit.qteCmder = nbCmds;
     produit.favoris = _favoris;
-
     produit.restaurant = _restaurant.copy();
-    produit.options = _options.asMap().map((index, option) => new MapEntry(index, option.copy())).values.toList();
+    produit.options = _options
+        .asMap()
+        .map((index, option) => new MapEntry(index, option.copy()))
+        .values
+        .toList();
 
     return produit;
-
   }
 
-
-  Produit(this._qteCmder, this._favoris, this._id, this._name, this._description, this._photo, this._prix, this._restaurant, this._options);
+  Produit(
+    this._qteCmder,
+    this._favoris,
+    this._id,
+    this._name,
+    this._description,
+    this._photo,
+    this._prix,
+    this._restaurant,
+    this._options,
+  );
 
   Produit.map(dynamic obj) {
-
     this._qteCmder = obj["quantity"] != null ? obj["quantity"] : 1;
     this._favoris = false;
-
-    this._id = obj["id"] ;
+    this._id = obj["id"];
     this._name = obj["name"];
     this._description = obj["description"];
     this._photo = obj["image"];
-    this._prix =  double.parse(obj["price"].toString());
-    this._restaurant = obj["restaurant"] != null ? Restaurant.map(obj["restaurant"]) : null;
-    this._options = obj["options"] != null ? (obj['options'] as List).map((item) => new Option.map(item)).toList() : null;
+    this._prix = double.parse(obj["price"].toString());
+    this._restaurant =
+        obj["restaurant"] != null ? Restaurant.map(obj["restaurant"]) : null;
+    this._options = obj["options"] != null
+        ? (obj['options'] as List).map((item) => new Option.map(item)).toList()
+        : null;
 
-    if(_options == null && obj["products"] != null){
+    if (_options == null && obj["products"] != null) {
       Option option = Option.empty();
-      option.complements = (obj['products'] as List).map((item) => new Complement.map(item)).toList();
+      option.complements = (obj['products'] as List)
+          .map((item) => new Complement.map(item))
+          .toList();
 
       this._options = new List();
       this._options.add(option);
@@ -80,7 +89,6 @@ class Produit {
   double get prix => _prix;
   String get photo => _photo;
   bool get isFavoris => _favoris;
-
 
   set id(int value) {
     _id = value;
@@ -104,7 +112,7 @@ class Produit {
     map["quantity"] = _qteCmder;
 
     List<Map> options = new List();
-    if(_options != null)
+    if (_options != null)
       for (Option option in _options) options.add(option.toMapRequest());
 
     map["options"] = options;
@@ -146,6 +154,4 @@ class Produit {
   set restaurant(Restaurant value) {
     _restaurant = value;
   }
-
-
 }

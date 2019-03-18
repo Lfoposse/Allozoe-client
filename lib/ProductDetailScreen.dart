@@ -569,6 +569,19 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
                         fontWeight: FontWeight.bold,
                         fontSize: 20.0),
                   ),
+//                  Text(
+//                    "(Choisissez " +
+//                        this
+//                            .produit
+//                            .options[optIndex]
+//                            .item_required
+//                            .toString() +
+//                        ")",
+//                    style: TextStyle(
+//                        color: Colors.black38,
+//                        fontWeight: FontWeight.bold,
+//                        fontSize: 16.0),
+//                  ),
                 ],
               ),
               Container(

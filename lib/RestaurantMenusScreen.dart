@@ -32,6 +32,8 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
 
 //  ajouter pour le scrool
   ScrollController _scrollController = new ScrollController();
+  bool isProductInCart;
+
   bool isSearching; // determine si une recherche est en cours ou pas
   final controller = new TextEditingController();
   final _scaffoldKey = new GlobalKey<ScaffoldState>();
@@ -42,7 +44,7 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
     db = new DatabaseHelper();
     _presenter = new RestaurantMenusPresenter(this);
     isSearching = false;
-
+    isProductInCart = false;
     controller.addListener(() {
       String currentText = controller.text;
       if (currentText.length > 0) {
@@ -313,165 +315,177 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
   }
 
   Widget getItem(itemIndex) {
-    return FutureBuilder(
-        future: db.getProduit(isSearching
-            ? searchResultProduits[itemIndex].id
-            : produits[itemIndex].id),
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (snapshot.hasData) {
-            Produit prod = snapshot.data;
-            bool isProductInCart;
-
-            if (prod.id < 0) {
-              // si le produit n'est pas dans le panier
-              isProductInCart = false;
-            } else {
-              isProductInCart = true;
-
-              if (isSearching)
-                searchResultProduits[itemIndex].qteCmder = prod.nbCmds;
-              else
-                produits[itemIndex].qteCmder = prod.nbCmds;
-            }
-
-            return Column(
-              mainAxisSize: MainAxisSize.min,
+//    return FutureBuilder(
+//        future: db.getProduit(isSearching
+//            ? searchResultProduits[itemIndex].id
+//            : produits[itemIndex].id),
+//        builder: (BuildContext context, AsyncSnapshot snapshot) {
+//          if (snapshot.hasData) {
+//            Produit prod = snapshot.data;
+//            bool isProductInCart;
+//
+//            if (prod.id < 0) {
+//              // si le produit n'est pas dans le panier
+//              isProductInCart = false;
+//            } else {
+//              isProductInCart = true;
+//
+//              if (isSearching)
+//                searchResultProduits[itemIndex].qteCmder = prod.nbCmds;
+//              else
+//                produits[itemIndex].qteCmder = prod.nbCmds;
+//            }
+//    db.getProduit(produits[itemIndex].id)
+//        .then((Produit produit) {
+//      print(produit);
+//      if (produit != null) {
+//        if (produit.id < 0) {
+//          setState(() {
+//            isProductInCart = false;
+//          });
+//        } else {
+//          setState(() {
+//            isProductInCart = true;
+//          });
+//
+//          if (isSearching) {
+//            searchResultProduits[itemIndex].qteCmder = produit.nbCmds;
+//          } else {
+//            produits[itemIndex].qteCmder = produit.nbCmds;
+//          }
+//        }
+//      }
+//    });
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        getDivider(1.0, horizontal: true),
+        Container(
+          height: 150.0,
+          padding: EdgeInsets.symmetric(vertical: 8.0),
+          child: PositionedTapDetector(
+            onTap: (position) {
+              // afficher la description du produit selectionner
+              Navigator.of(context).push(new MaterialPageRoute(
+                  builder: (context) => ProductDetailScreen(isSearching
+                      ? searchResultProduits[itemIndex]
+                      : produits[itemIndex])));
+            },
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
               children: <Widget>[
-                getDivider(1.0, horizontal: true),
-                Container(
-                  height: 150.0,
-                  padding: EdgeInsets.symmetric(vertical: 8.0),
-                  child: PositionedTapDetector(
-                    onTap: (position) {
-                      // afficher la description du produit selectionner
-                      Navigator.of(context).push(new MaterialPageRoute(
-                          builder: (context) => ProductDetailScreen(isSearching
-                              ? searchResultProduits[itemIndex]
-                              : produits[itemIndex])));
-                    },
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
+                Expanded(
+                  child: Container(
+                    margin: EdgeInsets.only(right: 15.0, left: 3.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Expanded(
-                          child: Container(
-                            margin: EdgeInsets.only(right: 15.0, left: 3.0),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Text(
-                                    isSearching
-                                        ? searchResultProduits[itemIndex].name
-                                        : produits[itemIndex].name,
-                                    overflow: TextOverflow.ellipsis,
+                        Text(
+                            isSearching
+                                ? searchResultProduits[itemIndex].name
+                                : produits[itemIndex].name,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.left,
+                            maxLines: 2,
+                            style: new TextStyle(
+                              color: Colors.black87,
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.bold,
+                            )),
+                        Container(
+                          margin: EdgeInsets.symmetric(vertical: 3.0),
+                          child: Text(
+                              ((isSearching
+                                      ? (searchResultProduits[itemIndex]
+                                                  .description ==
+                                              null ||
+                                          searchResultProduits[itemIndex]
+                                                  .description
+                                                  .length ==
+                                              0)
+                                      : (produits[itemIndex].description ==
+                                              null ||
+                                          produits[itemIndex]
+                                                  .description
+                                                  .length ==
+                                              0))
+                                  ? getLocaleText(
+                                      context: context,
+                                      strinKey:
+                                          StringKeys.PRODUIT_NO_DESCRIPTION)
+                                  : (isSearching
+                                      ? searchResultProduits[itemIndex]
+                                          .description
+                                      : produits[itemIndex].description)),
+                              maxLines: 3,
+                              textAlign: TextAlign.left,
+                              overflow: TextOverflow.ellipsis,
+                              style: new TextStyle(
+                                color: Colors.black54,
+                                fontSize: 15.0,
+                                fontWeight: FontWeight.normal,
+                              )),
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.max,
+                          children: <Widget>[
+                            Expanded(
+                                child: Text(
+                                    PriceFormatter.formatPrice(
+                                        price: isSearching
+                                            ? searchResultProduits[itemIndex]
+                                                .prix
+                                            : produits[itemIndex].prix),
                                     textAlign: TextAlign.left,
-                                    maxLines: 2,
                                     style: new TextStyle(
-                                      color: Colors.black87,
+                                      color: Colors.lightGreen,
                                       fontSize: 20.0,
                                       fontWeight: FontWeight.bold,
-                                    )),
-                                Container(
-                                  margin: EdgeInsets.symmetric(vertical: 3.0),
-                                  child:
-                                      Text(
-                                          ((isSearching
-                                                  ? (searchResultProduits[
-                                                                  itemIndex]
-                                                              .description ==
-                                                          null ||
-                                                      searchResultProduits[
-                                                                  itemIndex]
-                                                              .description
-                                                              .length ==
-                                                          0)
-                                                  : (produits[itemIndex]
-                                                              .description ==
-                                                          null ||
-                                                      produits[itemIndex]
-                                                              .description
-                                                              .length ==
-                                                          0))
-                                              ? getLocaleText(
-                                                  context: context,
-                                                  strinKey: StringKeys
-                                                      .PRODUIT_NO_DESCRIPTION)
-                                              : (isSearching
-                                                  ? searchResultProduits[
-                                                          itemIndex]
-                                                      .description
-                                                  : produits[itemIndex]
-                                                      .description)),
-                                          maxLines: 3,
-                                          textAlign: TextAlign.left,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: new TextStyle(
-                                            color: Colors.black54,
-                                            fontSize: 15.0,
-                                            fontWeight: FontWeight.normal,
-                                          )),
-                                ),
-                                Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: <Widget>[
-                                    Expanded(
-                                        child: Text(
-                                            PriceFormatter.formatPrice(
-                                                price: isSearching
-                                                    ? searchResultProduits[
-                                                            itemIndex]
-                                                        .prix
-                                                    : produits[itemIndex].prix),
-                                            textAlign: TextAlign.left,
-                                            style: new TextStyle(
-                                              color: Colors.lightGreen,
-                                              fontSize: 20.0,
-                                              fontWeight: FontWeight.bold,
-                                            ))),
-                                    isProductInCart
-                                        ? Icon(
-                                            Icons.shopping_cart,
-                                            color: Color.fromARGB(
-                                                255, 255, 215, 0),
-                                            size: 25.0,
-                                          )
-                                        : Container()
-                                  ],
-                                )
-                              ],
-                            ),
-                          ),
-                          flex: 3,
-                        ),
-                        Expanded(
-                          child: Container(
-                            padding: EdgeInsets.only(right: 3.0),
-                            child: Image.network(
-                              isSearching
-                                  ? searchResultProduits[itemIndex].photo
-                                  : produits[itemIndex].photo,
-                              width: double.infinity,
-                              height: double.infinity,
-                              fit: BoxFit.contain,
-                            ),
-                          ),
-                          flex: 2,
+                                    ))),
+                            isProductInCart
+                                ? Icon(
+                                    Icons.shopping_cart,
+                                    color: Color.fromARGB(255, 255, 215, 0),
+                                    size: 25.0,
+                                  )
+                                : Container()
+                          ],
                         )
                       ],
                     ),
                   ),
+                  flex: 3,
+                ),
+                Expanded(
+                  child: Container(
+                    padding: EdgeInsets.only(right: 3.0),
+                    child: Image.network(
+                      isSearching
+                          ? searchResultProduits[itemIndex].photo
+                          : produits[itemIndex].photo,
+                      width: double.infinity,
+                      height: double.infinity,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  flex: 2,
                 )
               ],
-            );
-          } else
-            return Container(
-                height: double.infinity,
-                width: double.infinity,
-                child: Center(
-                  child: CircularProgressIndicator(),
-                ));
-        });
+            ),
+          ),
+        )
+      ],
+    );
+//          } else
+    return Container(
+        height: double.infinity,
+        width: double.infinity,
+        child: Center(
+          child: CircularProgressIndicator(),
+        ));
+//        });
   }
 
   Widget getAppropriateScene() {
