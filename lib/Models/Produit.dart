@@ -5,7 +5,7 @@ import 'Restaurant.dart';
 class Produit {
   int _qteCmder;
   bool _favoris;
-
+  bool inCard = false;
   int _id;
   String _name;
   String _description;

@@ -34,6 +34,7 @@
   "REQUIRED": "Required",
   "CHOOSE": "Choose",
   "RESTAURANTS_CAT_NEARBY_NOT_FOUND" : "No restaurant found near you.\n\nTry another category",
+  "LOGIN_REGISTER" : "To login \n or register \nclick here",
 
   "CONFIDENTIALITE_BEGIN": "By clicking on « SIGN UP », you agree with the ",
   "CONDITIONS_GENERALES": "Usage terms",

@@ -204,8 +204,9 @@ class DatabaseHelper {
         [produit.restaurant.id]);
     if (list.length == 0)
       await dbInsert.insert("Restaurant", produit.restaurant.toMap());
-//    produit.inCard = true;
+
     // add restaurant id and save product
+    map = new Map<String, dynamic>();
     map["restaurant_id"] = produit.restaurant.id;
     map.addAll(produit.toMap());
     await dbInsert.insert("Produit", map).catchError((onError) {

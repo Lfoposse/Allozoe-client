@@ -33,6 +33,7 @@
   "REQUIRED": "Obligatoire",
   "CHOOSE": "Choisissez",
   "RESTAURANTS_CAT_NEARBY_NOT_FOUND" : "Aucun restaurant trouvé à proximité de vous.\n\nEssayez une autre catégorie",
+  "LOGIN_REGISTER": "Pour se connecter ou s'enregistrer cliquez ici",
 
   "CONFIDENTIALITE_BEGIN": "En cliquant sur « S'INSCRIRE », je confirme avoir lu et accepté les ",
   "CONDITIONS_GENERALES": "Conditions générales",

@@ -28,26 +28,19 @@ class LoginIfNotState extends State<LoginIfNot> {
           },
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 30.0),
-            decoration: new BoxDecoration(
-                border: !show_border
-                    ? new Border()
-                    : new Border(
-                        bottom: BorderSide(
-                            color: Colors.grey,
-                            style: BorderStyle.solid,
-                            width: 1.0)),
-                color: setButtonsTint(button_index)),
+            color: Colors.white,
             child: Center(
               child: Container(
                 width: double
                     .infinity, // remove this line in order to center the title of each option button
                 child: Text(label,
-                    textAlign: TextAlign.left,
+                    textAlign: TextAlign.center,
                     overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
                     style: new TextStyle(
                       color: Colors.black,
                       decoration: TextDecoration.none,
-                      fontSize: 14.0,
+                      fontSize: 16.0,
                       fontWeight: FontWeight.bold,
                     )),
               ),
@@ -67,8 +60,8 @@ class LoginIfNotState extends State<LoginIfNot> {
               color: Colors.white,
               child: Center(
                 child: Container(
-                    width: 200.0,
-                    height: 200.0,
+                    width: 160.0,
+                    height: 160.0,
                     decoration: new BoxDecoration(
                       border: new Border.all(
                           color: Colors.lightGreen,
@@ -84,15 +77,9 @@ class LoginIfNotState extends State<LoginIfNot> {
             ),
             flex: 5,
           ),
-          Container(
-              decoration: new BoxDecoration(
-            border: new Border(
-                top: BorderSide(
-                    color: Colors.grey, style: BorderStyle.solid, width: 1.0)),
-          )),
           buildOptionsButton(
               getLocaleText(
-                  context: context, strinKey: StringKeys.LOGIN_BTN_TITLE),
+                  context: context, strinKey: StringKeys.LOGIN_REGISTER),
               0,
               true),
           Expanded(

@@ -335,27 +335,26 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
 //              else
 //                produits[itemIndex].qteCmder = prod.nbCmds;
 //            }
-//    db.getProduit(produits[itemIndex].id)
-//        .then((Produit produit) {
-//      print(produit);
-//      if (produit != null) {
-//        if (produit.id < 0) {
-//          setState(() {
-//            isProductInCart = false;
-//          });
-//        } else {
-//          setState(() {
-//            isProductInCart = true;
-//          });
-//
-//          if (isSearching) {
-//            searchResultProduits[itemIndex].qteCmder = produit.nbCmds;
-//          } else {
-//            produits[itemIndex].qteCmder = produit.nbCmds;
-//          }
-//        }
-//      }
-//    });
+    // db.getProduit(produits[itemIndex].id).then((Produit produit) {
+    //  if (produit != null) {
+    //    if (produit.id < 0) {
+    //     setState(() {
+    //       this.produits[itemIndex].inCard = false;
+    //     });
+    //    } else {
+    //     setState(() {
+    //       this.produits[itemIndex].inCard = true;
+    //   });
+
+    //    if (isSearching) {
+    //       searchResultProduits[itemIndex].qteCmder = produit.nbCmds;
+    //     } else {
+    //       produits[itemIndex].qteCmder = produit.nbCmds;
+    //     }
+    //   }
+    //  }
+    //});
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
@@ -444,7 +443,7 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
                                       fontSize: 20.0,
                                       fontWeight: FontWeight.bold,
                                     ))),
-                            isProductInCart
+                            this.produits[itemIndex].inCard
                                 ? Icon(
                                     Icons.shopping_cart,
                                     color: Color.fromARGB(255, 255, 215, 0),
@@ -604,9 +603,29 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
   void onLoadingSuccess(List<Produit> produits) {
     setState(() {
       this.produits = produits;
-      print("loard produits");
-      print(produits.length);
       stateIndex = 3;
+
+      for (int i = 0; i < this.produits.length; i++) {
+        db.getProduit(produits[i].id).then((Produit produit) {
+          if (produit != null) {
+            if (produit.id < 0) {
+              setState(() {
+                this.produits[i].inCard = false;
+              });
+            } else {
+              setState(() {
+                this.produits[i].inCard = true;
+              });
+
+              if (isSearching) {
+                searchResultProduits[i].qteCmder = produit.nbCmds;
+              } else {
+                produits[i].qteCmder = produit.nbCmds;
+              }
+            }
+          }
+        });
+      }
     });
   }
 }
