@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:client_app/Models/Complement.dart';
 import 'package:client_app/PanierScreen.dart';
 import 'package:client_app/StringKeys.dart';
+import 'package:client_app/Utils/AppBars.dart';
 import 'package:client_app/Utils/Loading.dart';
 import 'package:client_app/Utils/MyBehavior.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +13,6 @@ import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 import 'DAO/Presenters/ProductDetailPresenter.dart';
 import 'Database/DatabaseHelper.dart';
 import 'Models/Produit.dart';
-import 'Utils/AppBars.dart';
 import 'Utils/PriceFormatter.dart';
 
 class ProductDetailScreen extends StatefulWidget {
@@ -854,6 +854,41 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
                                   setState(() {
                                     requirechoice = true;
                                   });
+                                  showDialog<Null>(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return new AlertDialog(
+                                        title: new Text(getLocaleText(
+                                            context: context,
+                                            strinKey:
+                                                StringKeys.AVERTISSEMENT)),
+                                        content: new SingleChildScrollView(
+                                          child: new ListBody(
+                                            children: <Widget>[
+                                              new Text(getLocaleText(
+                                                  context: context,
+                                                  strinKey: StringKeys
+                                                      .SELECT_OPTIONS)),
+                                            ],
+                                          ),
+                                        ),
+                                        actions: <Widget>[
+                                          new FlatButton(
+                                            child: new Text(
+                                                getLocaleText(
+                                                    context: context,
+                                                    strinKey:
+                                                        StringKeys.CANCEL_BTN),
+                                                style: TextStyle(
+                                                    color: Colors.lightGreen)),
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
                                   return;
                                 }
                               }
@@ -863,9 +898,6 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
                                 context: context,
                                 builder: (BuildContext context) {
                                   return new AlertDialog(
-                                    title: new Text(getLocaleText(
-                                        context: context,
-                                        strinKey: StringKeys.AVERTISSEMENT)),
                                     content: new SingleChildScrollView(
                                       child: new ListBody(
                                         children: <Widget>[
@@ -878,11 +910,7 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
                                     ),
                                     actions: <Widget>[
                                       new FlatButton(
-                                        child: new Text(
-                                            getLocaleText(
-                                                context: context,
-                                                strinKey:
-                                                    StringKeys.CANCEL_BTN),
+                                        child: new Text("OK",
                                             style: TextStyle(
                                                 color: Colors.lightGreen)),
                                         onPressed: () {
@@ -927,6 +955,33 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
                                   setState(() {
                                     requirechoice = true;
                                   });
+                                  showDialog<Null>(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return new AlertDialog(
+                                        content: new SingleChildScrollView(
+                                          child: new ListBody(
+                                            children: <Widget>[
+                                              new Text(getLocaleText(
+                                                  context: context,
+                                                  strinKey: StringKeys
+                                                      .SELECT_OPTIONS)),
+                                            ],
+                                          ),
+                                        ),
+                                        actions: <Widget>[
+                                          new FlatButton(
+                                            child: new Text("OK",
+                                                style: TextStyle(
+                                                    color: Colors.lightGreen)),
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
                                   return;
                                 }
                               }

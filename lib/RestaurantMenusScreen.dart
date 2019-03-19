@@ -369,6 +369,11 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
                   builder: (context) => ProductDetailScreen(isSearching
                       ? searchResultProduits[itemIndex]
                       : produits[itemIndex])));
+              //setState(() {
+              //_getRequest();
+              //val ? color = Colors.red : color = Colors.black;
+              // });
+              //})
             },
             child: Row(
               mainAxisSize: MainAxisSize.max,
@@ -541,6 +546,35 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
               ],
             ));
     }
+  }
+
+  _getRequest() async {
+    setState(() {
+      this.produits = produits;
+      stateIndex = 3;
+
+      for (int i = 0; i < this.produits.length; i++) {
+        db.getProduit(produits[i].id).then((Produit produit) {
+          if (produit != null) {
+            if (produit.id < 0) {
+              setState(() {
+                this.produits[i].inCard = false;
+              });
+            } else {
+              setState(() {
+                this.produits[i].inCard = true;
+              });
+
+              if (isSearching) {
+                searchResultProduits[i].qteCmder = produit.nbCmds;
+              } else {
+                produits[i].qteCmder = produit.nbCmds;
+              }
+            }
+          }
+        });
+      }
+    });
   }
 
   @override

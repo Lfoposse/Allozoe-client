@@ -33,7 +33,9 @@
   "REQUIRED": "Obligatoire",
   "CHOOSE": "Choisissez",
   "RESTAURANTS_CAT_NEARBY_NOT_FOUND" : "Aucun restaurant trouvé à proximité de vous.\n\nEssayez une autre catégorie",
-  "LOGIN_REGISTER": "Pour se connecter ou s'enregistrer cliquez ici",
+  "LOGIN_REGISTER": "Pour se connecter ou s'enregistrer",
+  "CLICK_HERE": "cliquez ici",
+  "SELECT_OPTIONS": "S'il vous plaît veuillez sélectionner toutes les options obligatoires avant d'ajouter au panier",
 
   "CONFIDENTIALITE_BEGIN": "En cliquant sur « S'INSCRIRE », je confirme avoir lu et accepté les ",
   "CONDITIONS_GENERALES": "Conditions générales",

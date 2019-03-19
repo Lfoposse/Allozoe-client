@@ -19,7 +19,7 @@ class LoginIfNotState extends State<LoginIfNot> {
   }
 
   Expanded buildOptionsButton(
-      String label, int button_index, bool show_border) {
+      String label, String click, int button_index, bool show_border) {
     return Expanded(
       child: PositionedTapDetector(
           onTap: (position) {
@@ -31,19 +31,30 @@ class LoginIfNotState extends State<LoginIfNot> {
             color: Colors.white,
             child: Center(
               child: Container(
-                width: double
-                    .infinity, // remove this line in order to center the title of each option button
-                child: Text(label,
-                    textAlign: TextAlign.center,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 2,
-                    style: new TextStyle(
-                      color: Colors.black,
-                      decoration: TextDecoration.none,
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.bold,
-                    )),
-              ),
+                  width: double
+                      .infinity, // remove this line in order to center the title of each option button
+                  child: Column(
+                    children: <Widget>[
+                      Text(label,
+                          textAlign: TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
+                          style: new TextStyle(
+                            color: Colors.black,
+                            decoration: TextDecoration.none,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.bold,
+                          )),
+                      Text(click,
+                          textAlign: TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
+                          style: new TextStyle(
+                            color: Colors.lightGreen,
+                            decoration: TextDecoration.none,
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.bold,
+                          )),
+                    ],
+                  )),
             ),
           )),
       flex: 1,
@@ -75,11 +86,12 @@ class LoginIfNotState extends State<LoginIfNot> {
                     )),
               ),
             ),
-            flex: 5,
+            flex: 3,
           ),
           buildOptionsButton(
               getLocaleText(
                   context: context, strinKey: StringKeys.LOGIN_REGISTER),
+              getLocaleText(context: context, strinKey: StringKeys.CLICK_HERE),
               0,
               true),
           Expanded(

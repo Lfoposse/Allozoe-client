@@ -57,6 +57,8 @@ class StringKeys {
   static final String RESTAURANTS_CAT_NEARBY_NOT_FOUND =
       "RESTAURANTS_CAT_NEARBY_NOT_FOUND";
   static final String LOGIN_REGISTER = "LOGIN_REGISTER";
+  static final String CLICK_HERE = "CLICK_HERE";
+  static final String SELECT_OPTIONS = "SELECT_OPTIONS";
 
   static final String CONFIDENTIALITE_BEGIN = "CONFIDENTIALITE_BEGIN";
   static final String CONDITIONS_GENERALES = "CONDITIONS_GENERALES";

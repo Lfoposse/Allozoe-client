@@ -34,7 +34,9 @@
   "REQUIRED": "Required",
   "CHOOSE": "Choose",
   "RESTAURANTS_CAT_NEARBY_NOT_FOUND" : "No restaurant found near you.\n\nTry another category",
-  "LOGIN_REGISTER" : "To login \n or register \nclick here",
+  "LOGIN_REGISTER" : "To login  or register",
+  "CLICK_HERE": "click here",
+  "SELECT_OPTIONS": "Please select all the required options before adding to cart",
 
   "CONFIDENTIALITE_BEGIN": "By clicking on « SIGN UP », you agree with the ",
   "CONDITIONS_GENERALES": "Usage terms",
