@@ -192,6 +192,8 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
                   Text(
                     widget.restaurant.name,
                     textAlign: TextAlign.left,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: true,
                     style: TextStyle(
                         fontSize: 26.0,
                         color: Colors.black87,
@@ -206,6 +208,8 @@ class RestaurantMenusScreenState extends State<RestaurantMenusScreen>
                               context: context,
                               strinKey: StringKeys.UNKNOW_CATEGORY),
                       textAlign: TextAlign.left,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: true,
                       style: TextStyle(
                           fontSize: 16.0,
                           color: Colors.black54,

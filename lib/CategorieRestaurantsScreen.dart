@@ -66,9 +66,9 @@ class CategorieRestaurantsScreenState extends State<CategorieRestaurantssScreen>
             " long = " +
             position.longitude.toString());
         latitude = position.latitude;
-        latitude = 48.7885281;
         longitude = position.longitude;
-        longitude = 2.5823022;
+//        longitude = 2.5823022;
+//        latitude = 48.7885281;
 //        _presenter.loadRestaurants(latitude, longitude);
         _presenter.loadCategorieRestaurantsList(
             widget.categorie.id, latitude, longitude);
@@ -94,7 +94,45 @@ class CategorieRestaurantsScreenState extends State<CategorieRestaurantssScreen>
       }
     } else {
       debugPrint("Permission de geolocation refusee");
-//      _presenter.loadRestaurants(latitude, longitude);
+      _presenter.loadCategorieRestaurantsList(
+          widget.categorie.id, 48.7885281, 2.5823022);
+
+      showDialog<Null>(
+        context: context,
+        builder: (BuildContext context) {
+          return new AlertDialog(
+            content: new SingleChildScrollView(
+              child: new ListBody(
+                children: <Widget>[
+                  Center(
+                      child: Text(
+                    getLocaleText(
+                        context: context, strinKey: StringKeys.ACTIVE_POSITION),
+                    style: TextStyle(color: Colors.black),
+                    textAlign: TextAlign.center,
+                  )),
+                  CircleAvatar(
+                    backgroundColor: Colors.lightGreen,
+                    child: new Icon(
+                      Icons.location_on,
+                      color: Colors.white,
+                    ),
+                  )
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              new FlatButton(
+                child:
+                    new Text("OK", style: TextStyle(color: Colors.lightGreen)),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 

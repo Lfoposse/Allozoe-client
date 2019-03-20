@@ -37,6 +37,7 @@
   "LOGIN_REGISTER" : "To login  or register",
   "CLICK_HERE": "click here",
   "SELECT_OPTIONS": "Please select all the required options before adding to cart",
+  "ACTIVE_POSITION": "You must activate your geolocation to have restaurants near you",
 
   "CONFIDENTIALITE_BEGIN": "By clicking on « SIGN UP », you agree with the ",
   "CONDITIONS_GENERALES": "Usage terms",

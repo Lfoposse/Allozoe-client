@@ -49,8 +49,8 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
     geolocator = Geolocator()..forceAndroidLocationManager = false;
     db = new DatabaseHelper();
     restaurants = null;
-    latitude = 48.9031145;
-    longitude = 2.2638343;
+//    latitude = 48.9031145;
+//    longitude = 2.2638343;
 
     var locationOptions =
         LocationOptions(accuracy: LocationAccuracy.high, distanceFilter: 100);
@@ -125,9 +125,9 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
             " long = " +
             position.longitude.toString());
         latitude = position.latitude;
-        latitude = 48.7885281;
         longitude = position.longitude;
-        longitude = 2.5823022;
+//        longitude = 2.5823022;
+//        latitude = 48.7885281;
         _presenter.loadRestaurants(latitude, longitude);
       } else {
         Position pos = await Geolocator()
@@ -147,7 +147,43 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
       }
     } else {
       debugPrint("Permission de geolocation refusee");
-      _presenter.loadRestaurants(latitude, longitude);
+      _presenter.loadRestaurants(48.7885281, 2.5823022);
+      showDialog<Null>(
+        context: context,
+        builder: (BuildContext context) {
+          return new AlertDialog(
+            content: new SingleChildScrollView(
+              child: new ListBody(
+                children: <Widget>[
+                  Center(
+                      child: Text(
+                    getLocaleText(
+                        context: context, strinKey: StringKeys.ACTIVE_POSITION),
+                    style: TextStyle(color: Colors.black),
+                    textAlign: TextAlign.center,
+                  )),
+                  CircleAvatar(
+                    backgroundColor: Colors.lightGreen,
+                    child: new Icon(
+                      Icons.location_on,
+                      color: Colors.white,
+                    ),
+                  )
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              new FlatButton(
+                child:
+                    new Text("OK", style: TextStyle(color: Colors.lightGreen)),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
