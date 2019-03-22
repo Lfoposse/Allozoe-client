@@ -30,7 +30,7 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
   int stateIndex;
   ProductDetailPresenter _presenter;
   Produit produit;
-  bool requirechoice = false;
+  bool requirechoice;
 
   Complement complement;
   List<Complement> listComplements = [];
@@ -39,6 +39,7 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
   @override
   void initState() {
     stateIndex = 0;
+    requirechoice = false;
     produit = null;
     db = new DatabaseHelper();
     _presenter = new ProductDetailPresenter(this);
@@ -845,153 +846,227 @@ class ProductDetailScreenState extends State<ProductDetailScreen>
                             .then((isDifferent) {
                           // si le produit a ajouter est different de celui des produits deja present dans le panier
                           if (isDifferent) {
-                            for (int i = 0;
-                                i < this.produit.options.length;
-                                i++) {
-                              if (this.produit.options[i].item_required == 1) {
-                                if (this.produit.options[i].posCurrentCpl ==
-                                    null) {
-                                  setState(() {
-                                    requirechoice = true;
-                                  });
-                                  showDialog<Null>(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return new AlertDialog(
-                                        title: new Text(getLocaleText(
-                                            context: context,
-                                            strinKey:
-                                                StringKeys.AVERTISSEMENT)),
-                                        content: new SingleChildScrollView(
-                                          child: new ListBody(
-                                            children: <Widget>[
-                                              new Text(getLocaleText(
-                                                  context: context,
-                                                  strinKey: StringKeys
-                                                      .SELECT_OPTIONS)),
-                                            ],
-                                          ),
-                                        ),
-                                        actions: <Widget>[
-                                          new FlatButton(
-                                            child: new Text(
-                                                getLocaleText(
+                            if (this.produit.options != null) {
+                              for (int i = 0;
+                                  i < this.produit.options.length;
+                                  i++) {
+                                if (this.produit.options[i].item_required ==
+                                    1) {
+                                  if (this.produit.options[i].posCurrentCpl ==
+                                      null) {
+                                    setState(() {
+                                      requirechoice = true;
+                                    });
+                                    showDialog<Null>(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return new AlertDialog(
+                                          content: new SingleChildScrollView(
+                                            child: new ListBody(
+                                              children: <Widget>[
+                                                new Text(getLocaleText(
                                                     context: context,
-                                                    strinKey:
-                                                        StringKeys.CANCEL_BTN),
-                                                style: TextStyle(
-                                                    color: Colors.lightGreen)),
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
+                                                    strinKey: StringKeys
+                                                        .SELECT_OPTIONS)),
+                                              ],
+                                            ),
                                           ),
-                                        ],
-                                      );
-                                    },
-                                  );
-                                  return;
+                                          actions: <Widget>[
+                                            new FlatButton(
+                                              child: new Text("OK",
+                                                  style: TextStyle(
+                                                      color:
+                                                          Colors.lightGreen)),
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                    return;
+                                  }
                                 }
                               }
-                            }
-                            if (requirechoice == false) {
-                              showDialog<Null>(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return new AlertDialog(
-                                    content: new SingleChildScrollView(
-                                      child: new ListBody(
-                                        children: <Widget>[
-                                          new Text(getLocaleText(
-                                              context: context,
-                                              strinKey: StringKeys
-                                                  .AVERTISEMENT_CHANGE_RESTAURANT)),
-                                        ],
-                                      ),
-                                    ),
-                                    actions: <Widget>[
-                                      new FlatButton(
-                                        child: new Text("OK",
-                                            style: TextStyle(
-                                                color: Colors.lightGreen)),
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                      ),
-                                      new FlatButton(
-                                        child: new Text(
-                                            getLocaleText(
+
+                              if (requirechoice == false) {
+                                showDialog<Null>(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return new AlertDialog(
+                                      title: new Text(getLocaleText(
+                                          context: context,
+                                          strinKey: StringKeys.AVERTISSEMENT)),
+                                      content: new SingleChildScrollView(
+                                        child: new ListBody(
+                                          children: <Widget>[
+                                            new Text(getLocaleText(
                                                 context: context,
-                                                strinKey:
-                                                    StringKeys.AJOUTER_PANIER),
-                                            style: TextStyle(
-                                                color: Colors.lightGreen)),
-                                        onPressed: () {
-                                          db.clearPanier(); // on vide le panier avant d'y ajouter le nouveau produit
-                                          db
-                                              .addProduit(this.produit)
-                                              .then((insertedId) {
-                                            Navigator.of(context).pop();
-                                            setState(() {});
-                                          }).catchError((error) {
-                                            print(
-                                                "Erreur : " + error.toString());
-                                          });
-                                        },
+                                                strinKey: StringKeys
+                                                    .AVERTISEMENT_CHANGE_RESTAURANT)),
+                                          ],
+                                        ),
                                       ),
-                                    ],
-                                  );
-                                },
-                              );
+                                      actions: <Widget>[
+                                        new FlatButton(
+                                          child: new Text(
+                                              getLocaleText(
+                                                  context: context,
+                                                  strinKey:
+                                                      StringKeys.CANCEL_BTN),
+                                              style: TextStyle(
+                                                  color: Colors.lightGreen)),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                        ),
+                                        new FlatButton(
+                                          child: new Text(
+                                              getLocaleText(
+                                                  context: context,
+                                                  strinKey: StringKeys
+                                                      .AJOUTER_PANIER),
+                                              style: TextStyle(
+                                                  color: Colors.lightGreen)),
+                                          onPressed: () {
+                                            db.clearPanier(); // on vide le panier avant d'y ajouter le nouveau produit
+                                            db
+                                                .addProduit(this.produit)
+                                                .then((insertedId) {
+                                              Navigator.of(context).pop();
+                                              setState(() {});
+                                            }).catchError((error) {
+                                              print("Erreur : " +
+                                                  error.toString());
+                                            });
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              }
+                            } else {
+                              if (requirechoice == false) {
+                                showDialog<Null>(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return new AlertDialog(
+                                      title: new Text(getLocaleText(
+                                          context: context,
+                                          strinKey: StringKeys.AVERTISSEMENT)),
+                                      content: new SingleChildScrollView(
+                                        child: new ListBody(
+                                          children: <Widget>[
+                                            new Text(getLocaleText(
+                                                context: context,
+                                                strinKey: StringKeys
+                                                    .AVERTISEMENT_CHANGE_RESTAURANT)),
+                                          ],
+                                        ),
+                                      ),
+                                      actions: <Widget>[
+                                        new FlatButton(
+                                          child: new Text(
+                                              getLocaleText(
+                                                  context: context,
+                                                  strinKey:
+                                                      StringKeys.CANCEL_BTN),
+                                              style: TextStyle(
+                                                  color: Colors.lightGreen)),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                        ),
+                                        new FlatButton(
+                                          child: new Text(
+                                              getLocaleText(
+                                                  context: context,
+                                                  strinKey: StringKeys
+                                                      .AJOUTER_PANIER),
+                                              style: TextStyle(
+                                                  color: Colors.lightGreen)),
+                                          onPressed: () {
+                                            db.clearPanier(); // on vide le panier avant d'y ajouter le nouveau produit
+                                            db
+                                                .addProduit(this.produit)
+                                                .then((insertedId) {
+                                              Navigator.of(context).pop();
+                                              setState(() {});
+                                            }).catchError((error) {
+                                              print("Erreur : " +
+                                                  error.toString());
+                                            });
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              }
                             }
                           } else {
                             // sinon on ajoute le produit au panier
                             // faire un test pour les choix facultatif/obligatoire
-                            for (int i = 0;
-                                i < this.produit.options.length;
-                                i++) {
-                              if (this.produit.options[i].item_required == 1) {
-                                if (this.produit.options[i].posCurrentCpl ==
-                                    null) {
-                                  setState(() {
-                                    requirechoice = true;
-                                  });
-                                  showDialog<Null>(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return new AlertDialog(
-                                        content: new SingleChildScrollView(
-                                          child: new ListBody(
-                                            children: <Widget>[
-                                              new Text(getLocaleText(
-                                                  context: context,
-                                                  strinKey: StringKeys
-                                                      .SELECT_OPTIONS)),
-                                            ],
+                            if (this.produit.options != null) {
+                              for (int i = 0;
+                                  i < this.produit.options.length;
+                                  i++) {
+                                if (this.produit.options[i].item_required ==
+                                    1) {
+                                  if (this.produit.options[i].posCurrentCpl ==
+                                      null) {
+                                    setState(() {
+                                      requirechoice = true;
+                                    });
+                                    showDialog<Null>(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return new AlertDialog(
+                                          content: new SingleChildScrollView(
+                                            child: new ListBody(
+                                              children: <Widget>[
+                                                new Text(getLocaleText(
+                                                    context: context,
+                                                    strinKey: StringKeys
+                                                        .SELECT_OPTIONS)),
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                        actions: <Widget>[
-                                          new FlatButton(
-                                            child: new Text("OK",
-                                                style: TextStyle(
-                                                    color: Colors.lightGreen)),
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  );
-                                  return;
+                                          actions: <Widget>[
+                                            new FlatButton(
+                                              child: new Text("OK",
+                                                  style: TextStyle(
+                                                      color:
+                                                          Colors.lightGreen)),
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                    return;
+                                  }
                                 }
                               }
-                            }
-                            if (requirechoice == false) {
-                              db.addProduit(this.produit).then((insertedId) {
-                                setState(() {});
-                              }).catchError((error) {
-                                print("Erreur : " + error.toString());
-                              });
+                              if (requirechoice == false) {
+                                db.addProduit(this.produit).then((insertedId) {
+                                  setState(() {});
+                                }).catchError((error) {
+                                  print("Erreur : " + error.toString());
+                                });
+                              }
+                            } else {
+                              if (requirechoice == false) {
+                                db.addProduit(this.produit).then((insertedId) {
+                                  setState(() {});
+                                }).catchError((error) {
+                                  print("Erreur : " + error.toString());
+                                });
+                              }
                             }
                           }
                         }).catchError((error) {
