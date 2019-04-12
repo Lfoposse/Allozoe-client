@@ -64,7 +64,6 @@ class CommandesState extends State<Commandes>
 
     DatabaseHelper().loadClient().then((Client client) {
       this.client = client;
-      debugPrint("Client = " + client.toString());
       _presenter.loadCommandHistory(client.id);
     });
     super.initState();

@@ -1,8 +1,11 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:client_app/Utils/AppSharedPreferences.dart';
+import 'package:client_app/Utils/Notification_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 
 import 'Accueil/Accueil.dart';
@@ -13,6 +16,7 @@ import 'Accueil/Panier.dart';
 import 'Accueil/Profil.dart';
 import 'StringKeys.dart';
 import 'Utils/AppBars.dart';
+//Add for notification
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -22,6 +26,13 @@ class HomeScreen extends StatefulWidget {
 class HomeStateScreen extends State<HomeScreen> {
   int space_index = 0;
   bool isconnect = false;
+  //Add for notification
+  var notifCmd = new NotificationUtil();
+
+  Timer timer1;
+  Timer timer2;
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+
   @override
   void initState() {
     super.initState();
@@ -29,7 +40,62 @@ class HomeStateScreen extends State<HomeScreen> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+
+    ///  Service de notif des cmds validees et des cmds en cour de livraison
+    timer1 = Timer.periodic(
+        Duration(seconds: 3), (Timer t) => notifCmd.init(context));
+
+//    ///  Service de notif des cmds livrees
+//    timer2 = Timer.periodic(
+//        Duration(seconds: 30), (Timer t) => notifCmdLV.init(context));
   }
+//
+////  Ajouter pour la notification
+//  Future onSelectNotification(String payload) async {
+//    showDialog(
+//      context: context,
+//      builder: (_) {
+//        return NotificationCmd();
+//      },
+//    );
+//  }
+//
+//  //Notification avec le song par defaut
+//  Future _showNotificationWithDefaultSound() async {
+//    var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
+//        'your channel id', 'your channel name', 'your channel description',
+//        importance: Importance.Max, priority: Priority.High);
+//    var iOSPlatformChannelSpecifics = new IOSNotificationDetails();
+//    var platformChannelSpecifics = new NotificationDetails(
+//        androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+//    await flutterLocalNotificationsPlugin.show(
+//      0,
+//      'AlloZoe',
+//      'Nouvelle commande',
+//      platformChannelSpecifics,
+//      payload: 'Default_Sound',
+//    );
+//  }
+//
+//  // Notification avec sound customiser
+//  Future _showNotificationWithSound() async {
+//    var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
+//        'your channel id', 'your channel name', 'your channel description',
+//        sound: 'notification',
+//        importance: Importance.Max,
+//        priority: Priority.High);
+//    var iOSPlatformChannelSpecifics =
+//        new IOSNotificationDetails(sound: "slow_spring_board.aiff");
+//    var platformChannelSpecifics = new NotificationDetails(
+//        androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+//    await flutterLocalNotificationsPlugin.show(
+//      0,
+//      'AlloZoe',
+//      'Nouvelle commande',
+//      platformChannelSpecifics,
+//      payload: 'Custom_Sound',
+//    );
+//  }
 
   @override
   dispose() {

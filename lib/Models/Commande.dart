@@ -1,9 +1,8 @@
+import 'Deliver.dart';
 import 'Restaurant.dart';
 import 'StatusCommande.dart';
-import 'Deliver.dart';
 
 class Commande {
-
   int _id;
   String _reference;
   String _date;
@@ -15,10 +14,7 @@ class Commande {
   StatusCommande _status;
   Deliver _deliver;
 
-
-
-
-  Commande.empty(){
+  Commande.empty() {
     this._id = -1;
     this._dejaNoter = false;
     this._reference = null;
@@ -32,18 +28,27 @@ class Commande {
   }
 
   Commande.map(dynamic obj) {
-
     this._id = obj["id"];
     this._dejaNoter = obj["noted"] == 1;
     this._reference = obj["reference"];
     this._deliveryAddress = obj["delivery_address"];
     this._date = obj["date"];
     this._heure = obj["hour"];
-    this._prix =  double.parse(obj["amount"].toString());
+    this._prix = double.parse(obj["amount"].toString());
     this._restaurant = Restaurant.map(obj["restaurant"]);
     this._status = StatusCommande.map(obj["status"]);
   }
-
+  Commande.map2(dynamic obj) {
+    this._id = obj["id"];
+    this._dejaNoter = obj["restaurant"]["note"] == 1;
+    this._reference = obj["ref"];
+    this._deliveryAddress = obj["delivery_address"];
+    this._date = obj["date"];
+    this._heure = obj["hour"];
+    this._prix = double.parse(obj["amount"].toString());
+    this._restaurant = Restaurant.map(obj["restaurant"]);
+    this._status = StatusCommande.map(obj["status"]);
+  }
 
   Map<String, dynamic> toMap() {
     var map = new Map<String, dynamic>();
@@ -60,7 +65,6 @@ class Commande {
     return map;
   }
 
-
   int get id => _id;
 
   set id(int value) {
@@ -72,7 +76,6 @@ class Commande {
   set deliveryAddress(String value) {
     _deliveryAddress = value;
   }
-
 
   Deliver get deliver => _deliver;
 
@@ -121,6 +124,4 @@ class Commande {
   set dejaNoter(bool value) {
     _dejaNoter = value;
   }
-
-
 }

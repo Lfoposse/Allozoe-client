@@ -39,8 +39,11 @@ String getStatusCommandValue(StatusCommande statusCommande BuildContext context)
     case 7:
       return getLocaleText(
           context: context, strinKey: StringKeys.STATUS_PREPARING);
-    default:
+    case 8:
       return getLocaleText(
+        context: context, strinKey: StringKeys.STATUS_SHIPING);
+      default:
+        return getLocaleText(
           context: context, strinKey: StringKeys.STATUS_INCONNU);
   }
 }
@@ -61,6 +64,8 @@ Color getStatusCommandValueColor(StatusCommande statusCommande) {
       return Colors.brown;
     case 7:
       return Colors.brown;
+    case 8:
+      return Colors.brown;
     default:
       return Colors.redAccent;
   }
@@ -71,16 +76,18 @@ bool canCommandBeTracked(StatusCommande statusCommande) {
     case 1:
       return false;
     case 2:
-      return true;
+      return false;
     case 3:
       return false;
     case 4:
       return true;
     case 5:
-      return true;
+      return false;
     case 6:
-      return true;
+      return false;
     case 7:
+      return false;
+    case 8:
       return true;
     default:
       return false;

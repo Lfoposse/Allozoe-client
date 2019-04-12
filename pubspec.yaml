@@ -35,6 +35,8 @@ dependencies:
   stripe_payment: ^0.0.8
   google_maps_flutter: ^0.0.3+3
   stripe_api: ^1.1.0
+  flutter_local_notifications: ^0.4.2
+
   stripe_flutter:
      path: ./stripe_flutter
 

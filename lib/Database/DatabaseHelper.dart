@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io' as io;
 
+import 'package:client_app/Models/Commande.dart';
+import 'package:client_app/Models/CommandeNotif.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -45,6 +47,9 @@ class DatabaseHelper {
     await db.execute("DROP TABLE IF EXISTS Option");
     await db.execute("DROP TABLE IF EXISTS Produit");
     await db.execute("DROP TABLE IF EXISTS Restaurant");
+    await db.execute("DROP TABLE IF EXISTS CommandeV");
+    await db.execute("DROP TABLE IF EXISTS CommandeEL");
+    await db.execute("DROP TABLE IF EXISTS CommandeLV");
 
     // create table credits cards where store the client credits cards informations
     await db.execute("CREATE TABLE Cards("
@@ -109,6 +114,30 @@ class DatabaseHelper {
         "FOREIGN KEY (opt_id) REFERENCES Option(opt_id) "
         "ON UPDATE CASCADE "
         "ON DELETE CASCADE "
+        ")");
+
+    /// creation de la table des commandes validees du client pour les notifications
+    await db.execute("CREATE TABLE CommandeV("
+        "id INTEGER PRIMARY KEY,"
+        "commande_id INTEGER NOT NULL UNIQUE,"
+        "status_id INTEGER,"
+        "restaurant_id INTEGER NOT NULL"
+        ")");
+
+    /// creation de la table des commandes en cours de livraison du client pour les notifications
+    await db.execute("CREATE TABLE CommandeEL("
+        "id INTEGER PRIMARY KEY,"
+        "commande_id INTEGER NOT NULL UNIQUE,"
+        "status_id INTEGER,"
+        "restaurant_id INTEGER NOT NULL"
+        ")");
+
+    /// creation de la table des commandes en cours de livraison du client pour les notifications
+    await db.execute("CREATE TABLE CommandeLV("
+        "id INTEGER PRIMARY KEY,"
+        "commande_id INTEGER NOT NULL UNIQUE,"
+        "status_id INTEGER,"
+        "restaurant_id INTEGER NOT NULL"
         ")");
   }
 
@@ -363,5 +392,141 @@ class DatabaseHelper {
       complements.add(complement);
     }
     return complements;
+  }
+
+  /// ajouter pour les notifs
+  /// vide la table des cpmmandes validees
+  Future<int> clearCmdValide() async {
+    var dbCmd = await db;
+    print("cmd valide videe");
+    int res = await dbCmd.rawDelete("DELETE FROM CommandeV");
+    return res;
+  }
+
+  /// vide la table des cpmmandes en cour de livraison validees
+  Future<int> clearCmdEL() async {
+    var dbCmd = await db;
+    print("cmd en cr liv videe");
+    int res = await dbCmd.rawDelete("DELETE FROM CommandeEL");
+    return res;
+  }
+
+  /// vide la table des cpmmandes deja livrees
+  Future<int> clearCmdLV() async {
+    var dbCmd = await db;
+    print("cmd liv videe");
+    int res = await dbCmd.rawDelete("DELETE FROM CommandeLV");
+    return res;
+  }
+
+  /// enregistre une commande validee
+  Future<int> saveCmdVa(Commande c) async {
+    var dbCmd = await db;
+    print("cmd_id " + c.id.toString());
+    List<Map> list = await dbCmd.rawQuery(
+        'SELECT * FROM CommandeV where commande_id=' + c.id.toString());
+    if (list.length > 0) {
+      return -1;
+    } else {
+      String sql =
+          'INSERT INTO CommandeV( commande_id,status_id,restaurant_id ) VALUES(' +
+              c.id.toString() +
+              ',' +
+              c.status.id.toString() +
+              ',' +
+              c.restaurant.id.toString() +
+              ')';
+      int res = await dbCmd.rawInsert(sql);
+      print("Saved cmd val" + sql.toString());
+      return res;
+    }
+  }
+
+  /// enregistre une commande en cour de livraison
+  Future<int> saveCmdEL(Commande c) async {
+    var dbCmd = await db;
+    print("cmd_id " + c.id.toString());
+    List<Map> list = await dbCmd.rawQuery(
+        'SELECT * FROM CommandeEL where commande_id=' + c.id.toString());
+    if (list.length > 0) {
+      return -1;
+    } else {
+      String sql =
+          'INSERT INTO CommandeEL(commande_id,status_id,restaurant_id ) VALUES(' +
+              c.id.toString() +
+              ',' +
+              c.status.id.toString() +
+              ',' +
+              c.restaurant.id.toString() +
+              ')';
+      int res = await dbCmd.rawInsert(sql);
+      print("Saved cmd en cr lv" + sql.toString());
+      return res;
+    }
+  }
+
+  /// enregistre une commande livree
+  Future<int> saveCmdLV(Commande c) async {
+    var dbCmd = await db;
+    print("cmd_id " + c.id.toString());
+    List<Map> list = await dbCmd.rawQuery(
+        'SELECT * FROM CommandeLV where commande_id=' + c.id.toString());
+    if (list.length > 0) {
+      return -1;
+    } else {
+      String sql =
+          'INSERT INTO CommandeLV(commande_id,status_id,restaurant_id ) VALUES(' +
+              c.id.toString() +
+              ',' +
+              c.status.id.toString() +
+              ',' +
+              c.restaurant.id.toString() +
+              ')';
+      int res = await dbCmd.rawInsert(sql);
+      print("Saved cmd en cr lv" + sql.toString());
+      return res;
+    }
+  }
+
+  /// recupere les commandes validees en locale
+  Future<List<CommandeNotif>> loadCmdVa() async {
+    var dbCmd = await db;
+    List<Map> list = await dbCmd.rawQuery('SELECT * FROM CommandeV');
+    print("Cmd val loc db:" + list.toString());
+    List<CommandeNotif> cmds = new List();
+    for (int i = 0; i < list.length; i++) {
+      var cmd = new CommandeNotif(list[i]["commande_id"],
+          list[i]["restaurant_id"], list[i]["status_id"]);
+      cmds.add(cmd);
+    }
+    return cmds;
+  }
+
+  /// recupere les commandes en cour de livraison en locale
+  Future<List<CommandeShipp>> loadCmdEL() async {
+    var dbCmd = await db;
+    List<Map> list = await dbCmd.rawQuery('SELECT * FROM CommandeEL');
+    print("Cmd e cr lv loc db :" + list.toString());
+    List<CommandeShipp> cmds = new List();
+    for (int i = 0; i < list.length; i++) {
+      var cmd = new CommandeShipp(list[i]["commande_id"],
+          list[i]["restaurant_id"], list[i]["status_id"]);
+      cmds.add(cmd);
+    }
+    return cmds;
+  }
+
+  /// recupere les commandes livrees stockees locale
+  Future<List<CommandeLivre>> loadCmdLV() async {
+    var dbCmd = await db;
+    List<Map> list = await dbCmd.rawQuery('SELECT * FROM CommandeLV');
+    print("Cmd e cr lv loc db :" + list.toString());
+    List<CommandeLivre> cmds = new List();
+    for (int i = 0; i < list.length; i++) {
+      var cmd = new CommandeLivre(list[i]["commande_id"],
+          list[i]["restaurant_id"], list[i]["status_id"]);
+      cmds.add(cmd);
+    }
+    return cmds;
   }
 }

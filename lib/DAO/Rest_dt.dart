@@ -188,7 +188,7 @@ class RestDatasource {
         (onError) => new Future.error(new Exception(onError.toString())));
   }
 
-  // retourne les details d'un produit precis
+  /// retourne les details d'un produit precis
   Future<Produit> loadProductDetails(int productID) {
     return _netUtil
         .get(LOAD_MENUS_LIST_URL + "/" + productID.toString())
@@ -362,16 +362,63 @@ class RestDatasource {
             (onError) => new Future.error(new Exception(onError.toString())));
   }
 
-  ///Modifie les informations d'un compte
-  Future<bool> updateClient(Client client) async {
-    return _netUtil.put(SIGNUP_URL + "/" + client.id.toString(), body: {
-      "username": client.username,
-      "firstname": client.firstname,
-      "lastname": client.lastname,
-      "phone_number": client.phone
-    }).then((dynamic res) {
-      return res["code"] == 200;
-    }).catchError((onError) => new Future.error(false));
+  /// ajouter pour les notifs
+  ///Retourne la liste des commandes d'un client validees par le restaurant
+  Future<List<Commande>> loadCommandsValide(int clientID) {
+    return _netUtil
+        .get(SIGNUP_URL + "/" + clientID.toString() + "/orders?status=7")
+        .then((dynamic res) {
+      if (res["code"] == 200 && res['items'] != null)
+        return (res['items'] as List)
+            .map((item) => new Commande.map(item))
+            .toList();
+      else
+        return null as List<Commande>;
+    }).catchError(
+            (onError) => new Future.error(new Exception(onError.toString())));
+  }
+
+  /// Retourne la liste des commandes en cour de livraison d'un client (validees par un livreur)
+  Future<List<Commande>> loadCommandsEL(int clientID) {
+    return _netUtil
+        .get(SIGNUP_URL + "/" + clientID.toString() + "/orders?status=8")
+        .then((dynamic res) {
+      if (res["code"] == 200 && res['items'] != null)
+        return (res['items'] as List)
+            .map((item) => new Commande.map(item))
+            .toList();
+      else
+        return null as List<Commande>;
+    }).catchError(
+            (onError) => new Future.error(new Exception(onError.toString())));
+  }
+
+  /// Retourne la liste des commandes livrees d'un client
+  Future<List<Commande>> loadCommandsLV(int clientID) {
+    return _netUtil
+        .get(SIGNUP_URL + "/" + clientID.toString() + "/orders?status=4")
+        .then((dynamic res) {
+      if (res["code"] == 200 && res['items'] != null)
+        return (res['items'] as List)
+            .map((item) => new Commande.map(item))
+            .toList();
+      else
+        return null as List<Commande>;
+    }).catchError(
+            (onError) => new Future.error(new Exception(onError.toString())));
+  }
+
+  /// retourne une commande precise pour chechker son statut
+  Future<Commande> loadCmdDetail(int cmdID) {
+    return _netUtil
+        .get(COMMANDS_URL + "/" + cmdID.toString())
+        .then((dynamic res) {
+      if (res["code"] == 200) {
+        return new Commande.map2(res["data"]);
+      } else
+        return null as Commande;
+    }).catchError(
+            (onError) => new Future.error(new Exception(onError.toString())));
   }
 
   /// charge les produits d'une commande ainsi que ses details
@@ -392,6 +439,18 @@ class RestDatasource {
         return null as List<Produit>;
     }).catchError(
             (onError) => new Future.error(new Exception(onError.toString())));
+  }
+
+  ///Modifie les informations d'un compte
+  Future<bool> updateClient(Client client) async {
+    return _netUtil.put(SIGNUP_URL + "/" + client.id.toString(), body: {
+      "username": client.username,
+      "firstname": client.firstname,
+      "lastname": client.lastname,
+      "phone_number": client.phone
+    }).then((dynamic res) {
+      return res["code"] == 200;
+    }).catchError((onError) => new Future.error(false));
   }
 
   /// cherche les information d'un livreur precis, specifiquement sa position

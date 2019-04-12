@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
-
 class StripeView {
   static const MethodChannel _channel = const MethodChannel('stripe_view');
 
@@ -30,7 +29,7 @@ class StripeView {
 
   static Future<String> getCard() async {
     final String token = await _channel.invokeMethod('addSource');
-     print(token);
+    print(token);
     return token;
   }
 
@@ -69,4 +68,3 @@ class CardPayment {
     _number = value;
   }
 }
-
