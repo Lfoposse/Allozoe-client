@@ -366,8 +366,9 @@ class DetailsCommandeState extends State<DetailsCommande>
                 child: Center(
                   child: PositionedTapDetector(
                       onTap: (position) {
-                        if (widget.commande.deliver != null &&
-                            widget.commande.status.id != 4)
+                        if ((widget.commande.deliver != null &&
+                                widget.commande.status.id != 4) ||
+                            widget.commande.status.id == 8)
                           Navigator.of(context).push(new MaterialPageRoute(
                               builder: (context) => TrackingCommandeScreen(
                                     deliveryAdress:
@@ -385,7 +386,8 @@ class DetailsCommandeState extends State<DetailsCommande>
                                 color: Colors.lightGreen,
                                 style: BorderStyle.solid,
                                 width: 1.0),
-                            color: widget.commande.deliver == null
+                            color: widget.commande.deliver == null ||
+                                    widget.commande.status.id == 6
                                 ? Colors.black38
                                 : (widget.commande.status.id != 4
                                     ? Colors.lightGreen
@@ -393,7 +395,8 @@ class DetailsCommandeState extends State<DetailsCommande>
                         child: Text("TRACKING",
                             textAlign: TextAlign.center,
                             style: new TextStyle(
-                              color: widget.commande.deliver == null
+                              color: widget.commande.deliver == null ||
+                                      widget.commande.status.id == 6
                                   ? Colors.black38
                                   : (widget.commande.status.id != 4
                                       ? Colors.white

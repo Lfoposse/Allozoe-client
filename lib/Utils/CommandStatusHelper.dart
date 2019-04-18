@@ -18,34 +18,34 @@ import '../Models/StatusCommande.dart';
  */
 
 String getStatusCommandValue(StatusCommande statusCommande BuildContext context) {
-  switch (statusCommande.id) {
-    case 1:
-      return getLocaleText(
-          context: context, strinKey: StringKeys.STATUS_PENDING);
-    case 2:
-      return getLocaleText(
-          context: context, strinKey: StringKeys.STATUS_APPROUVED);
-    case 3:
-      return getLocaleText(
-          context: context, strinKey: StringKeys.STATUS_REJETED);
-    case 4:
-      return getLocaleText(
-          context: context, strinKey: StringKeys.STATUS_DELIVER);
-    case 5:
-      return getLocaleText(context: context, strinKey: StringKeys.STATUS_PAY);
-    case 6:
-      return getLocaleText(
-          context: context, strinKey: StringKeys.STATUS_SHIPING);
-    case 7:
-      return getLocaleText(
-          context: context, strinKey: StringKeys.STATUS_PREPARING);
-    case 8:
-      return getLocaleText(
-        context: context, strinKey: StringKeys.STATUS_SHIPING);
-      default:
-        return getLocaleText(
-          context: context, strinKey: StringKeys.STATUS_INCONNU);
-  }
+switch (statusCommande.id) {
+case 1:
+return getLocaleText(
+context: context, strinKey: StringKeys.STATUS_PENDING);
+case 2:
+return getLocaleText(
+context: context, strinKey: StringKeys.STATUS_APPROUVED);
+case 3:
+return getLocaleText(
+context: context, strinKey: StringKeys.STATUS_REJETED);
+case 4:
+return getLocaleText(
+context: context, strinKey: StringKeys.STATUS_DELIVER);
+case 5:
+return getLocaleText(context: context, strinKey: StringKeys.STATUS_PAY);
+case 6:
+return getLocaleText(
+context: context, strinKey: StringKeys.STATUS_SHIPING);
+case 7:
+return getLocaleText(
+context: context, strinKey: StringKeys.STATUS_PREPARING);
+case 8:
+return getLocaleText(
+context: context, strinKey: StringKeys.STATUS_SHIPING);
+default:
+return getLocaleText(
+context: context, strinKey: StringKeys.STATUS_INCONNU);
+}
 }
 
 Color getStatusCommandValueColor(StatusCommande statusCommande) {

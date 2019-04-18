@@ -148,6 +148,9 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
     } else {
       debugPrint("Permission de geolocation refusee");
       _presenter.loadRestaurants(48.7885281, 2.5823022);
+
+      /// message a afficher si l'utilisateur n'a pas activee sa localisation
+
       showDialog<Null>(
         context: context,
         builder: (BuildContext context) {
