@@ -270,7 +270,7 @@ class RestDatasource {
             "/menus?category=" +
             (categorieID == -1 ? "" : categorieID.toString()))
         .then((dynamic res) {
-      if (res["code"] == 200)
+      if (res["code"] == 200 && res['items'] != [])
         return (res['items'] as List)
             .map((item) => new Produit.map(item))
             .toList();

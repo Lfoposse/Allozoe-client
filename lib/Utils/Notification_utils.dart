@@ -235,6 +235,14 @@ class NotificationUtil extends StatefulWidget {
                   new DatabaseHelper().saveCmdVa(cmds[i]);
                   _showNotificationWithSound();
                 }
+              } else if (notifs.length != 0 && notifs.length != cmds.length) {
+                this.etat1 = false;
+                new DatabaseHelper().clearCmdValide();
+                for (int i = 0; i < cmds.length; i++) {
+                  this.cmdsToSend = cmds[i];
+                  new DatabaseHelper().saveCmdVa(cmds[i]);
+                  _showNotificationWithSound();
+                }
               }
 
 //              ///                Si le nbr de cmd valide sur le serveur est diff de celui en local on vide puis on charge

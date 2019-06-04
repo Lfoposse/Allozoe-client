@@ -32,7 +32,7 @@ class DatabaseHelper {
   initDb() async {
     io.Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, "allozoe25db.db");
-    var theDb = await openDatabase(path, version: 1, onCreate: _onCreate);
+    var theDb = await openDatabase(path, version: 2, onCreate: _onCreate);
     await theDb.execute("PRAGMA foreign_keys = ON;");
     return theDb;
   }
