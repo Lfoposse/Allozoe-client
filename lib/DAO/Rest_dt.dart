@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import '../Database/DatabaseHelper.dart';
 import '../Models/Categorie.dart';
@@ -14,6 +15,8 @@ import '../Models/Restaurant.dart';
 import '../Models/StatusCommande.dart';
 import '../Models/Ticket.dart';
 import 'NetworkUtil.dart';
+
+const kGoogleApiKey = "AIzaSyBNm8cnYw5inbqzgw8LjXyt3rMhFhEVTjY";
 
 class RestDatasource {
   NetworkUtil _netUtil = new NetworkUtil();
@@ -29,6 +32,8 @@ class RestDatasource {
   static final LOAD_RESTAURANT_LIST_URL = BASE_URL + "/api/restaurants";
   static final COMMANDS_URL = BASE_URL + "/api/orders";
   static final DELIVERS_URL = BASE_URL + "/api/delivers";
+  static final GOOGLE_MAP_URL =
+      "https://maps.googleapis.com/maps/api/place/autocomplete/json";
 
   ///retourne les informations d'un compte client a partir de ses identifiants
   Future<Client> login(
@@ -543,5 +548,22 @@ class RestDatasource {
       else
         return false;
     }).catchError((onError) => new Future.error(false));
+  }
+
+  /// retourne les positions de google map autour
+  Future findLocation(String keyword, String lang, double lat, double lng) {
+    var url = GOOGLE_MAP_URL +
+        "?input=" +
+        keyword +
+        "&language=" +
+        lang +
+        "&key=" +
+        kGoogleApiKey +
+        "&location=" +
+        lat.toString() +
+        "," +
+        lng.toString() +
+        "&radius=3000";
+    return http.get(url);
   }
 }

@@ -1,3 +1,4 @@
+import 'package:client_app/HomeScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 
@@ -368,11 +369,9 @@ class SignInScreenState extends State<SignInScreen> implements LoginContract {
       new DatabaseHelper().saveClient(client);
       AppSharedPreferences()
           .setAppLoggedIn(true); // on memorise qu'un compte s'est connecter
-      /*  Navigator.of(context)
-          .pushAndRemoveUntil(
+      Navigator.of(context).pushAndRemoveUntil(
           new MaterialPageRoute(builder: (context) => HomeScreen()),
-          ModalRoute.withName(Navigator.defaultRouteName));*/
-      Navigator.of(context).pop();
+          ModalRoute.withName(Navigator.defaultRouteName));
       //Navigator.of(context);
     } else {
       // si le compte n'est pas activee

@@ -1,7 +1,9 @@
 import 'dart:io';
 
+import 'package:client_app/Models/Google_place.dart';
+import 'package:client_app/Utils/GoogleMapServices.dart';
+import 'package:client_app/Utils/SearchRestaurant.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
@@ -20,7 +22,7 @@ const kGoogleApiKey = "AIzaSyBNm8cnYw5inbqzgw8LjXyt3rMhFhEVTjY";
 GoogleMapsPlaces _places =
     new GoogleMapsPlaces(apiKey: kGoogleApiKey); /*kGoogleApiKey*/
 final homeScaffoldKey = new GlobalKey<ScaffoldState>();
-double latitude, longitude;
+//double latitude, longitude;
 
 _showMessage(String message) {
   homeScaffoldKey.currentState
@@ -40,7 +42,10 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
   String adressName;
   bool deviceLocationMode;
   var geolocator;
-
+  double latitude = 48.7885281;
+  double longitude = 2.5823022;
+  GooglePlacesItem destinationModel = new GooglePlacesItem();
+  GoogleMapsServices _googleMapsServices = GoogleMapsServices();
   @override
   void initState() {
     super.initState();
@@ -49,8 +54,6 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
     geolocator = Geolocator()..forceAndroidLocationManager = false;
     db = new DatabaseHelper();
     restaurants = null;
-//    latitude = 48.9031145;
-//    longitude = 2.2638343;
 
     var locationOptions =
         LocationOptions(accuracy: LocationAccuracy.high, distanceFilter: 100);
@@ -124,10 +127,10 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
             position.latitude.toString() +
             " long = " +
             position.longitude.toString());
-        latitude = position.latitude;
-        longitude = position.longitude;
-//        longitude = 2.5823022;
-//        latitude = 48.7885281;
+        setState(() {
+          latitude = position.latitude;
+          longitude = position.longitude;
+        });
         _presenter.loadRestaurants(latitude, longitude);
       } else {
         Position pos = await Geolocator()
@@ -140,14 +143,16 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
               pos.latitude.toString() +
               " long = " +
               pos.longitude.toString());
-          latitude = pos.latitude;
-          longitude = pos.longitude;
+          setState(() {
+            latitude = pos.latitude;
+            longitude = pos.longitude;
+          });
           _presenter.loadRestaurants(latitude, longitude);
         }
       }
     } else {
       debugPrint("Permission de geolocation refusee");
-      _presenter.loadRestaurants(48.7885281, 2.5823022);
+      _presenter.loadRestaurants(latitude, longitude);
 
       /// message a afficher si l'utilisateur n'a pas activee sa localisation
 
@@ -378,34 +383,57 @@ class AccueilState extends State<Accueil> implements RestaurantContract {
                           PositionedTapDetector(
                             controller: _controller,
                             onTap: (position) async {
-                              Prediction p = await PlacesAutocomplete.show(
-                                  context: context,
-                                  apiKey: kGoogleApiKey,
-                                  mode: Mode.overlay, // Mode.fullscreen
-                                  language: "fr",
-                                  components: [
-                                    new Component(Component.country, "fr")
-                                  ]);
-                              if (p != null) {
-                                // get detail (lat/lng)
+                              destinationModel = await Navigator.of(context)
+                                  .push(new MaterialPageRoute<GooglePlacesItem>(
+                                      builder: (BuildContext context) {
+                                        return new SearchRestaurantPage(
+                                            latitude: latitude,
+                                            longitude: longitude);
+                                      },
+                                      fullscreenDialog: true));
+                              if (destinationModel != null) {
+                                print("Destination choisie" +
+                                    destinationModel.description);
                                 setState(() {
                                   stateIndex = 0;
                                   deviceLocationMode = false;
-                                  adressName = p.description;
+                                  adressName = destinationModel.terms[0].value;
                                 });
-                                PlacesDetailsResponse detail = await _places
-                                    .getDetailsByPlaceId(p.placeId);
-                                latitude = detail.result.geometry.location.lat;
-                                longitude = detail.result.geometry.location.lng;
 
-                                debugPrint(p.description +
-                                    " position : lat = " +
-                                    latitude.toString() +
-                                    " long = " +
-                                    longitude.toString());
+                                LocationModel post =
+                                    await _googleMapsServices.getRoutePlaceById(
+                                        destinationModel.place_id);
 
-                                _presenter.loadRestaurants(latitude, longitude);
+                                _presenter.loadRestaurants(post.lat, post.lng);
                               }
+//                              Prediction p = await PlacesAutocomplete.show(
+//                                  context: context,
+//                                  apiKey: kGoogleApiKey,
+//                                  mode: Mode.overlay, // Mode.fullscreen
+//                                  language: "fr",
+//                                  components: [
+//                                    new Component(Component.country, "fr")
+//                                  ]);
+//                              if (p != null) {
+//                                // get detail (lat/lng)
+//                                setState(() {
+//                                  stateIndex = 0;
+//                                  deviceLocationMode = false;
+//                                  adressName = p.description;
+//                                });
+//                                PlacesDetailsResponse detail = await _places
+//                                    .getDetailsByPlaceId(p.placeId);
+//                                latitude = detail.result.geometry.location.lat;
+//                                longitude = detail.result.geometry.location.lng;
+//
+//                                debugPrint(p.description +
+//                                    " position : lat = " +
+//                                    latitude.toString() +
+//                                    " long = " +
+//                                    longitude.toString());
+//
+//                                _presenter.loadRestaurants(latitude, longitude);
+//                              }
                             },
                             child: Container(
                               color: Colors.transparent,

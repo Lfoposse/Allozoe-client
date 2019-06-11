@@ -1,8 +1,10 @@
+import 'package:client_app/Models/Google_place.dart';
 import 'package:client_app/PanierScreen.dart';
 import 'package:client_app/StringKeys.dart';
 import 'package:client_app/Utils/AppSharedPreferences.dart';
+import 'package:client_app/Utils/SearchAdresseLocation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 
@@ -45,13 +47,44 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande> {
   int _radioValue = 0;
   bool isconnect = false;
   final myController = TextEditingController();
-
+  double latitude = 48.7885281;
+  double longitude = 2.5823022;
+  var geolocator;
+  GooglePlacesItem destinationModel = new GooglePlacesItem();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     _address = "";
+    geolocator = Geolocator()..forceAndroidLocationManager = false;
     super.initState();
+    loadAdresseNearBy();
+  }
+
+  ///getPositon of User
+  loadAdresseNearBy() async {
+    GeolocationStatus geolocationStatus =
+        await geolocator.checkGeolocationPermissionStatus();
+
+    if (geolocationStatus == GeolocationStatus.granted) {
+      Position position = await geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+      if (position != null) {
+        setState(() {
+          latitude = position.latitude;
+          longitude = position.longitude;
+        });
+      } else {
+        Position pos = await Geolocator()
+            .getLastKnownPosition(desiredAccuracy: LocationAccuracy.high);
+        if (pos != null) {
+          setState(() {
+            latitude = pos.latitude;
+            longitude = pos.longitude;
+          });
+        }
+      }
+    }
   }
 
   void _showDialog() {
@@ -583,21 +616,34 @@ class RecapitulatifCommandeState extends State<RecapitulatifCommande> {
                               context: context,
                               strinKey: StringKeys.DELIVERY_ADDRESS),
                           TextInputType.text, onTap: (position) async {
-                        Prediction p = await PlacesAutocomplete.show(
-                            context: context,
-                            apiKey: kGoogleApiKey,
-                            mode: Mode.overlay, // Mode.fullscreen
-                            language: "fr",
-                            components: [
-                              new Component(Component.country, "fr")
-                            ]);
-                        if (p != null) {
-                          PlacesDetailsResponse detail =
-                              await _places.getDetailsByPlaceId(p.placeId);
+                        destinationModel = await Navigator.of(context)
+                            .push(new MaterialPageRoute<GooglePlacesItem>(
+                                builder: (BuildContext context) {
+                                  return new SearchAdressePage(
+                                      latitude: latitude, longitude: longitude);
+                                },
+                                fullscreenDialog: true));
+                        if (destinationModel != null) {
                           setState(() {
-                            _address = detail.result.formattedAddress;
+                            _address = destinationModel.terms[0].value;
                           });
                         }
+
+//                        Prediction p = await PlacesAutocomplete.show(
+//                            context: context,
+//                            apiKey: kGoogleApiKey,
+//                            mode: Mode.overlay, // Mode.fullscreen
+//                            language: "fr",
+//                            components: [
+//                              new Component(Component.country, "fr")
+//                            ]);
+//                        if (p != null) {
+//                          PlacesDetailsResponse detail =
+//                              await _places.getDetailsByPlaceId(p.placeId);
+//                          setState(() {
+//                            _address = detail.result.formattedAddress;
+//                          });
+//                        }
                       }),
                       getCoordonneeLivraison(
                           phoneKey,
